@@ -1,0 +1,23 @@
+project:
+  type: website
+  execute-dir: project
+render:
+- presentation_paper/demo_paper.qmd
+
+# project:
+#   type: manuscript
+#   execute-dir: project
+# manuscript:
+#   article: presentation_paper/demo_paper.qmd
+#
+# execute:
+#   freeze: auto
+#
+format:
+  html:
+    toc: true
+#     comments:
+#       hypothesis: true
+#   docx: default
+#   jats: default
+#   elsevier-pdf: default

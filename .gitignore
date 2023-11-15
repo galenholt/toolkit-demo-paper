@@ -1,0 +1,16 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+/.quarto/
+
+_extensions/
+more_scenarios/
+images/
+_freeze/
+_output/
+_site/
+
+.venv/
+renv/

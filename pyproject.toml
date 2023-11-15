@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "toolkit-demo-paper"
+version = "0.1.0"
+description = ""
+authors = ["Galen Holt <53928785+galenholt@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "toolkit-demo-paper"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+py-ewr = "^2.0.0"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
