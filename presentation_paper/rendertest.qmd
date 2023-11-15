@@ -1,5 +1,5 @@
 ---
-title: "An integrated toolkit for assessment of hydrology-dependent outcomes in the Murray-Darling Basin: CLEVERACRONYM"
+title: "rendertest"
 author: 
  - name: Galen Holt
    orcid: 0000-0002-7455-9275
@@ -55,7 +55,6 @@ bibliography: references.bib
 number-sections: true
 
 echo: false
-
 
 prefer-html: true
 ---

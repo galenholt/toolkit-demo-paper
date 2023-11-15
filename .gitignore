@@ -11,6 +11,9 @@ images/
 _freeze/
 _output/
 _site/
-
+*_cache/
+*_files/
 .venv/
 renv/
+
+/_*.local

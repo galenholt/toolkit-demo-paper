@@ -2,7 +2,8 @@ project:
   type: website
   execute-dir: project
 render:
-- presentation_paper/demo_paper.qmd
+# - presentation_paper/demo_paper.qmd
+- presentation_paper/rendertest.qmd
 
 # project:
 #   type: manuscript
@@ -10,14 +11,14 @@ render:
 # manuscript:
 #   article: presentation_paper/demo_paper.qmd
 #
-# execute:
-#   freeze: auto
+execute:
+  freeze: false
 #
 format:
   html:
     toc: true
-#     comments:
-#       hypothesis: true
+    comments:
+      hypothesis: true
 #   docx: default
 #   jats: default
 #   elsevier-pdf: default
