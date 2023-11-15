@@ -56,8 +56,6 @@ number-sections: true
 
 echo: false
 
-
-prefer-html: true
 ---
 
 ```{r}
