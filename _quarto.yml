@@ -15,12 +15,17 @@ execute:
   freeze: false
 #
 format:
-  # html:
-  #   toc: true
-  #   comments:
-  #     hypothesis: true
+  html:
+    toc: true
+    comments:
+      hypothesis: true
   docx:
     toc: true
+    toc-depth: 2
     prefer-html: true
+    # setting these to the html defaults so they don't get jumbled between format
+    fig-width: 7
+    fig-height: 5
+    reference-doc: default_word_template.docx
 #   jats: default
-#   elsevier-pdf: default
+  elsevier-pdf: default

@@ -1442,6 +1442,11 @@ concerning which adaptation options should be implemented under changing climate
 
 The development of the toolkit is necessary to better understand the impacts of climate change and the different adaptation options in response to climate change, on water-dependent social, economic, environmental and cultural values. It incorporates new and existing information, knowledge and models to enable transparent, repeatable assessments of impacts and adaptation to future climates. In summary, the toolkit ingests scenarios (for example, climate or flow timeseries), feeds them to a response model (such as the EWR tool), reports outcomes and enables comparisons among scenarios. It uses the links in the response models for visualisation of the complex inter-relationships between water-dependent outcomes. This aids transparency and improves communication of the outputs.
 
+# References
+
+::: {#refs}
+:::
+
 # Appendices
 
 I'm unsure about these. Might need fewer, might need more.
@@ -1691,7 +1696,7 @@ The same set of nodes as in the text, but the actual condition values, rather th
 
 ```{r}
 #| label: fig-network-notbaseline
-
+#| fig-cap: "Causal networks as in @fig-network-subset, but with the raw condition values for the halved (a), baseline (b), and doubled (c) scenarios instead of relativized to the baseline."
 
 aggNetworkdown_sub <- nodes_with_vals |> 
   dplyr::filter(flow_multiplier == 0.5 & flow_addition == 0) |> 
@@ -1755,10 +1760,6 @@ patchwork::wrap_plots(aggNetworkdown_sub_grob,
                       design = layout2) +
   plot_annotation(tag_levels = list(c('a', 'b', 'c')))
 ```
-# References
-
-::: {#refs}
-:::
 
 
 ------------------------------------------------------------------------
