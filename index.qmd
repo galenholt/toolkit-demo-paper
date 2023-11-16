@@ -1,8 +1,0 @@
----
-title: "frontpage"
-editor: visual
----
-
-Index
-
-See [demo_paper](presentation_paper/demo_paper.qmd) and [rendertest](presentation_paper/rendertest.qmd).

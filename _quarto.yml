@@ -2,8 +2,7 @@ project:
   type: website
   execute-dir: project
   render:
-# - presentation_paper/demo_paper.qmd
-  - presentation_paper/rendertest.qmd
+  - presentation_paper/demo_paper.qmd
 
 # project:
 #   type: manuscript

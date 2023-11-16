@@ -50,8 +50,11 @@ keywords:
  - Management modeling
  - Climate change
  - Climate adaptation
+ 
 date: last-modified
+
 bibliography: references.bib
+
 number-sections: true
 
 echo: false
@@ -262,7 +265,7 @@ Assessing values as they respond to flow and management actions requires models 
 
 Exemplifying these issues, the Murray-Darling Basin Authority (MDBA) is the federal body charged with water management in the Murray-Darling Basin, Australia *do we need to say the usual stuff about how big it is, economic importance, etc?*. The MDBA has statutory obligations to manage water to maintain a healthy working river that supports productive and resilient water-dependent industries, healthy and resilient ecosystems, and communities with access to sufficient and reliable water supplies ([@murray-darlingbasinauthority2011]). Moreover, the state of the basin is required to be assessed annually *right?* and updates to the Basin Plan made at *XX* year timeframes. Beyond these requirements, the MDBA has an increasing focus on assessing system response to climate change and possible adaptation actions that may be taken by the Authority itself or other stakeholders in the Basin. Taken together, these management goals require a holistic modeling approach that integrates across values and is adaptable to these various management needs while also simplifying repeated, ongoing use.
 
-The MDBA has access to robust hydrologic models describing flows in the system and responses to current management practices, and these models are under continual use, development, and improvement (*CITE*). Despite the need for ongoing assessment and forward planning across a range of values, models of the responses to those hydrologic conditions are patchy, only represent some values, and have been developed and used in a more ad-hoc approach rather than integrated with each other or the hydrologic models. In this paper, we describe an integrated modelling 'toolkit' to address these water management needs in the Murray-Darling Basin, Australia, hereafter referred to as *FANCYACRONYM*.
+The MDBA has access to robust hydrologic models describing flows in the system and responses to current management practices, and these models are under continual use, development, and improvement (*CITE*). Despite the need for ongoing assessment and forward planning across a range of values, models of the responses to those hydrologic conditions are patchy, only represent some values, and have been developed and used in a more ad-hoc approach rather than integrated with each other or the hydrologic models. In this paper, we describe an integrated modelling 'toolkit' to address these water management needs in the Murray-Darling Basin, Australia, hereafter referred to as *CLEVERACRONYM*.
 
 The toolkit described here greatly improves the capacity of the MDBA to assess outcomes across a range of values, provides the structure to adapt and include additional values as models become available, and addresses a number of issues with current assessment practices and modelling approaches. By providing a single, consistent interface to a range of response models we avoid the need to manually run models separately and we abstract their different interfaces, languages, and idiosyncracies. Moreover, the toolkit design is highly modular, built to allow the integration of new response models with limited additional updates to the toolkit itself. Continuing with this consistency, the toolkit provides a standard set of synthesis approaches and functions that target management-relevant analysis and interpretation of outcomes from these disparate models with a common approach and design language. Because the need for assessing outcomes is nearly universal in water management, and not limited to a particular scenario or project, the toolkit is designed with strong scenario-comparison capabilities but is agnostic to what those scenarios represent. For a similar reason, the standardised synthesis and outputs are highly flexible, allowing the user to choose the most relevant outputs for different management needs.
 
@@ -406,6 +409,7 @@ edges <- make_edges(dflist = causal_ewr,
 nodes <- make_nodes(edges)
 
 
+# To work with both html and word, save out and read back in.
 causal_example <- make_causal_plot(nodes,
                  edges,
                  focalnodes = filter(nodes, NodeType == "ewr_code")$Name,
@@ -417,11 +421,15 @@ causal_example <- make_causal_plot(nodes,
                  savename = 'causal_structure') 
 
 # if (knitr::is_html_output()) {
-  causal_example |> 
-  DiagrammeR::render_graph()
+  # causal_example |> 
+  # DiagrammeR::render_graph()
 # } else {
 #   knitr::include_graphics("images/causal_structure.png")
 # }
+
+causal_structure <- png::readPNG('images/causal_structure.png')
+causal_structure_grob <- grid::rasterGrob(causal_structure, interpolate = TRUE)
+patchwork::wrap_plots(causal_structure_grob)
 
 ```
 
@@ -1344,7 +1352,7 @@ pal_ggc <- ggplot(limtc, aes(x = condition, y = y, color = condition)) + geom_po
 net_legend <- ggpubr::get_legend(pal_ggc) |> 
   ggpubr::as_ggplot()
 
-ggsave('images/aggNetworkup_sub_legend.png', width = 1, height = 2, units = 'cm')
+# ggsave('images/aggNetworkup_sub_legend.png', width = 1, height = 2, units = 'cm')
 ```
 
 *I'll make this plot work better. It's cobbled together from saved objects for now. We need a way to do legends on the plots. And panels. Diagrammer is great for html but otherwise a disaster. I need to actually fix the plot code. Leaving it ugly for now.*
@@ -1354,14 +1362,25 @@ ggsave('images/aggNetworkup_sub_legend.png', width = 1, height = 2, units = 'cm'
 #| fig-cap: !expr glue::glue("Subset of the causal network for gauge {gauges_to_plot[2]} relevant to a selection of {length(sampleenvobj)} environmental objectives. A version with all environmental objectives is given in the supplemental information. The data is at the gauge scale for the first and second columns (EWRs and environmental objectives) and at the SDL unit scale for the third (Target groups). Thus, the final set of nodes contain information from other gauges that are not shown here for clarity. Colors represent the log of the relative change in condition from the baseline for the halving (a) and doubling (b) 'climate' scenario. Large reductions in condition are dark purple, large improvements are dark green, and no change is white.") 
 
 # if (knitr::is_html_output()) {
-  DiagrammeR::render_graph(aggNetworkdown_sub_rel)
-  DiagrammeR::render_graph(aggNetworkup_sub_rel)
-  net_legend
+  # DiagrammeR::render_graph(aggNetworkdown_sub_rel)
+  # DiagrammeR::render_graph(aggNetworkup_sub_rel)
+  # net_legend
 # } else {
 #   knitr::include_graphics("images/aggNetworkdown_sub_rel.png")
 #   knitr::include_graphics("images/aggNetworkup_sub_rel.png")
 #   knitr::include_graphics("images/aggNetworkup_sub_legend.png")
 # }
+  
+aggNetworkdown_sub_rel_grob <- png::readPNG('images/aggNetworkdown_sub_rel.png') |>
+  grid::rasterGrob(interpolate = TRUE)
+aggNetworkup_sub_rel_grob <- png::readPNG('images/aggNetworkup_sub_rel.png') |>
+  grid::rasterGrob(interpolate = TRUE)
+
+patchwork::wrap_plots(aggNetworkdown_sub_rel_grob, 
+                      aggNetworkup_sub_rel_grob, 
+                      net_legend,
+                      ncol = 2, widths = c(9, 1), byrow = FALSE) +
+  plot_annotation(tag_levels = list(c('a', 'b', '')))
 
 ```
 
@@ -1425,6 +1444,11 @@ We expand upon the utility of an existing diver-indicator model by linking its i
 concerning which adaptation options should be implemented under changing climate by explicitly modelling effects on both target and other values.
 
 The development of the toolkit is necessary to better understand the impacts of climate change and the different adaptation options in response to climate change, on water-dependent social, economic, environmental and cultural values. It incorporates new and existing information, knowledge and models to enable transparent, repeatable assessments of impacts and adaptation to future climates. In summary, the toolkit ingests scenarios (for example, climate or flow timeseries), feeds them to a response model (such as the EWR tool), reports outcomes and enables comparisons among scenarios. It uses the links in the response models for visualisation of the complex inter-relationships between water-dependent outcomes. This aids transparency and improves communication of the outputs.
+
+# References
+
+::: {#refs}
+:::
 
 # Appendices
 
@@ -1517,11 +1541,11 @@ base_hydro_adapt
 
 ### Map aggregation {#sec-map-versions}
 
-The goal here is to show the values at the sdl scale, but also to show how the gauges aggregate to that scale. See which one works best, and make suggestions for improvements, please. In the text, @fig-gauge-to-sdl-map has just a large number of env_objs and scenarios in a and the gauges on grey sdl units in b. @fig-gauge-to-sdl-map-few is similar, it just reduces the panels in a so it's easier to see which matches b. @fig-gauge-to-sdl-map-stepwise-agg shows both steps of the gauge to sdl aggregation in panel b. @fig-gauge-to-sdl-map-gaugecolor has the gauges and sdl colors overlaid in b, but that requires using different color ramps for the same variable, which is confusing. @fig-gauge-to-sdl-map-gaugecolor-same does the same overlay, but uses the same colorramp, which is better for meaning, but worse to see what's happening (maybe?).
+The goal here is to show the values at the sdl scale, but also to show how the gauges aggregate to that scale. See which one works best, and make suggestions for improvements, please. In the text, @fig-gauge-to-sdl-map has just a large number of env_objs and scenarios in a and the gauges on grey sdl units in b. @fig-gauge-to-sdl-map-few is similar, it just reduces the panels so it's easier to see which matches b. @fig-gauge-to-sdl-map-stepwise-agg shows both steps of the gauge to sdl aggregation in panel b. @fig-gauge-to-sdl-map-gaugecolor has the gauges and sdl colors overlaid in b, but that requires using different color ramps for the same variable, which might be confusing. @fig-gauge-to-sdl-map-gaugecolor-same does the same overlay, but uses the same colorramp, which is better for meaning, but worse to see what's happening (maybe?).
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-few
-#| fig-cap: "" 
+#| fig-cap: "reduces the panels so it's easier to see which matches b." 
 
 # reduced set of objectives and scenarios- closer to the next option
 (ef_maps_few + theme(legend.position = 'none') ) + 
@@ -1536,7 +1560,7 @@ The goal here is to show the values at the sdl scale, but also to show how the g
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-stepwise-agg
-#| fig-cap: "" 
+#| fig-cap: "both steps of the gauge to sdl aggregation in panel b." 
 
 
 # buildup agg demo- gauges on grey and sdl outcome
@@ -1557,7 +1581,7 @@ gauge_to_sdl <- (ef_gauges +
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-gaugecolor
-#| fig-cap: "" 
+#| fig-cap: "gauges and sdl colors overlaid in b, but that requires using different color ramps for the same variable, which might be confusing." 
 
 
 # gauges in a different color ramp
@@ -1572,7 +1596,7 @@ gauge_to_sdl <- (ef_gauges +
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-gaugecolor-same
-#| fig-cap: "" 
+#| fig-cap: "overlay, but uses the same colorramp, which is better for meaning, but worse to see what's happening (maybe?)." 
 
 
 # gauges in a different color ramp
@@ -1609,7 +1633,10 @@ aggNetworkdown <- nodes_with_vals |>
                  node_pal = list(value = achieve_pal),
                  node_colorset = 'ewr_achieved',
                  setLimits = c(0,1),
-                 render = FALSE)
+                 render = FALSE,
+                 save = TRUE,
+                 savedir = 'images',
+                 savename = 'aggNetworkdown')
 
 aggNetworkbase <- nodes_with_vals |> 
   dplyr::filter(flow_multiplier == 1 & flow_addition == 0) |> 
@@ -1618,7 +1645,10 @@ aggNetworkbase <- nodes_with_vals |>
                  node_pal = list(value = achieve_pal),
                  node_colorset = 'ewr_achieved',
                  setLimits = c(0,1),
-                 render = FALSE)
+                 render = FALSE,
+                 save = TRUE,
+                 savedir = 'images',
+                 savename = 'aggNetworkbase')
 
 aggNetworkup <- nodes_with_vals |> 
   dplyr::filter(flow_multiplier == 2 & flow_addition == 0) |> 
@@ -1627,18 +1657,49 @@ aggNetworkup <- nodes_with_vals |>
                  node_pal = list(value = achieve_pal),
                  node_colorset = 'ewr_achieved',
                  setLimits = c(0,1),
-                 render = FALSE)
+                 render = FALSE,
+                 save = TRUE,
+                 savedir = 'images',
+                 savename = 'aggNetworkup')
 
-DiagrammeR::render_graph(aggNetworkdown)
-DiagrammeR::render_graph(aggNetworkbase)
-DiagrammeR::render_graph(aggNetworkup)
+# DiagrammeR::render_graph(aggNetworkdown)
+# DiagrammeR::render_graph(aggNetworkbase)
+# DiagrammeR::render_graph(aggNetworkup)
+
+# make the legend
+lim_full <- tibble(condition = seq(from = 0, to = 1, by = 0.1), y = 1)
+
+pal_full <- ggplot(lim_full, aes(x = condition, y = y, color = condition)) + geom_point() +
+  paletteer::scale_color_paletteer_c(achieve_pal)
+
+fullnet_legend <- ggpubr::get_legend(pal_full) |> 
+  ggpubr::as_ggplot()
+
+aggNetworkdown_grob <- png::readPNG('images/aggNetworkdown.png') |>
+  grid::rasterGrob(interpolate = TRUE)
+aggNetworkbase_grob <- png::readPNG('images/aggNetworkbase.png') |>
+  grid::rasterGrob(interpolate = TRUE)
+aggNetworkup_grob <- png::readPNG('images/aggNetworkup.png') |>
+  grid::rasterGrob(interpolate = TRUE)
+
+layout <- "
+AAAAABBBBB
+CCCCC##D##
+"
+patchwork::wrap_plots(aggNetworkdown_grob, 
+                      aggNetworkbase_grob, 
+                      aggNetworkup_grob,
+                      fullnet_legend,
+                      design = layout, byrow = FALSE) +
+  plot_annotation(tag_levels = list(c('a', 'b', 'c')))
+
 ```
 
 The same set of nodes as in the text, but the actual condition values, rather than relativized.
 
 ```{r}
 #| label: fig-network-notbaseline
-
+#| fig-cap: "Causal networks as in @fig-network-subset, but with the raw condition values for the halved (a), baseline (b), and doubled (c) scenarios instead of relativized to the baseline."
 
 aggNetworkdown_sub <- nodes_with_vals |> 
   dplyr::filter(flow_multiplier == 0.5 & flow_addition == 0) |> 
@@ -1648,7 +1709,10 @@ aggNetworkdown_sub <- nodes_with_vals |>
                  node_pal = list(value = achieve_pal),
                  node_colorset = 'ewr_achieved',
                  setLimits = c(0,1),
-                 render = FALSE)
+                 render = FALSE,
+                 save = TRUE,
+                 savedir = 'images',
+                 savename = 'aggNetworkdown_sub')
 
 aggNetworkbase_sub <- nodes_with_vals |> 
   dplyr::filter(flow_multiplier == 1 & flow_addition == 0) |> 
@@ -1658,7 +1722,10 @@ aggNetworkbase_sub <- nodes_with_vals |>
                  node_pal = list(value = achieve_pal),
                  node_colorset = 'ewr_achieved',
                  setLimits = c(0,1),
-                 render = FALSE)
+                 render = FALSE,
+                 save = TRUE,
+                 savedir = 'images',
+                 savename = 'aggNetworkbase_sub')
 
 aggNetworkup_sub <- nodes_with_vals |> 
   dplyr::filter(flow_multiplier == 2 & flow_addition == 0) |> 
@@ -1668,12 +1735,35 @@ aggNetworkup_sub <- nodes_with_vals |>
                  node_pal = list(value = achieve_pal),
                  node_colorset = 'ewr_achieved',
                  setLimits = c(0,1),
-                 render = FALSE)
+                 render = FALSE,
+                 save = TRUE,
+                 savedir = 'images',
+                 savename = 'aggNetworkup_sub')
 
-DiagrammeR::render_graph(aggNetworkdown_sub)
-DiagrammeR::render_graph(aggNetworkbase_sub)
-DiagrammeR::render_graph(aggNetworkup_sub)
+# DiagrammeR::render_graph(aggNetworkdown_sub)
+# DiagrammeR::render_graph(aggNetworkbase_sub)
+# DiagrammeR::render_graph(aggNetworkup_sub)
+
+aggNetworkdown_sub_grob <- png::readPNG('images/aggNetworkdown_sub.png') |>
+  grid::rasterGrob(interpolate = TRUE)
+aggNetworkbase_sub_grob <- png::readPNG('images/aggNetworkbase_sub.png') |>
+  grid::rasterGrob(interpolate = TRUE)
+aggNetworkup_sub_grob <- png::readPNG('images/aggNetworkup_sub.png') |>
+  grid::rasterGrob(interpolate = TRUE)
+
+layout2 <- "
+AAAAAAAAAAA#
+BBBBBBBBBBBD
+CCCCCCCCCCC#
+"
+patchwork::wrap_plots(aggNetworkdown_sub_grob, 
+                      aggNetworkbase_sub_grob, 
+                      aggNetworkup_sub_grob,
+                      fullnet_legend,
+                      design = layout2) +
+  plot_annotation(tag_levels = list(c('a', 'b', 'c')))
 ```
+
 
 ------------------------------------------------------------------------
 
