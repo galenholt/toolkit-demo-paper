@@ -9,7 +9,7 @@ packages = [{include = "toolkit-demo-paper"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-py-ewr = "^2.0.0"
+py-ewr = {git = "https://github.com/MDBAuth/EWR_tool.git", rev = "GalenH"}
 
 
 

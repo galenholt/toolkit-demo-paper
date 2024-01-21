@@ -1,5 +1,5 @@
 ---
-title: "An integrated toolkit for assessment of hydrology-dependent outcomes in the Murray-Darling Basin: CLEVERACRONYM"
+title: "An integrated toolkit for assessment of hydrology-dependent outcomes in the Murray-Darling Basin: CLEVERACRONYM {flowre}?"
 author: 
  - name: Galen Holt
    orcid: 0000-0002-7455-9275
@@ -58,8 +58,9 @@ bibliography: references.bib
 number-sections: true
 
 echo: false
-
 ---
+
+*Author list not set- anyone else? Anyone to drop? Strong feelings about order?*
 
 ```{r}
 #| eval: false
@@ -101,9 +102,13 @@ library(patchwork)
 #| label: directories
 #| include: false
 
+# This depends on the same scenarios as the demo website, so give it the path to that. This will likely be user-specific. Everything else is relative.
+
+demo_webdir <- file.path('../WERP_toolkit_demo')
+
 # Why is the execute-dir not working?
 # Outer directory 
-project_dir = file.path('more_scenarios')  # '..', 
+project_dir = file.path(demo_webdir, 'more_scenarios')  # '..', 
 
 # Hydrographs
 hydro_dir = file.path(project_dir, 'hydrographs')  
@@ -125,10 +130,14 @@ agg_results_sdlTarget <- file.path(project_dir, 'aggregator_output', 'sdl_target
 
 gauges_to_plot <- c('412002', '419001')#, '422028', '421001')
 
-scenarios_to_plot <- c("climatedown2adapt0", "climatedown2adapt250",
-                      "climatedown2adapt6500","climatebaseadapt0",
-                      "climatebaseadapt250", "climatebaseadapt6500",
-                      "climateup2adapt0", "climateup2adapt250",
+scenarios_to_plot <- c("climatedown2adapt0", 
+                       "climatedown2adapt250",
+                      "climatedown2adapt6500",
+                      "climatebaseadapt0",
+                      "climatebaseadapt250", 
+                      "climatebaseadapt6500",
+                      "climateup2adapt0",
+                      "climateup2adapt250",
                       "climateup2adapt6500")
 ```
 
@@ -178,23 +187,33 @@ rename_sceneorder <- scenarios  |>
 #| label: data-import
 #| include: false
 
+# Now that the data is in, deal with the extra junk associated with unique scenario names, hence the str_remove_all
+
 #Hydrographs- just read in the ones we use
 scenehydros <- read_hydro(hydro_dir, 
-                          scenariofilter = scenarios_to_plot, 
+                          scenariofilter = stringr::str_c(scenarios_to_plot, '_', scenarios_to_plot), 
                           long = TRUE, format = 'csv') |> 
+  mutate(scenario = stringr::str_remove_all(scenario, '.*0_')) |> 
   left_join(scenarios, by = 'scenario')
 
 #Agg data (1.2 GB)
 agged_data <- readRDS(file.path(agg_results, 'achievement_aggregated.rds')) |>
+  purrr::map(\(x) mutate(x, 
+                         scenario = stringr::str_remove_all(scenario, '.*0_'))) |> 
   purrr::map(\(x) left_join(x, scenarios, by = 'scenario'))
 
 #Agg data (1.2 GB)
 agged_data_sdlTarget <- readRDS(file.path(agg_results_sdlTarget, 'achievement_aggregated.rds')) |>
+  purrr::map(\(x) mutate(x, 
+                         scenario = stringr::str_remove_all(scenario, '.*0_'))) |>
   purrr::map(\(x) left_join(x, scenarios, by = 'scenario'))
 
 ```
 
 ```{r}
+#| label: flow-differences
+
+
 # To get a single dimension for the scenarios, we can use the overall difference in flow volumes. It's crude, but likely the only thing that works when we have an addition over part of the year and a multiplicative change. Those are fundamentally different, so we'll do our best
 
 dif_flow <- baseline_compare(scenehydros, compare_col = 'scenario',                                             base_lev = "climatebaseadapt0",
@@ -224,6 +243,9 @@ gauge_pal <- make_pal(unique(gauges_to_plot),
 
 adapt_pal <- make_pal(as.character(unique(scenarios$adapt_code)),
                       palette = 'nationalparkcolors::Redwoods')
+
+# descriptive networks
+net_pal <- list(NodeType = 'nationalparkcolors::MtRainier')
 
 # these have to use quantitative even though they're not, or we run out of colors.
 env_pals = list(EB = 'grDevices::Grays',
@@ -257,41 +279,43 @@ scene_pal <- make_pal(unique(scenehydros$scenario),
 
 # Introduction
 
-Water management in large river systems typically targets a wide range of desired values. For example, in the Murray-Darling Basin, Australia, the objective of water management is to maintain a healthy working river that supports productive and resilient water-dependent industries, healthy and resilient ecosystems, and communities with access to sufficient and reliable water supplies [@murray-darlingbasinauthority2011]. These values are not unique to Australia; water is managed to protect the social, economic, environmental and cultural values of communities worldwide [e.g. @stern2019; @kaye-blake2014] *neither of these are actually papers, and we need something from Europe/Asia*. That these values are the targets of water management implies a hypothesized dependence on water, but in many cases these dependencies are not well-defined and management proceeds under the relatively simple assumption that if water is provided, these targets will improve.
+Water management in large river systems typically targets a wide range of desired values. For example, in the Murray-Darling Basin, Australia, the objective of water management is to maintain a healthy working river that supports productive and resilient water-dependent industries, healthy and resilient ecosystems, and communities with access to sufficient and reliable water supplies [@murray-darlingbasinauthority2011]. These values are not unique to Australia; water is managed to protect the social, economic, environmental and cultural values of communities worldwide [e.g. @stern2019; @kaye-blake2014] *neither of these are actually papers, and we need something from Europe/Asia*. That these values are the targets of water management implies a hypothesized dependence of each value on water but, in many cases, these dependencies are not well-defined and management proceeds under the relatively simple assumption that, if water is provided, these targets will improve.
 
-Water managers typically have a limited range of levers that primarily affect hydrology, e.g. flow releases from dams or inundation of wetlands. When non-hydrologic levers are available, such as water trading rules in the Murray-Darling Basin, their impact is still often assessed on how they alter hydrologic conditions- the spatio-temporal patterns of flow in the system. Further, hydrologic modelling is often better-integrated with management workflows than models of other values. In part, this is due to the availability of large-scale physical models that provide robust ability to model flows as they arise from natural drivers such as rainfall and capture infrastructure such as dams and diversions. While complex, these models have relatively high precision and relatively few outcomes compared to models of ecological or economic responses, for example. The impact of particular management actions such as dam releases on hydrology are well-understood and captured by the hydrograph, allowing accurate targeting of particular aspects of the flow regime. While these proximate models of system state and impact of management actions are invaluable, they do not provide the necessary information to assess the status of the range of flow-dependent values and targets.
+Water managers typically have a limited range of levers that primarily affect hydrology, e.g. flow releases from dams or inundation of wetlands. When non-hydrologic levers are available, such as water trading rules in the Murray-Darling Basin, their impact is still often assessed on how they alter hydrologic conditions-- the spatio-temporal patterns of flow in the system. Further, hydrologic modelling is often better-integrated with management workflows than models of other values. In part, this is due to the availability of large-scale physical models that provide robust ability to model flows as they arise from natural drivers such as rainfall and capture infrastructure such as dams and diversions. While complex, these models have relatively high precision and relatively few outcomes compared to models of ecological or economic responses, for example. The impact of particular management actions (e.g. dam releases) on hydrology are well-understood and captured by the hydrograph, allowing accurate targeting of particular aspects of the flow regime. While these proximate models of system state and impact of management actions are invaluable, they do not provide the necessary information to assess the status of the range of flow-dependent values and targets.
 
-Assessing values as they respond to flow and management actions requires models of these relationships. Such models exist, though their quality and extent vary widely, ranging from unstated mental models to highly-detailed population dynamics or economic models. When these models are quantitative or computational, they are written in various languages by subject-matter experts, and return disparate outputs depending on their particular goals and approaches. These models are often designed to study the values they model, e.g. fish populations, not to produce the most useful analysis for management questions or to capture the breadth of target values. Integrating these models into a holistic modelling approach is necessary to assess management-relevant outcomes of disparate values under different hydrologic conditions and management actions. Integrating diverse response models gives them utility beyond their initially-intended purpose and identifies where new work is needed because response models are limited or nonexistent. The creation of an integrated model provides the opportunity for robust decision-making [@harrison2023] and the ability to prioritize water planning across a range of values and identify conditions that achieve disproportionately large (or small) impacts.
+Assessing values as they respond to flow and management actions requires models of these relationships. Such models exist, though their quality and extent vary widely, ranging from unstated mental models to highly-detailed population dynamics or economic models [@lester2019]. When these models are quantitative or computational, they are written in various languages by subject-matter experts and return disparate outputs depending on their particular goals and approaches. These models are often designed to study the values (e.g. fish populations) that they model, not to produce the most useful analysis for management questions or to capture the breadth of target values. Integrating these models into a holistic modelling approach is necessary to assess management-relevant outcomes of disparate values under different hydrologic conditions and management actions. Integrating diverse response models gives each response model utility beyond their initially-intended purpose and identifies where new work is needed (e.g. where response models are limited or non-existent). The creation of an integrated model provides the opportunity for robust decision-making [@harrison2023] and the ability to prioritize water planning across a range of values and identify conditions that achieve disproportionately large (or small) impacts.
 
-Exemplifying these issues, the Murray-Darling Basin Authority (MDBA) is the federal body charged with water management in the Murray-Darling Basin, Australia *do we need to say the usual stuff about how big it is, economic importance, etc?*. The MDBA has statutory obligations to manage water to maintain a healthy working river that supports productive and resilient water-dependent industries, healthy and resilient ecosystems, and communities with access to sufficient and reliable water supplies ([@murray-darlingbasinauthority2011]). Moreover, the state of the basin is required to be assessed annually *right?* and updates to the Basin Plan made at *XX* year timeframes. Beyond these requirements, the MDBA has an increasing focus on assessing system response to climate change and possible adaptation actions that may be taken by the Authority itself or other stakeholders in the Basin. Taken together, these management goals require a holistic modeling approach that integrates across values and is adaptable to these various management needs while also simplifying repeated, ongoing use.
+Exemplifying these issues, the Murray-Darling Basin Authority (MDBA) is the federal body charged with water management in the Murray-Darling Basin, Australia. The Murray-Darling Basin is centrally important to the economic, cultural, social and environmental wellbeing of Australia. The MDB contains 70% of agricultural water use, contributes nearly 2% to GDP from agriculture and tourism, is home to 2.2 million people, including 40 Aboriginal nations, and contains approximately 400,000 water-dependent ecosystems [@hart2021]. While balancing this range of values is difficult in any highly-utilised basin, the Murray-Darling is unusually dry and variable compared to other systems of similar importance [@hart2021]. Modern management of the MDB arises from the *Water Act 2007*, which established the Murray-Darling Basin Authority with obligations to develop and implement a Basin Plan governing water resource management [@hart2021] <!--# I'm citing Hart a lot because it's a big overview, but are there better cites? Something internal? -->.
 
-The MDBA has access to robust hydrologic models describing flows in the system and responses to current management practices, and these models are under continual use, development, and improvement (*CITE*). Despite the need for ongoing assessment and forward planning across a range of values, models of the responses to those hydrologic conditions are patchy, only represent some values, and have been developed and used in a more ad-hoc approach rather than integrated with each other or the hydrologic models. In this paper, we describe an integrated modelling 'toolkit' to address these water management needs in the Murray-Darling Basin, Australia, hereafter referred to as *CLEVERACRONYM*.
+The MDBA has statutory obligations to manage water to maintain a healthy working river that supports productive and resilient water-dependent industries, healthy and resilient ecosystems, and communities with access to sufficient and reliable water supplies ([@murray-darlingbasinauthority2011]). Moreover, the state of the Basin is required to be assessed annually, with a major review of and updates to the Basin Plan made at legislated intervals [e.g. 15 years between development and first Review, @hart2021]. Beyond these requirements, the MDBA has an increasing focus on assessing system response to climate change and possible adaptation actions that may be taken by the MDBA itself or other stakeholders in the Basin ( <!--# Lester et al. Basin Scale? -->). In addition to the MDBA, Basin states and other stakeholders (e.g. the Commonwealth Environmental Water Holder) have additional responsibilities for water management in the MDB [@hart2021] <!--# Is there a better cite for who has control over what? -->. Taken together, these management goals require a holistic modeling approach that integrates across values and is adaptable to these various management needs while also simplifying repeated, ongoing use. <!--# This is all MDBA-focused. The toolkit is just as usable by the states, should we discuss them as well? -->
 
-The toolkit described here greatly improves the capacity of the MDBA to assess outcomes across a range of values, provides the structure to adapt and include additional values as models become available, and addresses a number of issues with current assessment practices and modelling approaches. By providing a single, consistent interface to a range of response models we avoid the need to manually run models separately and we abstract their different interfaces, languages, and idiosyncracies. Moreover, the toolkit design is highly modular, built to allow the integration of new response models with limited additional updates to the toolkit itself. Continuing with this consistency, the toolkit provides a standard set of synthesis approaches and functions that target management-relevant analysis and interpretation of outcomes from these disparate models with a common approach and design language. Because the need for assessing outcomes is nearly universal in water management, and not limited to a particular scenario or project, the toolkit is designed with strong scenario-comparison capabilities but is agnostic to what those scenarios represent. For a similar reason, the standardised synthesis and outputs are highly flexible, allowing the user to choose the most relevant outputs for different management needs.
+The MDBA has access to robust hydrologic models describing flows in the system and responses to current management practices, and these models are under continual use, development, and improvement ( <!--# What's the best cite? David, Martin? -->). Despite the need for ongoing assessment and forward planning across a range of values, models of the responses to those hydrologic conditions are patchy, only represent some values, and have been developed and used in a more ad-hoc approach rather than integrated with each other or the hydrologic models. In this paper, we describe an integrated modelling 'toolkit' to address these water management needs in the Murray-Darling Basin, Australia, hereafter referred to as *CLEVERACRONYM*.
+
+The toolkit described here greatly improves the capacity of the relevant manager (here, the MDBA) to assess outcomes across a range of values, provides the structure to adapt and include additional values as models become available, and addresses a number of issues with current assessment practices and modelling approaches. By providing a single, consistent interface to a range of response models we avoid the need to manually run models separately and we abstract their different interfaces, languages, and idiosyncracies. Moreover, the toolkit design is highly modular, built to allow the integration of new response models with limited additional updates to the toolkit itself. Continuing with this consistency, the toolkit provides a standard set of synthesis approaches and functions that target management-relevant analysis and interpretation of outcomes from these disparate models with a common approach and design language. Because the need for assessing outcomes is nearly universal in water management, and not limited to a particular scenario or project, the toolkit is designed with strong scenario-comparison capabilities but is agnostic to what those scenarios represent. For a similar reason, the standardised synthesis and outputs are highly flexible, allowing the user to choose the most relevant outputs for different management needs.
 
 One common issue with modelling in general, and particularly integrated models spanning several tools, is becoming a black box. This can yield mistrust by the public and other stakeholders influenced by the model, but also mistrust and misunderstanding by users and developers of the model. To avoid these issues, the toolkit has been continuously co-designed with the MDBA, and an emphasis is put on public code, production of outputs that describe the model actions, (e.g. causal relationships), and reproducibility and self-documentation.
 
-To demonstrate the toolkit, we develop a set of example scenarios capturing some qualitative aspects of one intended use: the assessment and comparison of outcomes under different climate scenarios and different adaptations to those changes. These axes represent changes to the system due to processes over which managers have no control and management actions, which would typically be targeted interventions. We use this demonstration to illustrate the problem space and show how the toolkit can aid in assessing potential system change and prioritising management actions to mitigate impacts.
+To demonstrate the toolkit, we develop a set of example scenarios capturing some qualitative aspects of one intended use: the assessment and comparison of outcomes under different climate scenarios and different adaptations to those changes. These axes represent changes to the system due to processes over which managers have no control, and management actions which would typically be targeted interventions. We use this demonstration to illustrate the problem space and show how the toolkit can aid in assessing potential system change and prioritising management actions to mitigate impacts.
 
 # Methods
 
-The purpose of the toolkit is to assess how hydrographs representing various hydrologic scenarios impact multiple sets of values (e.g. economic, social, environmental, cultural). We seek to make these assessments in a consistent way despite differences in the response models. The toolkit then has the capability to synthesize the wide range of outputs from the response models into results that compare scenarios and are digestible and useful for management decisionmaking (@fig-tktomgmt). A co-design process including scientists, software developers, and managers was developed to ensure the toolkit achieved its goal of producing scientifically robust results that are also management-relevant.
+The purpose of the toolkit is to assess how hydrographs representing various hydrologic scenarios affect multiple sets of values (e.g. economic, social, environmental, cultural). We seek to make these assessments in a consistent way despite differences in the response models. The toolkit then has the capability to synthesize the wide range of outputs from the response models into results that compare scenarios and are digestible and useful for management decisionmaking (@fig-tktomgmt). A co-design process including scientists, software developers, and managers was developed to ensure the toolkit achieved its goal of producing scientifically robust results that are also management-relevant.
 
-![Conceptualisation of toolkit benefits to management. Scenarios represented by hydrographs are fed in a consistent way to various response models, while the outputs are synthesized into management-relevant outputs that aid decisionmaking.](../images/tktomgmt.jpg){#fig-tktomgmt}
+![Conceptualisation of toolkit benefits to management. Scenarios represented by hydrographs are fed in a consistent way to various response models, while the outputs are synthesized into management-relevant outputs that aid decision-making.](../images/tktomgmt.png){#fig-tktomgmt}
 
 ## Co-design and scoping for management relevance
 
-To ensure the toolkit met management needs and is trusted by management users, a toolkit development team was created consisting of primary toolkit developers, hydrologic modelers, and MDBA staff. Frequent collaboration among this team allowed issues to be addressed while still small or emerging and ensure decisions about toolkit construction reflected the needs of the end-user. This approach encouraged an iterative process, where broad goals were established as a group, and implementation discussed. As implementation proceeded, the close collaboration provided a mechanism by which goals could be adjusted or the implications of decisions discussed and understood. By having this window into the toolkit development, the managers obtained a much more granular view of how it operates than they would otherwise have, including its capabilities and limitations. Making the toolkit less of a black box builds trust in its output and also greatly aids in knowing how to interpret and use that output.
+To ensure the toolkit met management needs and is trusted by management users, a toolkit development team was created consisting of primary toolkit developers, hydrologic modelers, and MDBA staff. Frequent collaboration among this team allowed issues to be addressed while still small or emerging and ensure decisions about toolkit construction reflected the needs of the end-user. This approach encouraged an iterative process, where broad goals were established as a group, and implementation discussed. As implementation proceeded, the close collaboration provided a mechanism by which goals could be adjusted or the implications of decisions discussed and understood. By having this window into the toolkit development, the managers obtained a much more granular view of how it operates than they would have otherwise, including its capabilities and limitations. Making the toolkit less of a black box builds trust in its output and greatly aids in knowing how to interpret and use that output.
 
 Key to the collaborative development was identification of the response models to include. These models need to provide information about values relevant to water management decisions as those values respond to hydrology. Early in the development process, a wide scan was taken to identify candidate response models. This scan considered models being used or developed within the MDBA itself, other government agencies (both federal and state), and externally. This scan found that there were a number of responses models available, but many were outdated or highly manual, and their use was patchy both within and across management agencies. Ultimately, only one was suitably modern and well-developed to include in the toolkit, the Environmental Water Response Tool (EWR). Other in-development modules were identified as candidates to include during the life of the toolkit, including economic and social models. Further, this scan identified values that are mandated management targets for which there were no available or in-development response models, highlighting areas needing future work.
 
 ## Causal networks {#sec-causal_networks}
 
-Causal networks are models that describe the topology of dependence among many drivers and outcomes of different type (adapted from @peeters2022) *need more causal refs, Peeters didn't invent them*. The use of a causal network framing both at a high level for visualisation and communication with the MDBA and embedded in the toolkit illustrate both the goals and the functioning of the toolkit, avoiding it becoming a black box. This approach greatly aided the collaborative process and provides an ongoing communication tool. The relevant causal network for water management in the Murray-Darling Basin captures relationships between climate, adaptation options and outcomes for environmental, cultural, social, and economic values and assets. Thus, they include climatic and management drivers, but also include the causal relationships which form the basis of the response models (e.g. flow timeseries to hydrologic indicators, or potentially the life history inherent in a population dynamics model). They incorporate any links connecting those outcomes to larger-scale outcomes (e.g. from hydrologic indicators to ecological response). Thus, causal networks define an overarching model from initial inputs (e.g. rainfall or flows or adaptations) through to all values of interest, with each link defining a response model or component of a response model. The specifications of the models underlying each link are highly variable, ranging from detailed physical models linking runoff to flow to simpler ecological models of environmental water requirements to simple averages to leaving the model unspecified where information about the relationships are unavailable. Assessing the quality of knowledge around each link provides a powerful assessment of knowledge deficiencies and uncertainty in responses.
+Causal networks are models that describe the topology of dependence among many drivers and outcomes of different type (adapted from @peeters2022) *need more causal refs, Peeters didn't invent them*. The use of a causal network framing both at a high level for visualisation and communication with the MDBA and embedded in the toolkit illustrate both the goals and the functioning of the toolkit, avoiding it becoming a black box. This approach greatly aided the collaborative process and provides an ongoing communication tool. The relevant causal network for water management in the Murray-Darling Basin captures relationships between climate, adaptation options and outcomes for environmental, cultural, social, and economic values and assets. Thus, they include climatic and management drivers, but also include the causal relationships which form the basis of the response models (e.g. flow timeseries to hydrologic indicators, or potentially to the life history inherent in a population dynamics model). They incorporate any links connecting those outcomes to larger-scale outcomes (e.g. from hydrologic indicators to ecological response). Thus, causal networks define an overarching model from initial inputs (e.g. rainfall or flows or adaptations) through to all values of interest, with each link defining a response model or component of a response model. The specifications of the models underlying each link are highly variable. These models range from detailed physical models linking runoff to flow, to simpler ecological models of environmental water requirements, to simple averages, to leaving the model unspecified where information about the relationships are unavailable. Assessing the quality of knowledge around each link provides a powerful assessment of knowledge deficiencies and uncertainty in responses.
 
-Causal networks themselves, i.e. the structure of the links (relationships) and nodes (state variables) can be derived from many sources, including empirical studies defining the existence of causal relationships and expert opinion. The toolkit provides a causal network for included modules, where available, to describe how their outputs arise from hydrology and how they relate to various levels of management-relevant outcomes. For example, the causal network provided for the EWR tool (@sec-ewr) is developed primarily from expert opinion in the Long Term Watering Plans (LTWPs), and gives the causal relationships between the hydrologic indicators assessed by that module to ecological outcomes ranging from particular components of life cycles for individual species up to broad groupings of environmental priorities or 20 year management targets (see @sec-modules for description of LTWPs and EWRs).
+Causal networks themselves, i.e. the structure of the links (relationships) and nodes (state variables) can be derived from many sources, including empirical studies defining the existence of causal relationships and expert opinion. The toolkit provides a causal network for included modules, where available, to describe how their outputs arise from hydrology and how they relate to various levels of management-relevant outcomes. For example, the causal network provided for the EWR tool (@sec-ewr) is developed primarily from expert opinion in the Long Term Watering Plans (LTWPs), and gives the causal relationships between the hydrologic indicators assessed by that module to ecological outcomes ranging from particular components of life cycles for individual species up to broad groupings of environmental priorities or 20-year management targets (see @sec-modules for a description of EWRs and the LTWPs they are derived from).
 
-The causal networks enable 1) visual representation of the complex inter-relationships between scenario inputs and outcomes across a range of objectives and 2) assessment of outcomes aggregated along the thematic dimension (see @sec-aggregator). The former aids transparency, elucidating the intentions and causal relationships behind the response models and is a useful device for communication alongside other final outputs. The latter allows outcomes to be quantified for individual (or sets of) values, including environmental objectives, target groups, long-term targets, or at the overarching level of environmental, cultural, social, or economic values. This quantification provides a powerful assessment tool and the ability to identify synergies and trade-offs across interrelated values.
+The causal networks enable: 1) visual representation of the complex inter-relationships between scenario inputs and outcomes across a range of objectives and 2) assessment of outcomes aggregated along the thematic dimension (see @sec-aggregator). The former aids transparency, elucidating the intentions and causal relationships behind the response models and is a useful device for communication alongside other final outputs. The latter allows outcomes to be quantified for individual (or sets of) values, (e.g. environmental objectives, target groups, long-term targets), or at the overarching levels of environmental, cultural, social, or economic values. This quantification provides a powerful assessment tool and the ability to identify synergies and trade-offs across interrelated values.
 
 ## Toolkit overview
 
@@ -299,11 +323,11 @@ The key goals of the toolkit are to provide a flexible platform for comparing ou
 
 ### Architecture
 
-Taken holistically, the architecture of the toolkit comprises five components and the links between them (@fig-architecture) *fig is ugly and causal should be a different color*. Input data is ingested by the Controller, which packages and runs response models. Results from the models are then processed by the Aggregator, and the analysis and final outputs are prepared by the Comparer. The fifth component is the Causal networks, which are used within the Aggregator and Comparer for outputs that are aggregated along the thematic dimension (see below) and for visual representation of the complex inter-relationships defined in the response models. Each of these components is described in more detail below.
+Taken holistically, the architecture of the toolkit comprises five primary components and the links between them (@fig-architecture). The data flow through the toolkit is represented by the bold arrows. Input data (hydrographs) is ingested by the Controller, which packages and runs Response Models. Results from the Response Models are then processed by the Aggregator, and the analysis and final outputs are prepared by the Comparer. The two components outside this data flow are the Causal networks and Spatial units, which are used within the Aggregator and Comparer to define groupings for aggregation and for visual representation of space and the complex inter-relationships defined in the response models. Except for Each of these components is described in more detail below.
 
-![Architecture of toolkit. Hydrographs representing scenarios are inputs. Each set of boxes represents a step in the toolkit processing, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](../images/architecture.jpg){#fig-architecture}
+![Architecture of toolkit. Hydrographs representing are inputs, typically reflecting modeled scenarios or historic flows. The flow of data during a modeling run follows the bold arrows, with the additional components of the Causal network and Spatial units providing necessary grouping information for the Aggregator. Dashed lines indicate that hydrographs and direct Response model output can utilise the Comparer functionality directly. Causal networks are linked closely to each Response model, and while both are defined externally to the toolkit they require significant work to integrate into a compatible, modular toolkit component. Spatial units are typically more general, typically polygons of management interest, and require only light changes to make compatible. Each set of boxes represents a distinct component of the toolkit, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](../images/architecture.png){#fig-architecture}
 
-The architecture of the toolkit emphasizes modularity. Each of the components can save their outputs, allowing users to run either the whole toolkit or re-run only needed components to update analysis. For example, if a user desired to change how they aggregate the results of the modules, they could re-run the aggregation step and the subsequent comparison step to match. This ability to adjust intermediate steps allows rapid iteration of results to address a given management question, or adaptation of preexisting results to new questions. This modularity also allows rapid, iterative development of the toolkit itself. Any of the components of the toolkit can be updated without affecting others, and so obtaining new results from updated components (e.g. new aggregation capability) simply requires re-running the toolkit from that point forward.
+The architecture of the toolkit emphasizes modularity. Each of the components can save its outputs, allowing users to run either the whole toolkit or re-run only needed components to update analysis. For example, if a user desired to change how they aggregate the results of the modules, they could re-run the aggregation step and the subsequent comparison step to match. This ability to adjust intermediate steps allows rapid iteration of results to address a given management question, or adaptation of preexisting results to new questions. This modularity also allows rapid, iterative development of the toolkit itself. Any of the components of the toolkit can be updated without affecting others, and so obtaining new results from updated components (e.g. new aggregation capability) simply requires re-running the toolkit from that point forward.
 
 As each stage of the toolkit runs, it produces yaml and json metadata files including the run settings and other attached information relating to the scenarios to enhance repeatability, ensure correctness and increase comprehension. This metadata includes all parameters for the run, allowing exactly repeatable analyses to be conducted by using the metadata files as parameter files for subsequent runs. Even if a run is started in the middle, such as to re-run aggregation in a different way, the metadata captures the metadata for the previous steps, ensuring that outputs at every stage are tagged with full provenance information about the run that created them.
 
@@ -349,12 +373,8 @@ The EWR tool which forms the core of the demonstration is one such response mode
 #| label: fig-ewr-example
 #| fig-cap: !expr glue::glue("EWR are illustrated at two example gauges ({paste0(gauges_to_plot, collapse = ' and ')}) on the historical base level (scenario E1) hydrographs. See @sec-ewr-table for a table.")
 
-# This relies on the NSW ewr definitions. We could keep passing them around, but better to pull from py-ewr directly
-pdi <- reticulate::import("py_ewr.data_inputs")
-
-# The second is 'bad', so just get the first
-ewrs_in_pyewr <- pdi$get_EWR_table()[[1]]
-
+# This relies on the NSW ewr definitions. We could keep passing them around, but better to pull from py-ewr directly (now a handy toolkit function)
+ewrs_in_pyewr <- get_ewr_table()
 
 NSWEWR_gauge <- filter(ewrs_in_pyewr, Gauge %in% gauges_to_plot) |>
   tidyr::separate_wider_delim(cols = Code, delim = '_', 
@@ -414,7 +434,7 @@ causal_example <- make_causal_plot(nodes,
                  edges,
                  focalnodes = filter(nodes, NodeType == "ewr_code")$Name,
                  edge_pal = 'black',
-                 node_pal = list(NodeType = 'nationalparkcolors::MtRainier'),
+                 node_pal = net_pal,
                  render = FALSE,
                  save = TRUE,
                  savedir = 'images',
@@ -465,32 +485,29 @@ We demonstrate toolkit functionality for environmental values by using the exist
 
 ```{r}
 #| label: fig-gauges
-#| fig-cap: Map of the Murray-Darling basin, in eastern Australia, illustrating gauge locations within three SDL units (Macquarie–Castlereagh, Lachlan, and Namoi).
+#| fig-cap: Map of the Murray-Darling basin, in eastern Australia, illustrating gauge locations within three SDL units (Macquarie–Castlereagh, Lachlan, and Namoi). *The river lines are the 'major' rivers in the geofabric, but there are still too many. Is there a better dataset with the 'even-more-major' rivers?*
 
-# The below should work, but isn't really core business of plot_outcomes, so do I want to sort it out or not?
-# gauge_plot <- agged_data$sdl_units |> 
-#   group_by(SWSDLName) |> 
-#   summarise(across(everything(), first)) |> 
-#   ungroup() |> 
-#            plot_outcomes(ycol = 'SWSDLName',
-#               xcol = 'map',
-#               colorset = 'SWSDLName',
-#               pal_list = SDL_pal,
-#               underlay_list = list(underlay = basin,
-#                                    underlay_pal = 'azure'),
-#               overlay_list = list(overlay = filter(bom_basin_gauges, 
-#                                                    gauge %in% unique(scenehydros$gauge)),
-#                                    overlay_pal = 'black'))
+relevant_gauges <- filter(bom_basin_gauges,
+                          gauge %in% unique(scenehydros$gauge))
 
-gauge_plot <- ggplot() +
-  geom_sf(data = basin, fill = 'azure') +
-  geom_sf(data = unique(agged_data$sdl_units['SWSDLName']), 
-          aes(fill = SWSDLName)) +
-  geom_sf(data = filter(bom_basin_gauges, 
-                        gauge %in% unique(scenehydros$gauge)), 
-          color = 'black') +
-  scale_fill_manual(values = SDL_pal, name = 'SDL unit') +
-  theme_werp_toolkit()
+gauge_plot <- agged_data$sdl_units |>
+  group_by(SWSDLName) |>
+  summarise(across(everything(), first)) |>
+  ungroup() |>
+           plot_outcomes(outcome_col = 'SWSDLName',
+              plot_type = 'map',
+              colorset = 'SWSDLName',
+              pal_list = SDL_pal,
+              underlay_list = list(list(underlay = basin,
+                                   pal_list = 'azure')),
+              overlay_list = list(
+                list(overlay = basin_rivers,
+                                        pal_list = 'lightblue1'),
+                list(overlay = relevant_gauges,
+                                   pal_list = 'firebrick')
+                                   )) +
+  theme_werp_toolkit(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
 
 inset_map <- ggplot(ozmaps::ozmap_country) +
   geom_sf(fill = 'grey20') +              
@@ -546,24 +563,25 @@ knitr::kable(adapt_scenes)
 #| label: fig-hydrographs
 #| fig-cap: Hydrographs for two example gauges with 'climate' scenarios on rows and 'adaptation' scenarios as columns. Scenario codes as in @tbl-scenarios.
 
-
-# Currently making manually
-
 hydro_plot <- scenehydros |>
     dplyr::filter(scenario %in% scenarios_to_plot & gauge %in% gauges_to_plot) |>
-    ggplot2::ggplot(ggplot2::aes(x = Date, y = flow/1000, color = gauge)) +
-    ggplot2::geom_line() +
-    ggplot2::facet_grid(climate_code ~ adapt_code, scales = 'fixed') +
-    ggplot2::labs(y = paste0("Flow (GL/day)"), color = 'Gauge ID:') +
-    ggplot2::scale_y_continuous(sec.axis = sec_axis(~ . , 
+  dplyr::mutate(flow = flow/1000) |> 
+  plot_outcomes(outcome_col = 'flow',
+                outcome_lab = 'Flow (GL/day)',
+                x_col = 'Date',
+                colorset = 'gauge',
+                color_lab = 'Gauge ID:',
+                pal_list = gauge_pal,
+                facet_row = 'climate_code',
+                facet_col = 'adapt_code',
+                ) +
+    ggplot2::scale_y_continuous(sec.axis = sec_axis(~ . ,
                                                     name = "Climate scenario",
                                                     breaks = NULL, labels = NULL)) +
     ggplot2::scale_x_date(sec.axis = sec_axis(~ . , 
                                               name = "Adaptation option", 
                                               breaks = NULL, labels = NULL)) +
-    ggplot2::scale_color_manual(values = gauge_pal) +
-    theme_werp_toolkit(legend.position = "bottom")+
-      guides(colour=guide_legend(nrow=2,byrow=TRUE))
+    theme_werp_toolkit(legend.position = "bottom")
 
 hydro_plot
 ```
@@ -610,18 +628,18 @@ Comparison of the direct outputs from the response model (in this example, pass/
 #| message: false
 
 # The bars
-# in general, it's an issue that scenario is special, but I think here it actually is fine
 sdl_achieve_bars <- agg_ewr_sdl |> 
   filter(scenario %in% scenarios_to_plot) |> 
   mutate(scenario = paste0(climate_code, adapt_code), # This makes the names clean
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = 'Proportion\nEWR achieved',
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
                 x_col = 'scenario',
                 x_lab = 'Climate and adaptation scenario',
                 colorset = 'SWSDLName',
                 color_lab = '',
-                pal_list = SDL_pal |> setNames(stringr::str_replace(names(SDL_pal), '–', '-\n')),
+                pal_list = SDL_pal |> 
+                  setNames(stringr::str_replace(names(SDL_pal), '–', '-\n')),
                 position = 'dodge',
                 setLimits = c(0,1)) +
   # guides(fill = guide_legend(nrow=2, label.position = 'top')) +
@@ -634,11 +652,12 @@ sdl_achieve_bars <- agg_ewr_sdl |>
 # The map
 sdl_achieve_map <- agg_ewr_sdl |> 
   filter(scenario %in% scenarios_to_plot) |> 
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = 'Proportion\nEWR achieved',
-                x_col = 'map',
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
                 facet_row = 'climate_code',
                 facet_col = 'adapt_code',
+                colorset = 'ewr_achieved',
                 pal_list = achieve_pal,
                 underlay_list = list(underlay = basin, underlay_pal = 'azure'),
                 setLimits = c(0,1))
@@ -662,21 +681,21 @@ This view provides a useful overview of the impact of different scenarios on the
 
 ```{r}
 #| label: fig-obj_in_groups
-#| fig-cap: "Proportion of EWRs achieved for each environmental objective, grouped into broader environmental groups (EF = Priority Ecosystem Function, NF = Native Fish, NV = Native Vegetation, OS = Other Species, WB = Waterbirds). This view provides an assessment of the performance of individual environmental objectives, as well as how those contribute to the overall sensitivity of the broader groups across space. Not all EWR are applicable in all locations and there are not equal number of EWR in each category. The MAX column illustrates the total number of EWRs for reference, with each black box showing the situation where all EWRs contributing to an Environmental Objective are met. Where the max column does not exist, those objectives are not relevant to that particular planning unit. This illustration includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x) and three adaptation options 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d)" 
+#| fig-cap: "Proportion of EWRs achieved for each environmental objective (shades), grouped into broader environmental groups (Colors, rows. EF = Priority Ecosystem Function, NF = Native Fish, NV = Native Vegetation, OS = Other Species, WB = Waterbirds). This view provides an assessment of the performance of individual environmental objectives, as well as how those contribute to the overall sensitivity of the broader groups across space. Not all EWR are applicable in all locations and there are not equal number of EWR in each category. The dashed horizonal lines show the total number of EWRs for reference. If each EWR contributing to the environmental objective were met, the bars would be at those lines. There are no Other Species objectives in the Namoi. This illustration includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x) and three adaptation options 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d)" 
 #| message: false
 #| warning: false
 
 
 obj_in_groups <- obj_sdl_to_plot |>
-  dplyr::filter(scenario %in% c(scenarios_to_plot, "MAX"))  |> 
   filter(env_group != 'EB') |> # There's only one, this is just distracting.
-  filter(scenario %in% c(scenarios_to_plot, 'MAX')) |> 
+  filter(!is.na(SWSDLName)) |> 
+  filter(scenario %in% scenarios_to_plot) |> 
   # clean the names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = "EWR achievement\n (proportion of objective)",
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = "EWR achievement\nassessed for individual EWRs (shades)",
+                x_col = 'scenario',
                 x_lab = "Climate & Adaptation Option Scenario",
                 colorgroups = 'env_group',
                 colorset = 'env_obj',
@@ -687,18 +706,25 @@ obj_in_groups <- obj_sdl_to_plot |>
                 sceneorder = rename_sceneorder
                 )
 
-# obj_in_groups <- obj_in_groups +
-#   ggplot2::theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
-#   scale_y_continuous(n.breaks = 3)+
-#   scale_x_discrete(labels= c(scenario_labels_to_plot, "MAX"))
+# ADD IN MAX: new way?
+maxdata <- obj_sdl_to_plot |> 
+  st_drop_geometry() |> 
+  filter(env_group != 'EB') |> # There's only one, this is just distracting.
+    filter(!is.na(SWSDLName)) |> 
 
-# ADD IN MAX: #BOX ON TOP AT END
-obj_in_groups <- obj_in_groups + 
-  ggplot2::geom_col(data = filter(obj_in_groups$data, scenario %in% c("MAX")), 
-                    aes(x = scenario, y = ewr_achieved),
-                    position = 'stack', colour = "black", fill = NA) 
+  filter(scenario %in% "MAX") |> 
+  # clean the names
+  mutate(SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
+  summarise(ewr_achieved = sum(ewr_achieved), 
+            .by = c(SWSDLName, env_group))
+
+obj_in_groups <- obj_in_groups +
+  geom_hline(data = maxdata, 
+             mapping = aes(yintercept = ewr_achieved),
+             linetype = 'dashed')
 
 obj_in_groups
+
 ```
 
 ```{r}
@@ -709,18 +735,17 @@ ef_maps <- obj_sdl_to_plot |>
   # Need to reduce dimensionality
     dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |> 
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = 'Proportion\nEWR achieved',
-                x_col = 'map',
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
                 colorset = 'ewr_achieved',
                 pal_list = achieve_pal,
                 facet_row = 'scenario',
                 facet_col = 'env_obj',
                 underlay_list = list(underlay = basin,
-                                     underlay_pal = 'azure'),
+                                     pal_list = 'azure'),
                 setLimits = c(0,1)) 
 
 ef_maps <- ef_maps + 
@@ -734,24 +759,53 @@ ef_maps <- ef_maps +
                          axis.text=element_blank())
 
 # gauges with blank sdl units
-ef_gauges <- agged_data$env_obj |>
+  # because gauges contribute to multiple planning units, reporting them is not a good indicator of condition. However, to show how the aggregation works, we can do something here to get single values for them by using theme aggregate directly and allowing it to average over the multiple rows due to multiple planning units.
+agged_gauges <- agged_data$ewr_code |> 
+  theme_aggregate(from_theme = 'ewr_code', to_theme = 'env_obj',
+                  groupers = c('scenario', 'gauge', 'climate_code', 'adapt_code'),
+                  aggCols = 'ewr_achieved',
+                  funlist = ArithmeticMean,
+                  causal_edges = causal_ewr,
+                  auto_ewr_PU = FALSE) |> 
+  agg_names_to_cols(aggsequence = 'env_obj', 
+                    funsequence = 'ArithmeticMean', 
+                    aggCols = 'ewr_achieved')
+
+ef_gauges <- agged_gauges |>
     dplyr::filter(env_obj == 'EF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code))) |> 
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = 'Proportion\nEWR achieved',
-                x_col = 'map',
+  mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
                 colorset = 'ewr_achieved',
                 pal_list = achieve_pal,
-                facet_row = 'scenario',
-                facet_col = 'env_obj',
                 underlay_list = list(list(underlay = basin,
-                                     underlay_pal = 'azure'),
+                                     pal_list = 'azure'),
                                      list(underlay = sdl_units |> 
                                             filter(SWSDLName %in%
                                                      unique(obj_sdl_to_plot$SWSDLName)),
-                                          underlay_pal = 'gray')),
+                                         pal_list = 'gray')),
+                setLimits = c(0,1)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
+# The 'env_ob' dataset is at the planning unit scale before agg to sdl
+ef_PU <- agged_data$env_obj |>
+    dplyr::filter(env_obj == 'EF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
+  # clean names
+  mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                underlay_list = list(list(underlay = basin,
+                                     pal_list = 'azure'),
+                                     list(underlay = sdl_units |> 
+                                            filter(SWSDLName %in%
+                                                     unique(obj_sdl_to_plot$SWSDLName)),
+                                         pal_list = 'gray')),
                 setLimits = c(0,1)) +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
@@ -764,15 +818,13 @@ ef_maps_single <- obj_sdl_to_plot |>
   mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
                            paste0(climate_code, adapt_code)), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = 'Proportion\nEWR achieved',
-                x_col = 'map',
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
                 colorset = 'ewr_achieved',
                 pal_list = achieve_pal,
-                facet_row = 'scenario',
-                facet_col = 'env_obj',
                 underlay_list = list(underlay = basin,
-                                     underlay_pal = 'azure'),
+                                     pal_list = 'azure'),
                 setLimits = c(0,1))  +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
@@ -787,88 +839,97 @@ ef_maps_few <- obj_sdl_to_plot |>
   mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
                            paste0(climate_code, adapt_code)), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = 'Proportion\nEWR achieved',
-                x_col = 'map',
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
                 colorset = 'ewr_achieved',
                 pal_list = achieve_pal,
                 facet_row = 'scenario',
-                facet_col = 'env_obj',
+                                facet_col = 'env_obj',
+
                 underlay_list = list(underlay = basin,
-                                     underlay_pal = 'azure'),
+                                     pal_list = 'azure'),
                 setLimits = c(0,1))  +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-# gauges with different color on colored sdls
-ef_gauges_undercolor <- agged_data$env_obj |>
-    dplyr::filter(env_obj == 'EF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
-  # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code))) |> 
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = 'Proportion\nEWR achieved',
-                x_col = 'map',
-                colorset = 'ewr_achieved',
-                pal_list = 'grDevices::Red-Purple',
-                facet_row = 'scenario',
-                facet_col = 'env_obj',
-                underlay_list = list(list(underlay = basin,
-                                     underlay_pal = 'azure'),
-                                     list(underlay = obj_sdl_to_plot |> 
-                                            filter(env_obj == 'EF1' & 
-                                                     scenario == 'climatebaseadapt0') |> 
-                                            mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code))),
-                                          underlay_ycol = 'ewr_achieved',
-                                          underlay_pal = achieve_pal)),
-                setLimits = c(0,1)) +
-  theme(axis.ticks = element_blank(), 
-                         axis.text=element_blank())
+# trying to make the singles cleaner
 
-# same, but just let the colors be the same ramp and see if it's visible
-ef_gauges_undercolor_same <- agged_data$env_obj |>
-    dplyr::filter(env_obj == 'EF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
-  # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code))) |> 
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = 'Proportion\nEWR achieved',
-                x_col = 'map',
-                colorset = 'ewr_achieved',
-                pal_list = achieve_pal,
-                facet_row = 'scenario',
-                facet_col = 'env_obj',
-                underlay_list = list(list(underlay = basin,
-                                     underlay_pal = 'azure'),
-                                     list(underlay = obj_sdl_to_plot |> 
-                                            filter(env_obj == 'EF1' & 
-                                                     scenario == 'climatebaseadapt0') |> 
-                                            mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code))),
-                                          underlay_ycol = 'ewr_achieved',
-                                          underlay_pal = achieve_pal)),
-                setLimits = c(0,1)) +
-  theme(axis.ticks = element_blank(), 
-                         axis.text=element_blank())
+
+# # if we keep these, they should go to appendix
+# 
+# # gauges with different color on colored sdls
+# ef_gauges_undercolor <- agged_data$env_obj |>
+#     dplyr::filter(env_obj == 'EF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
+#   # clean names
+#   mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
+#                            paste0(climate_code, adapt_code))) |> 
+#   plot_outcomes(outcome_col = 'ewr_achieved',
+#                 outcome_lab = 'Proportion\nEWR achieved',
+#                 plot_type = 'map',
+#                 colorset = 'ewr_achieved',
+#                 pal_list = 'grDevices::Red-Purple',
+#                 facet_row = 'scenario',
+#                 facet_col = 'env_obj',
+#                 underlay_list = list(list(underlay = basin,
+#                                      pal_list = 'azure'),
+#                                      list(underlay = obj_sdl_to_plot |> 
+#                                             filter(env_obj == 'EF1' & 
+#                                                      scenario == 'climatebaseadapt0') |> 
+#                                             mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
+#                            paste0(climate_code, adapt_code))),
+#                                           y_col = 'ewr_achieved',
+#                                           pal_list = achieve_pal)),
+#                 setLimits = c(0,1)) +
+#   theme(axis.ticks = element_blank(), 
+#                          axis.text=element_blank())
+# 
+# # same, but just let the colors be the same ramp and see if it's visible
+# ef_gauges_undercolor_same <- agged_data$env_obj |>
+#     dplyr::filter(env_obj == 'EF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
+#   # clean names
+#   mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
+#                            paste0(climate_code, adapt_code))) |> 
+#   plot_outcomes(outcome_col = 'ewr_achieved',
+#                 outcome_lab = 'Proportion\nEWR achieved',
+#                 plot_type = 'map',
+#                 colorset = 'ewr_achieved',
+#                 pal_list = achieve_pal,
+#                 facet_row = 'scenario',
+#                 facet_col = 'env_obj',
+#                 underlay_list = list(list(underlay = basin,
+#                                      pal_list = 'azure'),
+#                                      list(underlay = obj_sdl_to_plot |> 
+#                                             filter(env_obj == 'EF1' & 
+#                                                      scenario == 'climatebaseadapt0') |> 
+#                                             mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
+#                            paste0(climate_code, adapt_code))),
+#                                           y_col = 'ewr_achieved',
+#                                           pal_list = achieve_pal)),
+#                 setLimits = c(0,1)) +
+#   theme(axis.ticks = element_blank(), 
+#                          axis.text=element_blank())
 
 ```
 
 Maps allow large-scale visualization of environmental objectives under various scenarios. These visualisations can be quite important for communications and quickly grasping spatial patterns in the data ([@fig-gauge-to-sdl-map]). Management targets are often defined spatially. Representing the outcomes as maps can provide intuitive assessment of the condition of values across space and whether different spatial units are responding differently to scenarios. Moreover, the ecology (in this example) or other processes might themselves be large-scale, and so capturing the condition over a large area is a better descriptor of the true outcome than assessing each specific location separately. For example, objective EF3 is "Provide movement and dispersal opportunities for water dependent biota to complete lifecycles and disperse into new habitats within catchments", and so necessarily incorporates a spatial dimension. Particularly in these situations, the aggregation method should be considered carefully- for movement opportunities to succeed, perhaps the success of the SDL unit should be determined by the lowest value at a gauge if it represents a loss of connectivity. In contrast, for WB4: Increase opportunities for colonial waterbird breeding, it might be sufficient if a single site within the SDL unit provides those opportunities.
 
-*I can't decide how best to show this, so I produced a few different options ([@sec-map-versions]). See what you prefer (or come up with other ideas).*
+*I can't decide how best to show this, so I produced a few different options ([@sec-map-versions]). See what you prefer (or come up with other ideas). I need to make the Planning Unit scale more readable.*
 
 ```{r}
 #| label: fig-gauge-to-sdl-map
-#| fig-cap: "Environmental objectives aggregated to SDL unit spatial scale, illustrated here for Priority Ecosystem Function. Polygon colors indicate the proportion of EWR passed for each objective in each SDL unit. Panel A includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x) and three adaptation options 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d). In panel B, we highlight one environmental objective (EF1) under one scenario (the baseline, E1) to illustrate the proportion of EWR passed for that objective (point colour) at each gauge location (points). The outcome for the SDL unit in a are then the mean over these points." 
+#| fig-cap: "Environmental objectives aggregated to SDL unit spatial scale, illustrated here for Priority Ecosystem Function. Polygon colors indicate the proportion of EWR passed for each objective in each SDL unit. Panel A includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x) and three adaptation options 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d). In panel B, we highlight one environmental objective (EF1) under one scenario (the baseline, E1) to illustrate the proportion of EWR passed for that objective (point colour) at each gauge location (points), which provide the assessment at each Planning Unit (middle). The outcomes for the SDL unit (bottom) in a are then the area-weighted mean over the planning unit outcomes." 
 
-# Simplest- gauges on grey
-(ef_maps + theme(legend.position = 'none') ) + 
-  wrap_elements(ef_gauges + 
-                  guides(color = guide_colourbar(title.position="top")) +
-                  theme(legend.position = 'bottom')) + 
+# Glue up gauges, pu, and sdl example on left
+
+
+(ef_maps_few + theme(legend.position = 'bottom') ) + 
+  wrap_elements((ef_gauges + theme(legend.position = 'none')) / 
+                  (ef_PU + theme(legend.position = 'none')) /
+                  (ef_maps_single + theme(legend.position = 'none')) +
+                  plot_layout(guides = 'collect')) + 
   plot_annotation( tag_levels = 'a') +
-  plot_layout(widths = c(2,1))
+  plot_layout(widths = c(3,2))
 
 
 ```
@@ -890,13 +951,12 @@ gl_difference <- obj_sdl_to_plot |>
                            paste0(climate_code, adapt_code)), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
   
-  plot_outcomes(y_col = 'ewr_achieved',
-                y_lab = "Proportion EWR achieved",
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = "Proportion EWR achieved",
                 x_col = "scenario_difference",
                 x_lab = "Mean flow difference (GL)",
                 colorgroups = 'env_group',
                 colorset = 'env_obj',
-                # pal_list = list('ggthemes::Tableau_20'),
                 pal_list = env_pals,
                 # base_lev = 'E1',
                 # comp_fun = 'difference',
@@ -949,9 +1009,9 @@ sdl_smooth_groups <- obj_sdl_to_plot |>
                            paste0(climate_code, adapt_code)), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n'),
          adapt_code = as.character(adapt_code)) |>
-  plot_outcomes(y_col = 'ewr_achieved',
+  plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_multiplier',
-                y_lab = 'Environmental objectives',
+                outcome_lab = 'Environmental objectives',
                 x_lab = 'Flow relative to baseline',
                 transx = 'log10',
                 transy = 'log10',
@@ -981,9 +1041,9 @@ sdl_smooth_groups_flipped <- obj_sdl_to_plot |>
   mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
                            paste0(climate_code, adapt_code)), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |>
-  plot_outcomes(y_col = 'ewr_achieved',
+  plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_multiplier',
-                y_lab = 'Environmental objectives\nrelative to baseline',
+                outcome_lab = 'Environmental objectives\nrelative to baseline',
                 x_lab = 'Flow relative to baseline',
                 transx = 'log10',
                 transy = 'log10',
@@ -1016,9 +1076,9 @@ sdl_smooth_clim <- obj_sdl_to_plot |>
   mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
                            paste0(climate_code, adapt_code)), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |>
-  plot_outcomes(y_col = 'ewr_achieved',
+  plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_multiplier',
-                y_lab = 'Environmental objectives',
+                outcome_lab = 'Environmental objectives',
                 x_lab = 'Flow relative to baseline',
                 transx = 'log10',
                 transy = 'log10',
@@ -1048,9 +1108,9 @@ sdl_smooth_adapt <- obj_sdl_to_plot |>
   mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
                            paste0(climate_code, adapt_code)), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |>
-  plot_outcomes(y_col = 'ewr_achieved',
+  plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_addition',
-                y_lab = 'Environmental objectives',
+                outcome_lab = 'Environmental objectives',
                 x_lab = 'Flow addition (ML/d)',
                 transx = 'log10',
                 transy = 'log10',
@@ -1384,7 +1444,6 @@ patchwork::wrap_plots(aggNetworkdown_sub_rel_grob,
 
 ```
 
-
 # Implications and conclusions
 
 *This needs more work, but I want to make sure you agree we're on the right track with the intro and this outline before spending too much time on it*
@@ -1541,14 +1600,14 @@ base_hydro_adapt
 
 ### Map aggregation {#sec-map-versions}
 
-The goal here is to show the values at the sdl scale, but also to show how the gauges aggregate to that scale. See which one works best, and make suggestions for improvements, please. In the text, @fig-gauge-to-sdl-map has just a large number of env_objs and scenarios in a and the gauges on grey sdl units in b. @fig-gauge-to-sdl-map-few is similar, it just reduces the panels so it's easier to see which matches b. @fig-gauge-to-sdl-map-stepwise-agg shows both steps of the gauge to sdl aggregation in panel b. @fig-gauge-to-sdl-map-gaugecolor has the gauges and sdl colors overlaid in b, but that requires using different color ramps for the same variable, which might be confusing. @fig-gauge-to-sdl-map-gaugecolor-same does the same overlay, but uses the same colorramp, which is better for meaning, but worse to see what's happening (maybe?).
+The goal here is to show the values at the sdl scale, but also to show how the gauges aggregate to that scale. See which one works best, and make suggestions for improvements, please. In the text, @fig-gauge-to-sdl-map has just a large number of env_objs and scenarios in a and the gauges on grey sdl units in b. @fig-gauge-to-sdl-map-all is similar, it just includes all the panels. @fig-gauge-to-sdl-map-stepwise-agg shows both steps of the gauge to sdl aggregation in panel b. @fig-gauge-to-sdl-map-gaugecolor has the gauges and sdl colors overlaid in b, but that requires using different color ramps for the same variable, which might be confusing. @fig-gauge-to-sdl-map-gaugecolor-same does the same overlay, but uses the same colorramp, which is better for meaning, but worse to see what's happening (maybe?).
 
 ```{r}
-#| label: fig-gauge-to-sdl-map-few
-#| fig-cap: "reduces the panels so it's easier to see which matches b." 
+#| label: fig-gauge-to-sdl-map-all
+#| fig-cap: "all panels version." 
 
 # reduced set of objectives and scenarios- closer to the next option
-(ef_maps_few + theme(legend.position = 'none') ) + 
+(ef_maps + theme(legend.position = 'none') ) + 
   wrap_elements(ef_gauges + 
                   guides(color = guide_colourbar(title.position="top")) +
                   theme(legend.position = 'bottom')) + 
@@ -1763,7 +1822,6 @@ patchwork::wrap_plots(aggNetworkdown_sub_grob,
                       design = layout2) +
   plot_annotation(tag_levels = list(c('a', 'b', 'c')))
 ```
-
 
 ------------------------------------------------------------------------
 
