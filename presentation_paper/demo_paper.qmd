@@ -117,10 +117,10 @@ hydro_dir = file.path(project_dir, 'hydrographs')
 ewr_results <- file.path(project_dir, 'module_output', 'EWR')  
 
 # outputs of aggregator
-agg_results <- file.path(project_dir, 'aggregator_output') 
+agg_results <- file.path(project_dir, 'aggregator_output', 'sdl_target') 
 
 # outputs of aggregator
-agg_results_sdlTarget <- file.path(project_dir, 'aggregator_output', 'sdl_target') 
+agg_results_pooled_ewrs <- file.path(project_dir, 'aggregator_output', 'pooled_ewr') 
 
 ```
 
@@ -203,7 +203,7 @@ agged_data <- readRDS(file.path(agg_results, 'achievement_aggregated.rds')) |>
   purrr::map(\(x) left_join(x, scenarios, by = 'scenario'))
 
 #Agg data (1.2 GB)
-agged_data_sdlTarget <- readRDS(file.path(agg_results_sdlTarget, 'achievement_aggregated.rds')) |>
+agged_data_pooled_ewrs <- readRDS(file.path(agg_results_pooled_ewrs, 'achievement_aggregated.rds')) |>
   purrr::map(\(x) mutate(x, 
                          scenario = stringr::str_remove_all(scenario, '.*0_'))) |>
   purrr::map(\(x) left_join(x, scenarios, by = 'scenario'))
@@ -594,16 +594,6 @@ Here, we present example results from the toolkit using the demonstration scenar
 #| label: simplfy-for-plots
 #| include: false
 
-# make the super long names shorter but less useful.
-basin_to_plot <- agged_data$mdb %>% 
-  dplyr::filter(!is.na(Objective)) %>% 
-  dplyr::mutate(Objective = stringr::str_trunc(Objective, 15)) %>% 
-  dplyr::group_by(scenario, Objective) %>% 
-  dplyr::mutate(id = as.character(row_number())) %>% 
-  dplyr::ungroup() %>% 
-  dplyr::mutate(Objective = stringr::str_c(Objective, '_', id)) %>% 
-  dplyr::select(-id)
-
 # Create a grouping variable
 obj_sdl_to_plot <- agged_data$sdl_units |>
   dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
@@ -688,7 +678,6 @@ This view provides a useful overview of the impact of different scenarios on the
 
 obj_in_groups <- obj_sdl_to_plot |>
   filter(env_group != 'EB') |> # There's only one, this is just distracting.
-  filter(!is.na(SWSDLName)) |> 
   filter(scenario %in% scenarios_to_plot) |> 
   # clean the names
   mutate(scenario = paste0(climate_code, adapt_code), 
@@ -710,8 +699,6 @@ obj_in_groups <- obj_sdl_to_plot |>
 maxdata <- obj_sdl_to_plot |> 
   st_drop_geometry() |> 
   filter(env_group != 'EB') |> # There's only one, this is just distracting.
-    filter(!is.na(SWSDLName)) |> 
-
   filter(scenario %in% "MAX") |> 
   # clean the names
   mutate(SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
@@ -771,8 +758,8 @@ agged_gauges <- agged_data$ewr_code |>
                     funsequence = 'ArithmeticMean', 
                     aggCols = 'ewr_achieved')
 
-ef_gauges <- agged_gauges |>
-    dplyr::filter(env_obj == 'EF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
+nf_gauges <- agged_gauges |>
+    dplyr::filter(env_obj == 'NF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
   # clean names
   mutate(scenario = paste0(climate_code, adapt_code)) |> 
   plot_outcomes(outcome_col = 'ewr_achieved',
@@ -791,8 +778,8 @@ ef_gauges <- agged_gauges |>
                          axis.text=element_blank())
 
 # The 'env_ob' dataset is at the planning unit scale before agg to sdl
-ef_PU <- agged_data$env_obj |>
-    dplyr::filter(env_obj == 'EF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
+nf_PU <- agged_data$env_obj |>
+    dplyr::filter(env_obj == 'NF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
   # clean names
   mutate(scenario = paste0(climate_code, adapt_code)) |> 
   plot_outcomes(outcome_col = 'ewr_achieved',
@@ -800,6 +787,7 @@ ef_PU <- agged_data$env_obj |>
                 plot_type = 'map',
                 colorset = 'ewr_achieved',
                 pal_list = achieve_pal,
+                map_outlinecolor = NA,
                 underlay_list = list(list(underlay = basin,
                                      pal_list = 'azure'),
                                      list(underlay = sdl_units |> 
@@ -813,8 +801,8 @@ ef_PU <- agged_data$env_obj |>
 # are there better ways to show this?
 
 # a single sdl map for comparison
-ef_maps_single <- obj_sdl_to_plot |>
-    dplyr::filter(env_obj == 'EF1' & scenario == 'climatebaseadapt0') |>
+nf_maps_single <- obj_sdl_to_plot |>
+    dplyr::filter(env_obj == 'NF1' & scenario == 'climatebaseadapt0') |>
   mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
                            paste0(climate_code, adapt_code)), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
@@ -831,8 +819,8 @@ ef_maps_single <- obj_sdl_to_plot |>
 
 # a smaller subset of sdls and scenarios
 # a single sdl map for comparison
-ef_maps_few <- obj_sdl_to_plot |>
-    dplyr::filter(env_obj %in% c('EF1', 'EF3', 'EF6') & 
+obj_maps_few <- obj_sdl_to_plot |>
+    dplyr::filter(env_obj %in% c('NF1', 'EF3', 'WB4') & 
                     scenario %in% c('climatedown2adapt250', 
                                     'climatebaseadapt0', 
                                     'climateup2adapt6500')) |>
@@ -912,25 +900,23 @@ ef_maps_few <- obj_sdl_to_plot |>
 
 ```
 
-Maps allow large-scale visualization of environmental objectives under various scenarios. These visualisations can be quite important for communications and quickly grasping spatial patterns in the data ([@fig-gauge-to-sdl-map]). Management targets are often defined spatially. Representing the outcomes as maps can provide intuitive assessment of the condition of values across space and whether different spatial units are responding differently to scenarios. Moreover, the ecology (in this example) or other processes might themselves be large-scale, and so capturing the condition over a large area is a better descriptor of the true outcome than assessing each specific location separately. For example, objective EF3 is "Provide movement and dispersal opportunities for water dependent biota to complete lifecycles and disperse into new habitats within catchments", and so necessarily incorporates a spatial dimension. Particularly in these situations, the aggregation method should be considered carefully- for movement opportunities to succeed, perhaps the success of the SDL unit should be determined by the lowest value at a gauge if it represents a loss of connectivity. In contrast, for WB4: Increase opportunities for colonial waterbird breeding, it might be sufficient if a single site within the SDL unit provides those opportunities.
+Maps allow large-scale visualization of environmental objectives under various scenarios. These visualisations can be quite important for communications and quickly grasping how outcomes aggregate spatially ([@fig-spatial-scaling]) and spatial patterns in the data ([@fig-gauge-to-sdl-map]). Management targets are often defined spatially, and in the case of EWRs, they are defined in local Planning Units, where outcomes may depend on hydrographs at one or more gauges. Representing the outcomes as maps can provide intuitive assessment of the condition of values across space and whether different spatial scales or spatial locations are responding differently to scenarios. Moreover, the ecology (in this example) or other processes might themselves be large-scale, and so capturing the condition over a large area is a better descriptor of the true outcome than assessing each specific location separately. For example, objective EF3 is "Provide movement and dispersal opportunities for water dependent biota to complete lifecycles and disperse into new habitats within catchments", and so necessarily incorporates a spatial dimension. Particularly in these situations, the aggregation method should be considered carefully- for movement opportunities to succeed, perhaps the success of the SDL unit should be determined by the lowest value at a gauge if it represents a loss of connectivity. In contrast, for WB4: Increase opportunities for colonial waterbird breeding, it might be sufficient if a single site within the SDL unit provides those opportunities.
 
-*I can't decide how best to show this, so I produced a few different options ([@sec-map-versions]). See what you prefer (or come up with other ideas). I need to make the Planning Unit scale more readable.*
+```{r}
+#| label: fig-spatial-scaling
+#| fig-cap: Environmental water requirements (EWRs) are defined by hydrographs at gauges (a), and apply to Planning Units (b). The outcomes at these scales of definition can then be aggregated to larger spatial areas, such as SDL units (c), which we do here with an area-weighted mean for the example EWR NF1 in the baseline climate and adaptation scenario (E1, simple historical hydrograph with no climate or adaptation changes).
+
+
+nf_gauges + nf_PU + nf_maps_single +
+  plot_layout(guides = 'collect') &
+  theme(legend.position = 'bottom')
+```
 
 ```{r}
 #| label: fig-gauge-to-sdl-map
-#| fig-cap: "Environmental objectives aggregated to SDL unit spatial scale, illustrated here for Priority Ecosystem Function. Polygon colors indicate the proportion of EWR passed for each objective in each SDL unit. Panel A includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x) and three adaptation options 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d). In panel B, we highlight one environmental objective (EF1) under one scenario (the baseline, E1) to illustrate the proportion of EWR passed for that objective (point colour) at each gauge location (points), which provide the assessment at each Planning Unit (middle). The outcomes for the SDL unit (bottom) in a are then the area-weighted mean over the planning unit outcomes." 
+#| fig-cap: "Environmental objectives aggregated to SDL unit spatial scale, illustrated here for three examples (Priority Ecosystem Function 3, Native Fish 1, and Waterbirds 4). Polygon colors indicate the proportion of EWR passed for each objective in each SDL unit. Aggregation as in @fig-spatial-scaling. Includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x) and three adaptation options 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d), though not all combinations [see Appendix @sec-map-versions]."
 
-# Glue up gauges, pu, and sdl example on left
-
-
-(ef_maps_few + theme(legend.position = 'bottom') ) + 
-  wrap_elements((ef_gauges + theme(legend.position = 'none')) / 
-                  (ef_PU + theme(legend.position = 'none')) /
-                  (ef_maps_single + theme(legend.position = 'none')) +
-                  plot_layout(guides = 'collect')) + 
-  plot_annotation( tag_levels = 'a') +
-  plot_layout(widths = c(3,2))
-
+obj_maps_few
 
 ```
 
@@ -947,9 +933,7 @@ gl_difference <- obj_sdl_to_plot |>
   dplyr::filter(env_group == 'NF') |> 
   left_join(dif_flow, by = 'scenario') |> 
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
-         SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
+  mutate(SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
   
   plot_outcomes(outcome_col = 'ewr_achieved',
                 outcome_lab = "Proportion EWR achieved",
@@ -1005,8 +989,7 @@ sdl_smooth_groups <- obj_sdl_to_plot |>
   dplyr::filter(env_group != 'EB') |> 
   # mutate(ewr_achieved = ewr_achieved + 1) |> 
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n'),
          adapt_code = as.character(adapt_code)) |>
   plot_outcomes(outcome_col = 'ewr_achieved',
@@ -1024,12 +1007,13 @@ sdl_smooth_groups <- obj_sdl_to_plot |>
                 pal_list = adapt_pal,
                 facet_row = 'env_group',
                 facet_col = 'SWSDLName',
-                position = 'jitter',
-                base_lev = 'E1',
-                comp_fun = 'relative',
-                zero_adjust = 'auto',
-                group_cols = c('env_obj', 'polyID'),
-                smooth = TRUE)
+                position = 'jitter',                
+                zero_adjust = 'auto', # needed here to make the trans work.
+
+                base_list = list(base_lev = 'E1',
+                                 comp_fun = 'relative',
+                                 group_cols = c('env_obj', 'polyID')),
+                smooth_arglist = list())
 
 # This is better in some ways and worse in others, flippig the colors and facets
 sdl_smooth_groups_flipped <- obj_sdl_to_plot |>
@@ -1038,8 +1022,7 @@ sdl_smooth_groups_flipped <- obj_sdl_to_plot |>
   dplyr::filter(env_group != 'EB') |> 
   # mutate(ewr_achieved = ewr_achieved + 1) |> 
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |>
   plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_multiplier',
@@ -1057,11 +1040,12 @@ sdl_smooth_groups_flipped <- obj_sdl_to_plot |>
                 facet_row = 'adapt_code',
                 facet_col = 'SWSDLName',
                 position = 'jitter',
-                base_lev = 'E1',
-                comp_fun = 'relative',
-                zero_adjust = 'auto',
-                group_cols = c('env_obj', 'polyID'),
-                smooth = TRUE)
+                zero_adjust = 'auto', # needed here to make the trans work.
+
+                base_list = list(base_lev = 'E1',
+                                 comp_fun = 'relative',
+                                 group_cols = c('env_obj', 'polyID')),
+                smooth_arglist = list())
 
 
 # What if we really try to smash down what we're showing? The adaptations are blowing it out. Which is a good message, but confusing. Maybe it's a two-parter?
@@ -1073,8 +1057,7 @@ sdl_smooth_clim <- obj_sdl_to_plot |>
   dplyr::filter(env_group != 'EB') |> 
   # mutate(ewr_achieved = ewr_achieved + 1) |> 
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |>
   plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_multiplier',
@@ -1091,11 +1074,12 @@ sdl_smooth_clim <- obj_sdl_to_plot |>
                 facet_row = '.',
                 facet_col = 'SWSDLName',
                 position = 'jitter',
-                base_lev = 'E1',
-                comp_fun = 'relative',
-                zero_adjust = 'auto',
-                group_cols = c('env_obj', 'polyID'),
-                smooth = TRUE)
+                zero_adjust = 'auto', # needed here to make the trans work.
+
+                base_list = list(base_lev = 'E1',
+                                 comp_fun = 'relative',
+                                 group_cols = c('env_obj', 'polyID')),
+                smooth_arglist = list())
 
 # Next, the adaptation response at no climate
 sdl_smooth_adapt <- obj_sdl_to_plot |>
@@ -1105,8 +1089,7 @@ sdl_smooth_adapt <- obj_sdl_to_plot |>
   # get the log to work, saying we added 1 is fine here
   mutate(flow_addition = flow_addition + 1) |>
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |>
   plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_addition',
@@ -1123,11 +1106,11 @@ sdl_smooth_adapt <- obj_sdl_to_plot |>
                 facet_row = '.',
                 facet_col = 'SWSDLName',
                 position = 'jitter',
-                base_lev = 'E1',
-                comp_fun = 'relative',
-                zero_adjust = 'auto',
-                group_cols = c('env_obj', 'polyID'),
-                smooth = TRUE)
+                zero_adjust = 'auto', # needed here to make the trans work.
+                base_list = list(base_lev = 'E1',
+                                 comp_fun = 'relative',
+                                 group_cols = c('env_obj', 'polyID')),
+                smooth_arglist = list())
 ```
 
 With a large number of scenarios, we can better characterise the way values respond along different axes of change. Here, we use smoothed fits to show trends in the performance of environmental objectives (and groups thereof) in response to multiplicative flow changes ('climate' scenarios) and pulsed flow additions ('adaptations) (@fig-smooth-climate-adapt, @fig-smooth-all). We use baselining (see @sec-baselining) to show the relative change on both the x (flow) and y (response) axes. Thus, any slope other than 1:1 represents a disproportionate shift in condition. Moreover, because we use smoothed fits, we can identify thresholds or areas of flow change that are disproportionately more important (small changes in flow can yield large shifts in condition). We set the limits of @fig-smooth-climate-adapt equal for x and y to better visualise this proportionality or lack thereof. For example, Other Species and Native Vegetation show steeper increases with increasing flow relative to baseline than decreasing flow, while Native Fish respond disproportionately to flow change across the range considered here.
@@ -1171,95 +1154,108 @@ Perhaps most usefully, if scenarios are carefully developed to explore the range
 # Use the Target here to get to the big groups
 
 # qualitative axes
-qual_heatmap <- agged_data_sdlTarget$Target |>
+qual_heatmap <- agged_data_pooled_ewrs$Target |>
   dplyr::filter(adapt_code %in% c(1,2,3, 4) &
                   scenario != 'MAX') |> # max isn't really relevant here
   dplyr::filter(!is.na(Target)) |> 
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n'),
          Target = stringr::str_replace(Target, 'Priority e', 'E'),
          adapt_code = as.character(adapt_code)) |>
-  ggplot(aes(x = climate_code, y = adapt_code, fill = ewr_achieved)) + 
-  geom_tile() + 
-  facet_grid(Target ~ SWSDLName) +
-  theme_werp_toolkit() +
-  paletteer::scale_fill_paletteer_c('grDevices::Viridis', limits = c(0,1)) +
-  labs(x = "Climate scenario", y = "Adaptation Option", fill = "Condition")
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Condition',
+                y_col = 'adapt_code', 
+                y_lab = 'Adaptation option',
+                x_col = 'climate_code', 
+                x_lab = 'Climate scenario',
+                plot_type = 'heatmap',
+                colorset = 'ewr_achieved',
+                pal_list = 'grDevices::Viridis',
+                facet_row = 'Target',
+                facet_col = 'SWSDLName')
 
 # Quantitative axes- it's more informative, but uglier
-quant_heatmap <- agged_data_sdlTarget$Target |>
+quant_heatmap <- agged_data_pooled_ewrs$Target |>
   dplyr::filter(adapt_code %in% c(1,2,3) &
                   scenario != 'MAX') |> # max isn't really relevant here
   dplyr::filter(!is.na(Target)) |> 
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n'),
          Target = stringr::str_replace(Target, 'Priority e', 'E'),
          adapt_code = as.character(adapt_code)) |>
-  ggplot(aes(x = flow_multiplier, y = flow_addition+1, fill = ewr_achieved)) + 
-  geom_tile() + 
-  facet_grid(Target ~ SWSDLName) +
-  theme_werp_toolkit() +
-  paletteer::scale_fill_paletteer_c('grDevices::Viridis', limits = c(0,1)) +
-  labs(x = "Flow multiplier", y = "Flow addition", fill = "Condition") +
-  scale_y_continuous(trans = 'log10') + 
-  scale_x_continuous(trans = 'log10')
+  mutate(flow_addition = flow_addition + 1) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Condition',
+                y_col = 'flow_addition', 
+                y_lab = 'Flow addition',
+                x_col = 'flow_multiplier', 
+                x_lab = "Flow multiplier",
+                plot_type = 'heatmap',
+                transy = 'log10',
+                transx = 'log10',
+                colorset = 'ewr_achieved',
+                pal_list = 'grDevices::Viridis',
+                facet_row = 'Target',
+                facet_col = 'SWSDLName',
+                setLimits = c(0,1))
 
-# experimental- points and fitted surfaces?
-point_heatmap <- agged_data_sdlTarget$Target |>
-  dplyr::filter(adapt_code %in% c(1,2,3, 4) &
+# interpolated raster- just one argument different
+  # THe spacing is too uneven though
+quant_interp_heatmap <- agged_data_pooled_ewrs$Target |>
+  dplyr::filter(adapt_code %in% c(1,2,3) &
                   scenario != 'MAX') |> # max isn't really relevant here
   dplyr::filter(!is.na(Target)) |> 
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n'),
          Target = stringr::str_replace(Target, 'Priority e', 'E'),
          adapt_code = as.character(adapt_code)) |>
-  ggplot(aes(x = flow_multiplier, y = flow_addition+1, color = ewr_achieved)) + 
-  geom_point() + 
-  facet_grid(Target ~ SWSDLName) +
-  theme_werp_toolkit() +
-  paletteer::scale_color_paletteer_c('grDevices::Viridis', limits = c(0,1)) +
-  labs(x = "Flow multiplier", y = "Flow addition", fill = "Condition") +
-  scale_y_continuous(trans = 'log10') + 
-  scale_x_continuous(trans = 'log10')
+  mutate(flow_addition = flow_addition + 1) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Condition',
+                y_col = 'flow_addition', 
+                y_lab = 'Flow addition',
+                x_col = 'flow_multiplier', 
+                x_lab = "Flow multiplier",
+                plot_type = 'heatmap',
+                transy = 'log10',
+                transx = 'log10',
+                colorset = 'ewr_achieved',
+                pal_list = 'grDevices::Viridis',
+                facet_row = 'Target',
+                facet_col = 'SWSDLName',
+                setLimits = c(0,1),
+                contour_arglist = list(interpolate = TRUE))
 
 # This would be better if we had a more even and tighter set of scenarios
-contour_heatmap <- agged_data_sdlTarget$Target |>
-  dplyr::filter(adapt_code %in% c(1,2,3, 4) &
+  contour_heatmap <- agged_data_pooled_ewrs$Target |>
+  dplyr::filter(adapt_code %in% c(1,2,3) &
                   scenario != 'MAX') |> # max isn't really relevant here
   dplyr::filter(!is.na(Target)) |> 
   # clean names
-  mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code)), 
+  mutate(scenario = paste0(climate_code, adapt_code), 
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n'),
          Target = stringr::str_replace(Target, 'Priority e', 'E'),
          adapt_code = as.character(adapt_code)) |>
-  ggplot(aes(x = flow_multiplier, y = flow_addition+1, 
-             z = ewr_achieved)) + 
-  geom_contour_filled(breaks = seq(0, 1, 0.1)) + 
-  facet_grid(Target ~ SWSDLName) +
-  theme_werp_toolkit() +
-  labs(x = "Flow multiplier", y = "Flow addition", fill = "Condition") +
-  scale_y_continuous(trans = 'log10') + 
-  scale_x_continuous(trans = 'log10')
-
-# This is for Galen's reference for developing the function, I think- overlay points and change the fill ramp
-
-# Changing the fill for geom_contour_filled needs bins. The easiest way to make that work from a continuous scale is to get the colors and then use manual.
-binpal <- paletteer::paletteer_c('grDevices::Plasma', n = 10)
-
-contour_point_heatmap <- contour_heatmap +
-  # Change the fill scale
-  scale_fill_manual(values = binpal) +
-  # ideally, we'd use the same color ramp and fill these points with a black circle around them. But that conflicts with the binned fill for the contour
-  # geom_point(shape = 21, color = 'black')
-  geom_point(mapping = aes(color = ewr_achieved)) +
-  paletteer::scale_color_paletteer_c('grDevices::Viridis')
+  mutate(flow_addition = flow_addition + 1) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Condition',
+                y_col = 'flow_addition', 
+                y_lab = 'Flow addition',
+                x_col = 'flow_multiplier', 
+                x_lab = "Flow multiplier",
+                plot_type = 'heatmap',
+                transy = 'log10',
+                transx = 'log10',
+                colorset = 'ewr_achieved',
+                pal_list = 'grDevices::Viridis',
+                facet_row = 'Target',
+                facet_col = 'SWSDLName',
+                setLimits = c(0,1),
+                contour_arglist = list()
+  )
 
 ```
 
@@ -1282,15 +1278,17 @@ Causal networks can be used to show outcomes in addition to the causal relations
 # just get the theme-scale values
 # First we need the sequence lists
 
-aggparams <- yaml::read_yaml(file.path(agg_results_sdlTarget,
+aggparams <- yaml::read_yaml(file.path(agg_results,
                                       'agg_metadata.yml'))
 
 themeseq <- aggparams$aggregation_sequence[
-  names(aggparams$aggregation_sequence) != 'sdl_units'
+  !names(aggparams$aggregation_sequence) %in%
+    c('planning_unit', 'sdl_units', 'mdb')
 ]
 
 themefuns <- aggparams$aggregation_funsequence[
-  names(aggparams$aggregation_funsequence) != 'sdl_units'
+  !names(aggparams$aggregation_sequence) %in%
+    c('planning_unit', 'sdl_units', 'mdb')
 ]
 
 # skip the _timing
@@ -1301,7 +1299,7 @@ ewr_edges <- make_edges(dflist = causal_ewr,
 # get the nodes
 nodes <- make_nodes(ewr_edges)
 
-aggvals <- extract_vals_causal(agged_data_sdlTarget,
+aggvals <- extract_vals_causal(agged_data,
                                whichaggs = themefuns, 
                                valcol = 'ewr_achieved', 
                                targetlevels = names(themeseq))
@@ -1394,7 +1392,7 @@ limtib <- tibble(x = seq(from = lims[1], to = lims[2], length.out = 10), y = 1) 
 limtib <- tibble(x = labeling::extended(lims[1], lims[3], 5), y = 1)
 
 allcols <- limtib |>
-  grouped_colours(pal_list = list(compare_pal), colorset = 'x')
+  grouped_colors(pal_list = list(compare_pal), colorset = 'x')
 
 # Can I just make the legend and then steal it? using pretty breaks
 
@@ -1415,7 +1413,7 @@ net_legend <- ggpubr::get_legend(pal_ggc) |>
 # ggsave('images/aggNetworkup_sub_legend.png', width = 1, height = 2, units = 'cm')
 ```
 
-*I'll make this plot work better. It's cobbled together from saved objects for now. We need a way to do legends on the plots. And panels. Diagrammer is great for html but otherwise a disaster. I need to actually fix the plot code. Leaving it ugly for now.*
+*I'm working on better network plotting. Diagrammer is great for html but not for static output.*
 
 ```{r}
 #| label: fig-network-subset
@@ -1549,19 +1547,22 @@ base_hydro_clim <- scenehydros |>
     dplyr::filter(scenario %in% scenarios_to_plot & 
                     gauge %in% gauges_to_plot & 
                     flow_addition == 0) |>
-    baseline_compare(compare_col = 'scenario',
-                     base_lev = "climatebaseadapt0",
+    plot_outcomes(outcome_col = 'flow',
+                  outcome_lab = 'Relative flow',
+                  x_col = 'Date',
+                  colorset = 'gauge',
+                  color_lab = 'Gauge ID:',
+                  pal_list = gauge_pal,
+                  base_list = list(base_lev = "climatebaseadapt0",
                      values_col = 'flow',
-                     comp_fun = c("relative"),
-                     group_cols = c('Date', 'gauge')) |> 
-    ggplot2::ggplot(ggplot2::aes(x = Date, y = relative_flow, color = gauge)) +
-    ggplot2::geom_line() +
-    ggplot2::facet_grid(. ~ climate_code, scales = 'fixed') +
-    ggplot2::labs(y = paste0("Relative flow"), color = 'Gauge ID:') +
-    ggplot2::scale_x_date(sec.axis = sec_axis(~ . ,
+                     comp_fun = "relative",
+                     group_cols = c('Date', 'gauge')),
+                  facet_col = 'climate_code')
+
+ base_hydro_clim <- base_hydro_clim +
+   ggplot2::scale_x_date(sec.axis = sec_axis(~ . ,
                                               name = "Climate scenarios",
                                               breaks = NULL, labels = NULL)) +
-    ggplot2::scale_color_manual(values = gauge_pal) +
     theme_werp_toolkit(legend.position = "bottom")+
       guides(colour=guide_legend(nrow=2,byrow=TRUE))
 
@@ -1577,19 +1578,20 @@ base_hydro_adapt <- scenehydros |>
     dplyr::filter(scenario %in% scenarios_to_plot & 
                     gauge %in% gauges_to_plot & 
                     flow_multiplier == 1) |>
-    baseline_compare(compare_col = 'scenario',
-                     base_lev = "climatebaseadapt0",
+      plot_outcomes(outcome_col = 'flow',
+                  outcome_lab = 'Difference flow',
+                  x_col = 'Date',
+                  colorset = 'gauge',
+                  color_lab = 'Gauge ID:',
+                  pal_list = gauge_pal,
+                  base_list = list(base_lev = "climatebaseadapt0",
                      values_col = 'flow',
-                     comp_fun = c("difference"),
-                     group_cols = c('Date', 'gauge')) |> 
-    ggplot2::ggplot(ggplot2::aes(x = Date, y = difference_flow, color = gauge)) +
-    ggplot2::geom_line() +
-    ggplot2::facet_grid(. ~ adapt_code, scales = 'fixed') +
-    ggplot2::labs(y = paste0("Change in flow"), color = 'Gauge ID:') +
+                     comp_fun = "difference",
+                     group_cols = c('Date', 'gauge')),
+                  facet_col = 'adapt_code') +
     ggplot2::scale_x_date(sec.axis = sec_axis(~ . ,
                                               name = "Adaptation options",
                                               breaks = NULL, labels = NULL)) +
-    ggplot2::scale_color_manual(values = gauge_pal) +
     theme_werp_toolkit(legend.position = "bottom")+
       guides(colour=guide_legend(nrow=2,byrow=TRUE))
 
@@ -1600,7 +1602,7 @@ base_hydro_adapt
 
 ### Map aggregation {#sec-map-versions}
 
-The goal here is to show the values at the sdl scale, but also to show how the gauges aggregate to that scale. See which one works best, and make suggestions for improvements, please. In the text, @fig-gauge-to-sdl-map has just a large number of env_objs and scenarios in a and the gauges on grey sdl units in b. @fig-gauge-to-sdl-map-all is similar, it just includes all the panels. @fig-gauge-to-sdl-map-stepwise-agg shows both steps of the gauge to sdl aggregation in panel b. @fig-gauge-to-sdl-map-gaugecolor has the gauges and sdl colors overlaid in b, but that requires using different color ramps for the same variable, which might be confusing. @fig-gauge-to-sdl-map-gaugecolor-same does the same overlay, but uses the same colorramp, which is better for meaning, but worse to see what's happening (maybe?).
+The goal here is to show the values at the sdl scale, but also to show how the gauges aggregate to that scale. In the text, @fig-gauge-to-sdl-map has a few examples of SDL-scaled outcomes, while @fig-spatial-scaling has the scaling for one. @fig-gauge-to-sdl-map-all shows the SDL outcomes for all Environmental objectives contributing the Priority Ecosystem Function, along with the constituent gauges.
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-all
@@ -1615,57 +1617,6 @@ The goal here is to show the values at the sdl scale, but also to show how the g
   plot_layout(widths = c(2,1))
 
 
-```
-
-```{r}
-#| label: fig-gauge-to-sdl-map-stepwise-agg
-#| fig-cap: "both steps of the gauge to sdl aggregation in panel b." 
-
-
-# buildup agg demo- gauges on grey and sdl outcome
-gauge_to_sdl <- (ef_gauges + 
-                   guides(color = guide_colourbar(title.position="top")) ) / 
-  (ef_maps_single + 
-     guides(fill = guide_colourbar(title.position="top"))) + 
-  plot_layout(guides = 'collect') &
-  theme(legend.position = 'bottom')
-
-(ef_maps + theme(legend.position = 'none') ) + 
-  wrap_elements(gauge_to_sdl) + 
-  plot_annotation( tag_levels = 'a') +
-  plot_layout(widths = c(2,1))
-
-
-```
-
-```{r}
-#| label: fig-gauge-to-sdl-map-gaugecolor
-#| fig-cap: "gauges and sdl colors overlaid in b, but that requires using different color ramps for the same variable, which might be confusing." 
-
-
-# gauges in a different color ramp
-(ef_maps + theme(legend.position = 'none') ) + 
-  wrap_elements(ef_gauges_undercolor + 
-                  guides(color = guide_colourbar(title.position="top"),
-                         fill = guide_colourbar(title.position="top")) +
-                  theme(legend.position = 'bottom')) + #, legend.box = 'vertical'
-  plot_annotation( tag_levels = 'a') +
-  plot_layout(widths = c(2,1))
-```
-
-```{r}
-#| label: fig-gauge-to-sdl-map-gaugecolor-same
-#| fig-cap: "overlay, but uses the same colorramp, which is better for meaning, but worse to see what's happening (maybe?)." 
-
-
-# gauges in a different color ramp
-(ef_maps + theme(legend.position = 'none') ) + 
-  wrap_elements(ef_gauges_undercolor_same + 
-                  guides(color = guide_colourbar(title.position="top"),
-                         fill = guide_colourbar(title.position="top")) +
-                  theme(legend.position = 'bottom')) + #, legend.box = 'vertical'
-  plot_annotation( tag_levels = 'a') +
-  plot_layout(widths = c(2,1))
 ```
 
 ### Heatmaps
