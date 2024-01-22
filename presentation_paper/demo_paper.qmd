@@ -62,6 +62,10 @@ echo: false
 
 *Author list not set- anyone else? Anyone to drop? Strong feelings about order?*
 
+*There are too many figures, though I can at least panel a few more than I currently do*.
+
+*Target journal: [Environmental Modelling and Software](https://www-sciencedirect-com.ezproxy-b.deakin.edu.au/journal/environmental-modelling-and-software)*
+
 ```{r}
 #| eval: false
 
@@ -1008,7 +1012,7 @@ sdl_smooth_groups <- obj_sdl_to_plot |>
                 facet_row = 'env_group',
                 facet_col = 'SWSDLName',
                 position = 'jitter',                
-                zero_adjust = 'auto', # needed here to make the trans work.
+                zero_adjust = 0.01, # needed here to make the trans work.
 
                 base_list = list(base_lev = 'E1',
                                  comp_fun = 'relative',
@@ -1040,7 +1044,7 @@ sdl_smooth_groups_flipped <- obj_sdl_to_plot |>
                 facet_row = 'adapt_code',
                 facet_col = 'SWSDLName',
                 position = 'jitter',
-                zero_adjust = 'auto', # needed here to make the trans work.
+                zero_adjust = 0.01, # needed here to make the trans work.
 
                 base_list = list(base_lev = 'E1',
                                  comp_fun = 'relative',
@@ -1074,7 +1078,7 @@ sdl_smooth_clim <- obj_sdl_to_plot |>
                 facet_row = '.',
                 facet_col = 'SWSDLName',
                 position = 'jitter',
-                zero_adjust = 'auto', # needed here to make the trans work.
+                zero_adjust = 0.01, # needed here to make the trans work.
 
                 base_list = list(base_lev = 'E1',
                                  comp_fun = 'relative',
@@ -1106,7 +1110,7 @@ sdl_smooth_adapt <- obj_sdl_to_plot |>
                 facet_row = '.',
                 facet_col = 'SWSDLName',
                 position = 'jitter',
-                zero_adjust = 'auto', # needed here to make the trans work.
+                zero_adjust = 0.01, # needed here to make the trans work.
                 base_list = list(base_lev = 'E1',
                                  comp_fun = 'relative',
                                  group_cols = c('env_obj', 'polyID')),
@@ -1129,7 +1133,7 @@ The responses seen in @fig-smooth-all and @fig-smooth-climate-adapt vary between
 
 
 (sdl_smooth_clim  + coord_cartesian(ylim = c(0.5, 2)) )/
-  sdl_smooth_adapt + coord_cartesian(ylim = c(1, 10000)) +
+  sdl_smooth_adapt +
   plot_layout(guides = 'collect') +
   plot_annotation( tag_levels = 'a')
 ```
@@ -1339,7 +1343,7 @@ basenodes <- nodes_with_vals |>
                    values_col = 'ewr_achieved',
                    group_cols = c('Name', 'NodeType', 'nodeorder'),
                    comp_fun = 'relative',
-                   add_eps = 'auto') |> 
+                   add_eps = 0.01) |> 
   mutate(logrel_ewr_achieved = log(relative_ewr_achieved))
 ```
 
@@ -1610,7 +1614,7 @@ The goal here is to show the values at the sdl scale, but also to show how the g
 
 # reduced set of objectives and scenarios- closer to the next option
 (ef_maps + theme(legend.position = 'none') ) + 
-  wrap_elements(ef_gauges + 
+  wrap_elements(nf_gauges + 
                   guides(color = guide_colourbar(title.position="top")) +
                   theme(legend.position = 'bottom')) + 
   plot_annotation( tag_levels = 'a') +
@@ -1773,80 +1777,6 @@ patchwork::wrap_plots(aggNetworkdown_sub_grob,
                       design = layout2) +
   plot_annotation(tag_levels = list(c('a', 'b', 'c')))
 ```
-
-------------------------------------------------------------------------
-
-# Section outlines
-
-## Introduction
-
--   Water management seeks to change lots of values, but typically focuses on hydrology
-
--   Focusing on hydrology doesn't get us to the ultimate values, and so that link is a huge need
-
-    -   Need integrated modelling approach
-
-    -   Have been successful elsewhere, not available in MDB
-
--   Different models for linking hydrology to values
-
-    -   sometimes just assumptions
-
-    -   different expertise, different coding languages, different purposes
-
-    -   Hard for managers to use
-
-    -   Need to integrate to make useful and robust
-
--   Here we show such an integrated modelling system
-
-    -   A bit about the purpose- MDBA, what gets integrated
-
--   What's awesome about it
-
-    -   Modular
-
-    -   Transparent
-
-    -   Consistent
-
-    -   Repeatable
-
-    -   Management-targeted
-
--   We demonstrate with an example roughly capturing the properties of climate and climate adaptation, which is an MDBA need
-
-## Methods
-
--   Working in tandem with MDBA. *new*
-
--   Finding and assessing modules. *new*
-
--   Software dev stuff- R, python, shell, etc. Working locally or remotely. AND WHY. *New*
-
--   Basic design- take hydro, do stuff. Agnostic to scenario meaning *some new*
-
-    -   Also things like self-documenting, use on multiple systems, etc
-
--   Code structure *new*
-
--   Description of the pieces (to what extent is this results?) *exists*
-
--   Generation of test/demo data *exists*
-
-## Results
-
-Maybe the description of the pieces- the *toolkit* is the main result, not the figures. *exists?*
-
-Figures/examples for the demo *exists*
-
-## Discussion
-
--   How does this address MDBA needs?
-
--   What cool software things do we do?
-
--   Other awesome stuff
 
 ------------------------------------------------------------------------
 
