@@ -994,7 +994,7 @@ sdl_smooth_groups <- obj_sdl_to_plot |>
          adapt_code = as.character(adapt_code)) |>
   plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_multiplier',
-                outcome_lab = 'Environmental objectives',
+                outcome_lab = 'Condition',
                 x_lab = 'Flow relative to baseline',
                 transx = 'log10',
                 transy = 'log10',
@@ -1047,6 +1047,40 @@ sdl_smooth_groups_flipped <- obj_sdl_to_plot |>
                                  group_cols = c('env_obj', 'polyID')),
                 smooth_arglist = list())
 
+# just native fish in the Namoi
+# This is better in some ways and worse in others, flippig the colors and facets
+sdl_smooth_groups_NFNamoi <- obj_sdl_to_plot |>
+  dplyr::filter(adapt_code %in% c(1,2,3) &
+                  scenario != 'MAX') |> # max isn't really relevant here
+  dplyr::filter(env_group == 'NF' & SWSDLName == 'Namoi') |> 
+  # mutate(ewr_achieved = ewr_achieved + 1) |> 
+  # clean names
+  mutate(scenario = paste0(climate_code, adapt_code), 
+         SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n'),
+         adapt_code = as.character(adapt_code)) |>
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                x_col = 'flow_multiplier',
+                outcome_lab = 'Condition',
+                x_lab = 'Flow relative to baseline',
+                transx = 'log10',
+                transy = 'log10',
+                scales = 'free_y',
+                
+                color_lab = 'Adaptation',
+                colorgroups = NULL,
+                colorset = 'adapt_code',
+                # point_group = 'env_obj',
+                pal_list = adapt_pal,
+                facet_row = 'env_group',
+                facet_col = 'SWSDLName',
+                position = 'jitter',                
+                zero_adjust = 0.01, # needed here to make the trans work.
+
+                base_list = list(base_lev = 'E1',
+                                 comp_fun = 'relative',
+                                 group_cols = c('env_obj', 'polyID')),
+                smooth_arglist = list())
+
 
 # What if we really try to smash down what we're showing? The adaptations are blowing it out. Which is a good message, but confusing. Maybe it's a two-parter?
 
@@ -1061,7 +1095,7 @@ sdl_smooth_clim <- obj_sdl_to_plot |>
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |>
   plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_multiplier',
-                outcome_lab = 'Environmental objectives',
+                outcome_lab = 'Condition',
                 x_lab = 'Flow relative to baseline',
                 transx = 'log10',
                 transy = 'log10',
@@ -1084,7 +1118,8 @@ sdl_smooth_clim <- obj_sdl_to_plot |>
 # Next, the adaptation response at no climate
 sdl_smooth_adapt <- obj_sdl_to_plot |>
   dplyr::filter(climate_code %in% c('E') &
-                  scenario != 'MAX') |> # max isn't really relevant here
+                  scenario != 'MAX' & 
+                  flow_addition < 10000 ) |> # max isn't really relevant here, and 12,500 is a LOT
   dplyr::filter(env_group != 'EB') |> 
   # get the log to work, saying we added 1 is fine here
   mutate(flow_addition = flow_addition + 1) |>
@@ -1093,7 +1128,7 @@ sdl_smooth_adapt <- obj_sdl_to_plot |>
          SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |>
   plot_outcomes(outcome_col = 'ewr_achieved',
                 x_col = 'flow_addition',
-                outcome_lab = 'Environmental objectives',
+                outcome_lab = 'Condition',
                 x_lab = 'Flow addition (ML/d)',
                 transx = 'log10',
                 transy = 'log10',
@@ -1119,30 +1154,43 @@ In @fig-smooth-all the y-axis scales are much larger than the x, and so proporti
 
 The responses seen in @fig-smooth-all and @fig-smooth-climate-adapt vary between SDL unit (columns) and environmental group, indicating different sensitivity to both 'climate' and 'adaptation' flow conditions across space and among ecological groupings. For example, although both the Lachlan and Macquarie-Castlereagh have no successful Waterbird outcomes under baseline conditions, targeted flow conditions have a greater ability to increase Waterbird success in the Lachlan.
 
-*I'm working on a simplified version of these two figs.*
 
 ```{r}
 #| label: fig-smooth-climate-adapt
-#| fig-cap: Smoothed fits of shifts in environmental objectives to changes in flow, both multiplicatively over the whole hydrograph (panel a, 'climate' scenarios) and with pulsed flow additions (panel b, 'adaptation' scenarios. Panel a includes no flow additions, and panel b has those additions to the baseline 'climate' scenario (historical hydrograph). The full combination of scenarios are shown in @fig-smooth-all. Points are individual environmental objectives, fitted lines are loess smooths. Separate fits are done for each environmental group. Columns are SDL units. Y-axes set to match x-axes to better visualise proportionality. Thus, a small amount of data is not plotted, but is accounted for in the fits. *Too messy? Should we facet by groups? Drop the error ribbons? (I don't like that much)*
+#| fig-cap: Smoothed fits of shifts in environmental objectives to changes in flow, both multiplicatively over the whole hydrograph (panel a, 'climate' scenarios) and with pulsed flow additions (panel b, 'adaptation' scenarios. Panel a includes no flow additions, and panel b has those additions to the baseline 'climate' scenario (historical hydrograph). The full combination of scenarios are shown for the example of Native Fish in the Namoi in panel c, which accentuates the larger impact of the 'adaptation' options used here than the 'climate' shifts. Points are individual environmental objectives, fitted lines are loess smooths. Separate fits are done for each environmental group. Columns are SDL units. Y-axes set to match x-axes to better visualise proportionality. Thus, a small amount of data is not plotted, but is accounted for in the fits. Full set of SDL units and groups as in c shown in Appendix @fig-smooth-all.
 #| message: false
 #| warning: false
 
+# layout <- "
+# AAAA
+# BBBB
+# ##CC
+# "
 
-(sdl_smooth_clim  + coord_cartesian(ylim = c(0.5, 2)) )/
-  sdl_smooth_adapt +
-  plot_layout(guides = 'collect') +
-  plot_annotation( tag_levels = 'a')
-```
+grp_smooths <- patchwork::wrap_plots(sdl_smooth_clim  + 
+                                       coord_cartesian(ylim = c(0.5, 2)),
+                      sdl_smooth_adapt) +
+  plot_annotation(tag_levels = 'a') +
+  plot_layout(guides = 'collect', nrow = 2)
 
-```{r}
-#| label: fig-smooth-all
-#| fig-cap: Smoothed fits to assess change in performance across the 'climate' scenarios. Points are individual environmental objectives, fitted lines are loess smooths. Separate fits are done for each adaptation option, and so differences between lines of different colors represents the impact of those adaptations. Rows are environmental groupings, columns are SDL units. Note the very different scale of the y-axis. 
-#| message: false  
+namoi_plot <- guide_area() + sdl_smooth_groups_NFNamoi + plot_layout(guides = 'collect')
 
+patchwork::wrap_plots(grp_smooths,
+                      namoi_plot) +
+  plot_layout(nrow = 2, heights = c(5,1)) +
+  plot_annotation(tag_levels = 'a')
 
-# sdl_smooth_groups / sdl_smooth_clim +
-#   plot_layout(guides = 'collect', heights = c(3,1))
-sdl_smooth_groups # + coord_cartesian(ylim = c(0.5, 2)) # + geom_abline(slope = 1, intercept = 1)
+# patchwork::wrap_plots(sdl_smooth_clim  + coord_cartesian(ylim = c(0.5, 2)),
+#                       sdl_smooth_adapt,
+#                       sdl_smooth_groups_NFNamoi,
+#                       design = layout, byrow = FALSE) +
+#   plot_annotation(tag_levels = 'a')
+# 
+# ((sdl_smooth_clim  + coord_cartesian(ylim = c(0.5, 2)) )/
+#   (sdl_smooth_adapt) +
+#   plot_layout(guides = 'collect')) +
+#   (sdl_smooth_groups_NFNamoi + theme(legend.position = 'left')) +
+#   plot_annotation( tag_levels = 'a')
 ```
 
 Scenarios will often be defined along more than one axis. In the demonstration here, we define both a flow multiplication axis as a proxy for 'climate' shifts, and a flow addition as a proxy for 'adaptations'. Moreover, it will often be the case that values will respond to several different aspects of the flow regime, for example the mean flow and the flow variance or the return interval of floods or low-flow periods. Heatmaps or contour surfaces provide a powerful tool for visualising these interacting responses ([@fig-contour], [@fig-heatmap]). By examining multiple driver axes, such plots can highlight important interactions and identify where thresholds occur and where change along one axis (e.g. adaptations) can mitigate change along the other (e.g. climate shifts). This ability to identify the axes that provide resilience or sensitivity to changes in others will be critically important for management uses of this toolkit targeting climate change adaptation. These assessments must also take spatial and value differences into account; the different environmental groupings and SDL units show very different patterns in how they respond to the interaction between the 'climate' and 'adaptation' scenarios ([@fig-contour]).
@@ -1259,7 +1307,6 @@ quant_interp_heatmap <- agged_data_pooled_ewrs$Target |>
 
 ```
 
-*Ideally, we'd have a quantitative heatmap, but the scenario spacing is uneven. I think I like the contours better than the heatmap, since they have quantitative axes. What do you think?*
 
 ```{r}
 #| label: fig-contour
@@ -1633,6 +1680,20 @@ The goal here is to show the values at the sdl scale, but also to show how the g
   plot_layout(widths = c(2,1))
 
 
+```
+
+
+The full set of SDL units and target groups 
+
+```{r}
+#| label: fig-smooth-all
+#| fig-cap: Smoothed fits to assess change in performance across the 'climate' scenarios. Points are individual environmental objectives, fitted lines are loess smooths. Separate fits are done for each adaptation option, and so differences between lines of different colors represents the impact of those adaptations. Rows are environmental groupings, columns are SDL units. Note the very different scale of the y-axis. 
+#| message: false  
+
+
+# sdl_smooth_groups / sdl_smooth_clim +
+#   plot_layout(guides = 'collect', heights = c(3,1))
+sdl_smooth_groups # + coord_cartesian(ylim = c(0.5, 2)) # + geom_abline(slope = 1, intercept = 1)
 ```
 
 ### Heatmaps
