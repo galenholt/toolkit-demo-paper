@@ -232,9 +232,6 @@ scenarios <- left_join(scenarios, dif_flow, by = 'scenario')
 #| label: palettes
 #| include: false
 
-# I'm adding these from Georgia as needed
-# Trying to organise by the sort of palette we need for each
-
 # Qualitative
 SDL_pal <- make_pal(unique(agged_data$sdl_units$SWSDLName), 
                     palette = "impressionist.colors::la_recolte_des_foins_eragny")
