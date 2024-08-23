@@ -1,14 +1,15 @@
 # I don't think the renv install is necessary-it should auto-install since there's a project skeleton
 # install.packages('renv')
-install.packages('pak', repos = sprintf('https://r-lib.github.io/p/pak/stable/%s/%s/%s', .Platform['pkgType'], R.Version()['os'], R.Version()['arch']))
 
 # use pak to handle system dependencies on linux
 if (grepl("unix", .Platform$OS.type)) {
+  install.packages('pak', repos = sprintf('https://r-lib.github.io/p/pak/stable/%s/%s/%s', .Platform['pkgType'], R.Version()['os'], R.Version()['arch']))
+
     renv::install('yaml')
     deps <- renv::dependencies()
     depchars <- c(deps$Package, 'scico', 'ggthemes', 'furrr', 'git2r')
     depchars <- depchars[depchars != 'R']
-    depchars <- depchars[depchars != 'werptoolkitr']
+    depchars <- depchars[depchars != 'HydroBOT']
     depchars <- unique(depchars)
     sysdeps <- pak::pkg_sysreqs(depchars)
 
@@ -24,24 +25,41 @@ if (grepl("unix", .Platform$OS.type)) {
 }
 
 # install R packages
-# renv is much faster than remotes because it takes advantage of caching, but is much trickier to get the right commit.
-  # It *should* be working now by using
-  # `'git@github.com:MDBAuth/WERP_toolkit.git@BRANCH_NAME'` and rebuild = TRUE
-  # and auto-updating the version in the package. But if not, use the remotes
-  # line below
- renv::install('git@github.com:MDBAuth/WERP_toolkit.git@galen_working', rebuild = TRUE, upgrade = 'always', git = 'external', prompt = FALSE)
-# renv::install('git@github.com:MDBAuth/WERP_toolkit.git@Georgia', rebuild = TRUE, upgrade = 'always', git = 'external', prompt = FALSE)
-# renv::install('git@github.com:MDBAuth/WERP_toolkit.git', rebuild = TRUE, upgrade = 'always', git = 'external', prompt = FALSE)
+# renv is much faster than remotes because it takes advantage of caching
+renv::restore()
 
-renv::install()
-# Some extras
-# renv without {remotes} will only install from main. So if we want to use a branch, we need to go with remotes directly
-renv::install(c('scico', 'ggthemes', 'furrr', 'git2r', 'rmarkdown'))
+# There are occasionally issues, so here are some other ways of getting the package
 
-# The newest version of the toolkit
+# Direct install of the package
+# renv::install('git@github.com:MDBAuth/HydroBOT.git',
+#               dependencies = 'all',
+#               rebuild = TRUE,
+#               upgrade = 'always',
+#               git = 'external',
+#               prompt = FALSE)
+
+# Branch
+# renv::install('git@github.com:MDBAuth/HydroBOT.git@galen_working',
+#               dependencies = 'all',
+#               rebuild = TRUE,
+#               upgrade = 'always',
+#               git = 'external',
+#               prompt = FALSE)
+
+
+
+# Install from DESCRIPTION
+# renv::install()
 
 # renv sometimes struggles with rebuilding and non-main branhes.
-# so if you need to install something other than main, or main with the same version number, use remotes, but that installs all dependencies and is slow.
 # renv::install('remotes')
-# remotes::install_git('git@github.com:MDBAuth/WERP_toolkit.git', ref = 'galen_working', force = TRUE, upgrade = 'always', git = 'external')
-# remotes::install_git('git@github.com:MDBAuth/WERP_toolkit.git', ref = 'Georgia', force = TRUE, upgrade = 'always', git = 'external')
+# remotes::install_git('git@github.com:MDBAuth/HydroBOT.git',
+#                      ref = 'galen_working', force = TRUE,
+#                      upgrade = 'always', git = 'external')
+
+# For HPC, where we just ignore the spatial stuff
+# renv::install('git@github.com:MDBAuth/HydroBOT.git', rebuild = TRUE, upgrade = 'always', git = 'external', prompt = FALSE)
+# renv::install()
+# # Some extras
+# # renv without {remotes} will only install from main. So if we want to use a branch, we need to go with remotes directly
+# renv::install(c('scico', 'ggthemes', 'furrr', 'git2r', 'rmarkdown'))
