@@ -282,6 +282,13 @@ sceneTarget_pal <- c(Target_pal, climate_code_pal)
 
 class(sceneTarget_pal) <- 'colors'
 
+
+#Target Palette
+sceneTarget2_pal <-  stats::setNames(c("#5F9776", "#5F9776", "#5F9776", "#5F9776", "#5F9776", "#4873B8", "#B7A447", "#FDC010", "#f47f51", "#2e3d5a", "#bf3729"), 
+            c("Native fish", "Native vegetation", "Waterbirds", "Other species", "Priority ecological function", "End of system flows", "Water allocation", "Agricultural benefits", "Social benefits", "I", "E"))
+class(sceneTarget2_pal) <- 'colors'
+
+sceneTarget2_pal
 ```
 
 # Graphical abstract
@@ -1283,69 +1290,69 @@ Causal networks can be used to show outcomes in addition to the causal relations
 # # just get the theme-scale values
 # # First we need the sequence lists
 # 
-# aggparams <- yaml::read_yaml(file.path(agg_results,
-#                                       'agg_metadata.yml'))
-# 
-# themeseq <- aggparams$aggregation_sequence[
-#   !names(aggparams$aggregation_sequence) %in%
-#     c('planning_unit', 'sdl_units', 'mdb')
-# ]
-# 
-# themefuns <- aggparams$aggregation_funsequence[
-#   !names(aggparams$aggregation_sequence) %in%
-#     c('planning_unit', 'sdl_units', 'mdb')
-# ]
-# 
-# # skip the _timing
-# ewr_edges <- make_edges(dflist = causal_ewr, 
-#                         fromtos = themeseq[2:length(themeseq)],
-#                         gaugefilter = gauges_to_plot[2])
-# 
-# # get the nodes
-# nodes <- make_nodes(ewr_edges)
-# 
-# aggvals <- extract_vals_causal(agged_data,
-#                                whichaggs = themefuns, 
-#                                valcol = 'ewr_achieved', 
-#                                targetlevels = names(themeseq))
-# 
-# # filter to a single gauge. Multiple gauges should have separate networks or otherwise split the gauge-specific nodes. And include the larger scales pertaining to that gauge.
-# gaugematch <-  st_intersects(bom_basin_gauges[bom_basin_gauges$gauge ==
-#                                                 gauges_to_plot[2],], 
-#                              aggvals, sparse = FALSE)
-# 
-# aggvals <- aggvals[as.vector(gaugematch),] |>
-#   st_drop_geometry()
-# 
-# # join to the nodes
-# nodes_with_vals <- nodes |> 
-#   dplyr::filter(NodeType != 'ewr_code_timing') |> 
-#   dplyr::left_join(aggvals) |>
-#   dplyr::filter(!is.na(scenario)) |> 
-#   # Scenario metadata fell off, return it
-#   dplyr::left_join(scenarios, by = 'scenario') |> 
-#   # clean up names
-#     dplyr::mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-#                            paste0(climate_code, adapt_code)), 
-#          adapt_code = as.character(adapt_code))
-# 
-# # a subset of nodes so plots are readable
-# set.seed(17)
-# sampleenvobj <- nodes_with_vals |> 
-#   filter(NodeType == 'env_obj') |> 
-#   reframe(names = unique(Name)) |> 
-#   pull() |> 
-#   sample(10)
-# 
-# # pre-filter to make plotting simpler
-# basenodes <- nodes_with_vals |> 
-#   dplyr::filter(flow_multiplier %in% c(0.5, 1, 2) & flow_addition == 0) |> 
-#   baseline_compare(compare_col = 'scenario', base_lev = 'E1',
-#                    values_col = 'ewr_achieved',
-#                    group_cols = c('Name', 'NodeType', 'nodeorder'),
-#                    comp_fun = 'relative',
-#                    add_eps = 0.01) |> 
-#   mutate(logrel_ewr_achieved = log(relative_ewr_achieved))
+aggparams <- yaml::read_yaml(file.path(agg_results,
+                                      'agg_metadata.yml'))
+
+themeseq <- aggparams$aggregation_sequence[
+  !names(aggparams$aggregation_sequence) %in%
+    c('planning_unit', 'sdl_units', 'mdb')
+]
+
+themefuns <- aggparams$aggregation_funsequence[
+  !names(aggparams$aggregation_sequence) %in%
+    c('planning_unit', 'sdl_units', 'mdb')
+]
+
+# skip the _timing
+ewr_edges <- make_edges(dflist = causal_ewr,
+                        fromtos = themeseq[2:length(themeseq)],
+                        gaugefilter = gauges_to_plot[2])
+
+# get the nodes
+nodes <- make_nodes(ewr_edges)
+
+aggvals <- extract_vals_causal(agged_data,
+                               whichaggs = themefuns,
+                               valcol = 'ewr_achieved',
+                               targetlevels = names(themeseq))
+
+# filter to a single gauge. Multiple gauges should have separate networks or otherwise split the gauge-specific nodes. And include the larger scales pertaining to that gauge.
+gaugematch <-  st_intersects(bom_basin_gauges[bom_basin_gauges$gauge ==
+                                                gauges_to_plot[2],],
+                             aggvals, sparse = FALSE)
+
+aggvals <- aggvals[as.vector(gaugematch),] |>
+  st_drop_geometry()
+
+# join to the nodes
+nodes_with_vals <- nodes |>
+  dplyr::filter(NodeType != 'ewr_code_timing') |>
+  dplyr::left_join(aggvals) |>
+  dplyr::filter(!is.na(scenario)) |>
+  # Scenario metadata fell off, return it
+  dplyr::left_join(scenarios, by = 'scenario') |>
+  # clean up names
+    dplyr::mutate(scenario = ifelse(scenario == 'MAX', 'MAX',
+                           paste0(climate_code, adapt_code)),
+         adapt_code = as.character(adapt_code))
+
+# a subset of nodes so plots are readable
+set.seed(17)
+sampleenvobj <- nodes_with_vals |>
+  filter(NodeType == 'env_obj') |>
+  reframe(names = unique(Name)) |>
+  pull() |>
+  sample(10)
+
+# pre-filter to make plotting simpler
+basenodes <- nodes_with_vals |>
+  dplyr::filter(flow_multiplier %in% c(0.5, 1, 2) & flow_addition == 0) |>
+  baseline_compare(compare_col = 'scenario', base_lev = 'E1',
+                   values_col = 'ewr_achieved',
+                   group_cols = c('Name', 'NodeType', 'nodeorder'),
+                   comp_fun = 'relative',
+                   add_eps = 0.01) |>
+  mutate(logrel_ewr_achieved = log(relative_ewr_achieved))
 ```
 
 ```{r}
@@ -1353,70 +1360,114 @@ Causal networks can be used to show outcomes in addition to the causal relations
 # #| include: false
 # #| warning: false
 # # use a subset again
-# aggNetworkdown_sub_rel <- basenodes |> 
-#   dplyr::filter(flow_multiplier == 0.5 & flow_addition == 0) |> 
-#   make_causal_plot(edges = ewr_edges,
-#                    focalnodes = sampleenvobj,
-#                  edge_pal = 'black',
-#                  node_pal = list(value = compare_pal),
-#                  node_colorset = 'logrel_ewr_achieved',
-#                  render = FALSE,
-#                  setLimits = c(min(basenodes$logrel_ewr_achieved),
-#                                0,
-#                                max(basenodes$logrel_ewr_achieved)),
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'aggNetworkdown_sub_rel')
-# 
-# aggNetworkup_sub_rel <- basenodes |> 
-#   dplyr::filter(flow_multiplier == 2 & flow_addition == 0) |> 
-#   make_causal_plot(edges = ewr_edges,
-#                    focalnodes = sampleenvobj,
-#                  edge_pal = 'black',
-#                  node_pal = list(value = compare_pal),
-#                  node_colorset = 'logrel_ewr_achieved',
-#                  render = FALSE,
-#                  setLimits = c(min(basenodes$logrel_ewr_achieved),
-#                                0,
-#                                max(basenodes$logrel_ewr_achieved)),
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'aggNetworkup_sub_rel')
-# 
-# # GET LEGEND: THIS NEEDS TO BE INTEGRATED IN FUNCTION 
-# lims <- c(min(basenodes$logrel_ewr_achieved),
-#                                0,
-#                                max(basenodes$logrel_ewr_achieved))
-# 
-# limtib <- tibble(x = seq(from = lims[1], to = lims[2], length.out = 10), y = 1) |> 
-#   bind_rows(tibble(x = seq(from = lims[2], to = lims[3], length.out = 10), y = 1)) |> 
-#   # make sure we have pretty options
-#   bind_rows(tibble(x = labeling::extended(lims[1], lims[3], 5), y = 1)) |> 
-#   distinct()
-# 
-# limtib <- tibble(x = labeling::extended(lims[1], lims[3], 5), y = 1)
-# 
-# allcols <- limtib |>
-#   grouped_colors(pal_list = list(compare_pal), colorset = 'x')
-# 
-# # Can I just make the legend and then steal it? using pretty breaks
-# 
-# pal_gg <- ggplot(allcols, aes(x = x, y = y, fill = color)) + 
-#   geom_tile() +
-#   scale_fill_identity(guide = 'legend', breaks = allcols$color, labels = as.character(allcols$x))
-# 
-# # I guess I could also do a line and steal that, but if we've monkeyed with a dividing point, that won't work
-# 
-# limtc <- tibble(condition = seq(from = lims[1], to = lims[3], by = 0.1), y = 1)
-# 
-# pal_ggc <- ggplot(limtc, aes(x = condition, y = y, color = condition)) + geom_point() +
-#   paletteer::scale_color_paletteer_c(compare_pal)
-# 
-# net_legend <- ggpubr::get_legend(pal_ggc) |> 
-#   ggpubr::as_ggplot()
+aggNetworkdown_sub_rel <- basenodes |>
+  dplyr::filter(flow_multiplier == 0.5 & flow_addition == 0) |>
+  make_causal_plot(edges = ewr_edges,
+                   focalnodes = sampleenvobj,
+                 edge_pal = 'black',
+                 node_pal = list(value = compare_pal),
+                 node_colorset = 'logrel_ewr_achieved',
+                 render = FALSE,
+                 setLimits = c(min(basenodes$logrel_ewr_achieved),
+                               0,
+                               max(basenodes$logrel_ewr_achieved)),
+                 save = TRUE,
+                 savedir = 'images',
+                 savename = 'aggNetworkdown_sub_rel')
+
+aggNetworkup_sub_rel <- basenodes |>
+  dplyr::filter(flow_multiplier == 2 & flow_addition == 0) |>
+  make_causal_plot(edges = ewr_edges,
+                   focalnodes = sampleenvobj,
+                 edge_pal = 'black',
+                 node_pal = list(value = compare_pal),
+                 node_colorset = 'logrel_ewr_achieved',
+                 render = FALSE,
+                 setLimits = c(min(basenodes$logrel_ewr_achieved),
+                               0,
+                               max(basenodes$logrel_ewr_achieved)),
+                 save = TRUE,
+                 savedir = 'images',
+                 savename = 'aggNetworkup_sub_rel')
+
+# GET LEGEND: THIS NEEDS TO BE INTEGRATED IN FUNCTION
+lims <- c(min(basenodes$logrel_ewr_achieved),
+                               0,
+                               max(basenodes$logrel_ewr_achieved))
+
+limtib <- tibble(x = seq(from = lims[1], to = lims[2], length.out = 10), y = 1) |>
+  bind_rows(tibble(x = seq(from = lims[2], to = lims[3], length.out = 10), y = 1)) |>
+  # make sure we have pretty options
+  bind_rows(tibble(x = labeling::extended(lims[1], lims[3], 5), y = 1)) |>
+  distinct()
+
+limtib <- tibble(x = labeling::extended(lims[1], lims[3], 5), y = 1)
+
+allcols <- limtib |>
+  grouped_colors(pal_list = list(compare_pal), colorset = 'x')
+
+# Can I just make the legend and then steal it? using pretty breaks
+
+pal_gg <- ggplot(allcols, aes(x = x, y = y, fill = color)) +
+  geom_tile() +
+  scale_fill_identity(guide = 'legend', breaks = allcols$color, labels = as.character(allcols$x))
+
+# I guess I could also do a line and steal that, but if we've monkeyed with a dividing point, that won't work
+
+limtc <- tibble(condition = seq(from = lims[1], to = lims[3], by = 0.1), y = 1)
+
+pal_ggc <- ggplot(limtc, aes(x = condition, y = y, color = condition)) + geom_point() +
+  paletteer::scale_color_paletteer_c(compare_pal)
+
+net_legend <- ggpubr::get_legend(pal_ggc) |>
+  ggpubr::as_ggplot()
 # 
 # # ggsave('images/aggNetworkup_sub_legend.png', width = 1, height = 2, units = 'cm')
 ```
+
+```{r}
+objective_mapping <- readr::read_csv(file.path(qaelpath, 'Toolkit', 'macquarie',  'EWR_to_Target_mapping.csv')) |> 
+  # dplyr::filter(state == 'NSW') |> 
+  dplyr::filter(grepl('Macq', l_t_w_p_short_name)) |> 
+  dplyr::select(planning_unit_name, gauge, ewr_code, ewr_code_timing, 
+                eco_objective_code, env_group = target)
+
+# go to env_obj
+ewr2obj <- objective_mapping |> 
+  dplyr::select(-env_group) |> 
+  dplyr::distinct() |> 
+  dplyr::mutate(eco_objective_code = stringr::str_remove_all(eco_objective_code, "\xa0"),
+                eco_objective_code = stringr::str_replace_all(eco_objective_code, "-", "_")) |> 
+  dplyr::mutate(env_obj = strsplit(eco_objective_code, split = '_')) |>
+  tidyr::unnest_longer(col = env_obj) |>
+  dplyr::select(-eco_objective_code)
+
+# then to Target
+obj2target <- ewr2obj |> 
+  dplyr::select(-ewr_code, -ewr_code_timing) |> 
+  dplyr::mutate(Target = dplyr::case_when(grepl('^NF', env_obj) ~ "Native fish",
+                                   grepl('^NV', env_obj) ~ "Native vegetation",
+                                   grepl('^OS', env_obj) ~ "Other species",
+                                   grepl('^EF', env_obj) ~ "Priority ecosystem function",
+                                   grepl('^WB', env_obj) ~ "Waterbird",
+                                   .default = NA)) |> 
+  dplyr::distinct()
+
+# obj2target <- obj2target |> 
+#   dplyr::mutate(Target = stringr::str_replace(Target, 'Other species', 'Flow-dependent frogs'))
+
+# a few functions work better with a list of dfs than a bare df.
+objective_steps <- list(ewr2obj = ewr2obj, obj2target = obj2target)
+
+themeseqEET <- list(env_obj = c('ewr_code', 'env_obj'),
+                    Target = c('env_obj', 'Target'))
+
+edgesEET_orig <- make_edges(dflist = objective_steps,
+                      fromtos = themeseqEET) 
+
+nodesEET_orig <- make_nodes(edgesEET_orig)
+```
+
 
 # RADAR - Values across themes
 
@@ -1471,7 +1522,81 @@ plt_2 <- ggplot(filter(obj_sdl_to_plot, scenario %in% scenarios_to_plot2 & !is.n
 
 plt_2
 
-ggsave(plot = plt_2, filename = file.path(comp_results, paste0("radarbar4_env_eco_hydro_EXAMPLEONLY", Sys.Date(), ".pdf")), device = "pdf", width = 5, height = 5)
+
+```
+```{r}
+## Radar for graphical abstract
+#FUDGEing data!!!
+obj_sdl_to_plot_temp <- obj_sdl_to_plot |>
+  filter(Target %in% c("Waterbirds", "Native fish", "Other species", "Native vegetation"))|>
+  mutate(Target = as.character(Target))|>
+  mutate(ewr_achieved = ifelse(Target == "Waterbirds", ewr_achieved + 0.3,
+                               ifelse(Target == "Native fish", ewr_achieved/2+0.3,
+                                      ifelse(Target == "Other species", flow_multiplier/4,
+                                             ifelse(Target == "Native vegetation", flow_multiplier/4.5, NA)))),
+         Target = case_when(Target == "Waterbirds" ~ "Agricultural benefits",
+                            Target == "Native fish" ~ "Water allocation",
+                            Target == "Other species" ~ "End of system flows",
+                            Target == "Native vegetation" ~ "Social benefits"))
+  
+obj_sdl_to_plot_temp   <- bind_rows(obj_sdl_to_plot_temp, obj_sdl_to_plot)
+
+
+obj_sdl_to_plot_temp   <- obj_sdl_to_plot_temp|>
+  mutate(Target = as.character(Target))|>
+  mutate(Target = factor(Target, levels = c("Native fish","Native vegetation","Waterbirds", "Other species", "Priority ecological function", "End of system flows","Water allocation","Agricultural benefits", "Social benefits")))|>
+  arrange(Target)|>
+  mutate(Order = as.numeric(Target))|>
+  mutate(ewr_achieved = abs(ewr_achieved))
+
+#Attempt to make background
+background_df <- data.frame(Order = as.factor(seq(1, length(unique(obj_sdl_to_plot_temp$Target)))),
+                            Target =  factor(unique(obj_sdl_to_plot_temp$Target), levels = unique(obj_sdl_to_plot_temp$Target)), 
+                            y = max(obj_sdl_to_plot_temp$ewr_achieved),
+                            scenario = unique(obj_sdl_to_plot_temp$scenario)[1])|>
+    mutate(Order = as.numeric(Target))|>
+  filter(!is.na(Target))
+
+
+yMax = 0.65
+ymin = 0 #RELATIVE VERSIONS OF THIS PLOT WILL HAVE VALUES LESS THAN ONE
+
+plt_2 <- ggplot(filter(obj_sdl_to_plot_temp, scenario %in% c("climatebaseadapt0",  "climateup2adapt0") & !is.na(Target)),
+      aes(
+      x = reorder(stringr::str_wrap(Target, 6), Order),
+      y = ewr_achieved,
+      fill = climate_code)) +
+  #Make background colours:
+    geom_col(data = background_df,
+           aes(x = reorder(stringr::str_wrap(Target, 6), Order), y = yMax, fill = Target), colour = NA, width = 1, alpha = 0.3)+
+    geom_col(data = background_df,
+           aes(x = reorder(stringr::str_wrap(Target, 6), Order), y = ymin, fill = Target), colour = NA, width = 1, alpha = 0.3)+
+  # Make dashed lines:
+  geom_hline(
+    aes(yintercept = y),
+    data.frame(y = c(ymin, 0, yMax/2, yMax)),
+    color = "grey40", linetype = "longdash"
+  ) +
+  # Make scenario BARS - EWR achieved
+   geom_col(position=position_dodge(),width=0.65,size=0.3) +
+  # Make arrows:
+  geom_segment(
+    aes(
+      x = stringr::str_wrap(Target, 6), y = ymin, 
+      xend = stringr::str_wrap(Target, 6), yend = yMax),  
+    linetype = "solid", color = "gray20",arrow = arrow(length = unit(0.25, "cm"), type = "closed"), linewidth = 0.2) + 
+  coord_cartesian(ylim = c(ymin, yMax))+
+  # Make it circular:
+  coord_polar()+
+  theme_werp_toolkit()+
+  theme(text = element_text(size = 10), axis.title.x = element_blank(), axis.title.y = element_text(hjust=0.75))+
+  scale_fill_manual(values = sceneTarget2_pal, aesthetics = "fill", breaks = c("A", "E", "I"), name = "Climate scenario")+
+  labs(y = "Proportion EWR achieved")
+
+plt_2
+
+#ggsave(plot = plt_2, filename = file.path(demo_webdir,"images", paste0("radar_env", Sys.Date(), ".pdf")), device = "pdf", width = 5, height = 5)
+
 ```
 
 
