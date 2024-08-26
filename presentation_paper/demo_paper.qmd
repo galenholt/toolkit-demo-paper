@@ -82,8 +82,9 @@ make_simpleyml(rstudioapi::documentPath())
 ```{r}
 #| label: packages
 #| include: false
+
+#renv::install("~/Georgia/HydroBOT")
 library(HydroBOT) 
- # devtools::load_all(path = file.path("~/Georgia/WERP_toolkit"))
 library(dplyr)
 library(sf)
 library(huxtable)
@@ -1495,7 +1496,10 @@ background_df <- data.frame(Order = as.factor(seq(1, length(unique(obj_sdl_to_pl
   filter(!is.na(Target))
 
 
-plt_2 <- ggplot(filter(obj_sdl_to_plot, scenario %in% scenarios_to_plot2 & !is.na(Target)),
+plt_2 <- obj_sdl_to_plot |>
+  mutate(Order = as.numeric(Target))|>
+  filter(scenario %in% scenarios_to_plot2 & !is.na(Target))|>
+  ggplot(
       aes(
       x = reorder(stringr::str_wrap(Target, 6), Order),
       y = ewr_achieved,
