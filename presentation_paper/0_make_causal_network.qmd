@@ -5,8 +5,8 @@ editor: visual
 ---
 
 ```{r}
-#library(werptoolkitr)
- devtools::load_all(path = file.path("~/Georgia/WERP_toolkit"))
+library(HydroBOT)
+ # devtools::load_all(path = file.path("~/Georgia/WERP_toolkit"))
 library(dplyr)
 library(ggplot2)
 library(sf)

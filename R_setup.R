@@ -2,27 +2,27 @@
 # install.packages('renv')
 
 # use pak to handle system dependencies on linux
-if (grepl("unix", .Platform$OS.type)) {
-  install.packages('pak', repos = sprintf('https://r-lib.github.io/p/pak/stable/%s/%s/%s', .Platform['pkgType'], R.Version()['os'], R.Version()['arch']))
-
-    renv::install('yaml')
-    deps <- renv::dependencies()
-    depchars <- c(deps$Package, 'scico', 'ggthemes', 'furrr', 'git2r')
-    depchars <- depchars[depchars != 'R']
-    depchars <- depchars[depchars != 'HydroBOT']
-    depchars <- unique(depchars)
-    sysdeps <- pak::pkg_sysreqs(depchars)
-
-    # build and run those
-    system2(command = 'sudo', args = sysdeps$pre_install)
-    system2(command = 'sudo', args = sysdeps$install_scripts)
-    if (length(sysdeps$post_install) > 0) {
-        system2(command = 'sudo', args = sysdeps$post_install)
-    }
-
-    # Should work, but doesn't always. I think because it only fixes *installed* packages, and renv won't install if they fail
-    # pak::sysreqs_fix_installed(depchars)
-}
+# if (grepl("unix", .Platform$OS.type)) {
+#   install.packages('pak', repos = sprintf('https://r-lib.github.io/p/pak/stable/%s/%s/%s', .Platform['pkgType'], R.Version()['os'], R.Version()['arch']))
+#
+#     renv::install('yaml')
+#     deps <- renv::dependencies()
+#     depchars <- c(deps$Package, 'scico', 'ggthemes', 'furrr', 'git2r')
+#     depchars <- depchars[depchars != 'R']
+#     depchars <- depchars[depchars != 'HydroBOT']
+#     depchars <- unique(depchars)
+#     sysdeps <- pak::pkg_sysreqs(depchars)
+#
+#     # build and run those
+#     system2(command = 'sudo', args = sysdeps$pre_install)
+#     system2(command = 'sudo', args = sysdeps$install_scripts)
+#     if (length(sysdeps$post_install) > 0) {
+#         system2(command = 'sudo', args = sysdeps$post_install)
+#     }
+#
+#     # Should work, but doesn't always. I think because it only fixes *installed* packages, and renv won't install if they fail
+#     # pak::sysreqs_fix_installed(depchars)
+# }
 
 # install R packages
 # renv is much faster than remotes because it takes advantage of caching

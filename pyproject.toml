@@ -1,17 +1,15 @@
 [tool.poetry]
-name = "toolkit-demo-paper"
+name = "werp-toolkit"
 version = "0.1.0"
 description = ""
 authors = ["Galen Holt <53928785+galenholt@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "toolkit-demo-paper"}]
+packages = [{include = "HydroBOT"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-py-ewr = {git = "https://github.com/MDBAuth/EWR_tool.git", rev = "GalenH"}
-
-
+py-ewr = "^2.2.3"
 
 [build-system]
 requires = ["poetry-core"]

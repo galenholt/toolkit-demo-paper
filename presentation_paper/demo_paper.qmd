@@ -82,8 +82,8 @@ make_simpleyml(rstudioapi::documentPath())
 ```{r}
 #| label: packages
 #| include: false
-#library(werptoolkitr) 
- devtools::load_all(path = file.path("~/Georgia/WERP_toolkit"))
+library(HydroBOT) 
+ # devtools::load_all(path = file.path("~/Georgia/WERP_toolkit"))
 library(dplyr)
 library(sf)
 library(huxtable)
@@ -98,7 +98,7 @@ library(patchwork)
 # This depends on the same scenarios as the demo website, so give it the path to that. This will likely be user-specific. Everything else is relative.
 
 #demo_webdir <- file.path('../WERP_toolkit_demo')
-demo_webdir <- file.path('C:/Users/Admin/Deakin University/QAEL - WERP in house - WERP/Toolkit/Writing/Demonstration paper')
+demo_webdir <- file.path('~', '../Deakin University/QAEL - WERP in house - WERP/Toolkit/Writing/Demonstration paper')
 
 # Why is the execute-dir not working?
 # Outer directory 
@@ -250,14 +250,20 @@ env_pals = list(EB = 'grDevices::Grays',
                 OS = 'grDevices::Blues 2',
                 WB = 'grDevices::Peach')
 
+# easier printing if they have the class
+make_colors <- function(x){
+  class(x) <- 'colors'
+  return(x)
+  }
+
 # use the first level of each of those to make a named pal. I wish there were an easier way
 envgroup_pal <- purrr::imap_chr(env_pals,
-                                \(x,y) make_pal(levels = y, palette = x)) |> 
-  werptoolkitr:::as_colors()
+                                \(x,y) make_pal(levels = y, palette = x)) 
+
 
 Target_pal <- stats::setNames(envgroup_pal, 
-            c(NA, 'Priority ecological function', 'Native fish', 'Native vegetation', 'Other species', 'Waterbirds'))
-class(Target_pal) <- 'colors'
+            c(NA, 'Priority ecosystem function', 'Native fish', 'Native vegetation', 'Other species', 'Waterbirds')) |> 
+  make_colors()
 
 
 # Quantitative- sequential achievement
@@ -278,15 +284,14 @@ scene_pal <- make_pal(unique(scenehydros$scenario),
 climate_code_pal <- stats::setNames(scene_pal[c(1, 4, 7)],
                                     unique(scenehydros$climate_code))
 
-sceneTarget_pal <- c(Target_pal, climate_code_pal)
-
-class(sceneTarget_pal) <- 'colors'
+sceneTarget_pal <- c(Target_pal, climate_code_pal) |> 
+  make_colors()
 
 
 #Target Palette
 sceneTarget2_pal <-  stats::setNames(c("#5F9776", "#5F9776", "#5F9776", "#5F9776", "#5F9776", "#4873B8", "#B7A447", "#FDC010", "#f47f51", "#2e3d5a", "#bf3729"), 
-            c("Native fish", "Native vegetation", "Waterbirds", "Other species", "Priority ecological function", "End of system flows", "Water allocation", "Agricultural benefits", "Social benefits", "I", "E"))
-class(sceneTarget2_pal) <- 'colors'
+            c("Native fish", "Native vegetation", "Waterbirds", "Other species", "Priority ecological function", "End of system flows", "Water allocation", "Agricultural benefits", "Social benefits", "I", "E")) |> 
+  make_colors()
 
 sceneTarget2_pal
 ```
@@ -302,7 +307,6 @@ sceneTarget2_pal
 FIND.REPLACE for consistent terminology broader ecological values OR environmental targets ?? ecological objective OR ecological objective flow OR water availability
 
 historical base level
-
 
 # Introduction
 
@@ -328,7 +332,7 @@ To demonstrate HydroBOT, we develop a set of example scenarios capturing some qu
 
 The purpose of HydroBOT is to assess how hydrographs representing various climate and adaptation scenarios affect multiple sets of values, which may span many scales and disciplines. We seek to make these assessments in a consistent and repeatable way despite differences in the response models. HydroBOT then has the capability to synthesize a wide range of outputs from the response models into results that compare scenarios and are digestible and useful for management decision making (@fig-tktomgmt). A co-design process including scientists, software developers, and managers was developed to ensure the toolkit achieved its goal of producing scientifically robust results that are also management-relevant.
 
-![Conceptualisation of HydroBOT archetecture (blue arrows) and benefits to management (yellow arrows). Scenarios, represented by hydrographs, reflect observed flows or modeled scenarios (produced via hydrological modelling outside HydroBOT). These hydrographs are fed in a consistent way to various response models (see @sec-modules) via the HydroBOT Controller (see @sec-controller). Additional inputs of spatial data (see @sec-spatial_data) and causal networks (see @sec-causal_networks) provide grouping information for scalling via the HydroBOT Aggregator (see @sec-aggregator). the HydroBOT Comparer synthesizes the results into management-relevant outputs that aid decision-making (see @sec-comparer). This decision-making process is also supported by feedback from stakeholders, other expert advice and the social and political landscape. Water planning and policy decisions can then guide the development of scenarios to assess potential adaptaion options, which in turn can be run through the HydroBOT archetecture.](../images/Conceptual_fig_demopaper2.png){#fig-tktomgmt}{height = 30 width=30}
+![Conceptualisation of HydroBOT archetecture (blue arrows) and benefits to management (yellow arrows). Scenarios, represented by hydrographs, reflect observed flows or modeled scenarios (produced via hydrological modelling outside HydroBOT). These hydrographs are fed in a consistent way to various response models (see ) via the HydroBOT Controller (see ). Additional inputs of spatial data (see ) and causal networks (see ) provide grouping information for scalling via the HydroBOT Aggregator (see ). the HydroBOT Comparer synthesizes the results into management-relevant outputs that aid decision-making (see ). This decision-making process is also supported by feedback from stakeholders, other expert advice and the social and political landscape. Water planning and policy decisions can then guide the development of scenarios to assess potential adaptaion options, which in turn can be run through the HydroBOT archetecture.](../images/Conceptual_fig_demopaper2.png){#fig-tktomgmt}{height = 30 width=30}
 
 ## Co-design and scoping for management relevance
 
@@ -431,8 +435,8 @@ hydro_plot_EWRs <- scenehydros |>
 
 hydro_plot_EWRs
 ```
-*GALEN should we still be saying that we developed causal networks?*
-The EWR tool results are binary responses of hydrologic indicators and so, to link these to expected ecological responses, we developed causal networks from the relationships implied in the Long-Term Watering Plans in setting the EWRs [@DPIE2020abc)]. These plans describe how the hydrologic indicators are expected to influence both proximate and larger-scale ecological outcomes. We extracted these causal relationships from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which were developed based on the best available information from water managers, ecologists, scientific publications, and analysis of gauged and modelled flows (e.g. @nswdepartmentofplanningandenvironment2020, @lobegeiger2022). This provided a dense network of links across a range of ecological outcomes at various scales, from the  hydrologic indicators to components of the life cycle of single species to whole-community outcomes at 10- or 20-year target dates. For example, for the SF1 indicator described above might contribute to multiple ecological objectives pertaining to native fish (ecological objectives NF1-9; e.g. NF1 = No loss of native fish species), native vegetation (NV1), and ecological functions (EF1-5). These ecological objectives are a defined to support the completion of all elements of a life cycle of an organism or group of organisms (taxonomic or spatial) to achieve a goal state, condition or characteristic of an environmental asset or ecological function" *[LTWP2020]*. Outcomes for ecological objectives are then linked in the causal network to five ecological values (native fish, native vegetation, waterbirds, other species, and priority ecological functions) and are associated with long-term targets (5, 10, and 20 year) of the LTWP's management strategies. The chain of dependencies from EWRs to ecological objectives to long-term targets are captured in the causal networks as links, with nodes defining the ecological objectives or long-term targets (@fig-causal-example). This structure not only provides a visual definition of the links in the LTWP, it also enables assessment of outcomes in direct equivalence to the LTWP's management strategies.
+
+*GALEN should we still be saying that we developed causal networks?* The EWR tool results are binary responses of hydrologic indicators and so, to link these to expected ecological responses, we developed causal networks from the relationships implied in the Long-Term Watering Plans in setting the EWRs [@DPIE2020abc)]. These plans describe how the hydrologic indicators are expected to influence both proximate and larger-scale ecological outcomes. We extracted these causal relationships from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which were developed based on the best available information from water managers, ecologists, scientific publications, and analysis of gauged and modelled flows (e.g. @nswdepartmentofplanningandenvironment2020, @lobegeiger2022). This provided a dense network of links across a range of ecological outcomes at various scales, from the hydrologic indicators to components of the life cycle of single species to whole-community outcomes at 10- or 20-year target dates. For example, for the SF1 indicator described above might contribute to multiple ecological objectives pertaining to native fish (ecological objectives NF1-9; e.g. NF1 = No loss of native fish species), native vegetation (NV1), and ecological functions (EF1-5). These ecological objectives are a defined to support the completion of all elements of a life cycle of an organism or group of organisms (taxonomic or spatial) to achieve a goal state, condition or characteristic of an environmental asset or ecological function" *\[LTWP2020\]*. Outcomes for ecological objectives are then linked in the causal network to five ecological values (native fish, native vegetation, waterbirds, other species, and priority ecological functions) and are associated with long-term targets (5, 10, and 20 year) of the LTWP's management strategies. The chain of dependencies from EWRs to ecological objectives to long-term targets are captured in the causal networks as links, with nodes defining the ecological objectives or long-term targets (@fig-causal-example). This structure not only provides a visual definition of the links in the LTWP, it also enables assessment of outcomes in direct equivalence to the LTWP's management strategies.
 
 ```{r}
 #| label: fig-causal-example
@@ -874,7 +878,7 @@ obj_maps_few
 
 ```
 
-While we can see which scenarios are better or worse than others with bar graphs ([@fig-obj_in_groups]) or maps ([@fig-gauge-to-sdl-map]), they can make it difficult to accurately assess relative differences that may illuminate disproportionate impacts and thresholds for when adaption options could be most effectively adopted. In general, this requires quantitative x-axes which would typically be referenced to some baseline. Here, we can represent both our 'climate' and 'adaptation' scenarios on a single axis by quantifying the difference in mean flow from the baseline condition (historical hydrograph, E1) using the baselining functionality provided by HydroBOT (see @sec-baselining). Plotting the proportion of EWRs achieved for each of the native fish ecological objectives shows how that EWR achievement is related to changes in the overall levels of flow. One striking feature of @fig-difference-baseline is that the lines do not smoothly increase; EWR achievement is not simply a direct relationship to flow volumes. Instead, the timing matters. There are particularly steep slopes between the '1' (baseline) and '2' (+250 ML/d) adaptations. The application of water at those particular times is thus disproportionately impactful, yielding greater outcomes even when they have less water than the baseline adaptations (‘1s’) for climate scenarios 'A' and 'E'. Such analyses can identify highly efficacious points to add water to the system.
+While we can see which scenarios are better or worse than others with bar graphs ([@fig-obj_in_groups]) or maps ([@fig-gauge-to-sdl-map]), they can make it difficult to accurately assess relative differences that may illuminate disproportionate impacts and thresholds for when adaption options could be most effectively adopted. In general, this requires quantitative x-axes which would typically be referenced to some baseline. Here, we can represent both our 'climate' and 'adaptation' scenarios on a single axis by quantifying the difference in mean flow from the baseline condition (historical hydrograph, E1) using the baselining functionality provided by HydroBOT (see @sec-baselining). Plotting the proportion of EWRs achieved for each of the native fish ecological objectives shows how that EWR achievement is related to changes in the overall levels of flow. One striking feature of @fig-difference-baseline is that the lines do not smoothly increase; EWR achievement is not simply a direct relationship to flow volumes. Instead, the timing matters. There are particularly steep slopes between the '1' (baseline) and '2' (+250 ML/d) adaptations. The application of water at those particular times is thus disproportionately impactful, yielding greater outcomes even when they have less water than the baseline adaptations ('1s') for climate scenarios 'A' and 'E'. Such analyses can identify highly efficacious points to add water to the system.
 
 ```{r}
 #| label: fig-difference-baseline
@@ -1426,52 +1430,55 @@ net_legend <- ggpubr::get_legend(pal_ggc) |>
 ```
 
 ```{r}
-objective_mapping <- readr::read_csv(file.path(qaelpath, 'Toolkit', 'macquarie',  'EWR_to_Target_mapping.csv')) |> 
-  # dplyr::filter(state == 'NSW') |> 
-  dplyr::filter(grepl('Macq', l_t_w_p_short_name)) |> 
-  dplyr::select(planning_unit_name, gauge, ewr_code, ewr_code_timing, 
-                eco_objective_code, env_group = target)
 
-# go to env_obj
-ewr2obj <- objective_mapping |> 
-  dplyr::select(-env_group) |> 
-  dplyr::distinct() |> 
-  dplyr::mutate(eco_objective_code = stringr::str_remove_all(eco_objective_code, "\xa0"),
-                eco_objective_code = stringr::str_replace_all(eco_objective_code, "-", "_")) |> 
-  dplyr::mutate(env_obj = strsplit(eco_objective_code, split = '_')) |>
-  tidyr::unnest_longer(col = env_obj) |>
-  dplyr::select(-eco_objective_code)
+# Galen note: I commented this out because it doesn't seem to go anywhere. It looks copied over from Macquarie. It should all be in the toolkit now, it was just like this in Macquarie because it used an old version.
 
-# then to Target
-obj2target <- ewr2obj |> 
-  dplyr::select(-ewr_code, -ewr_code_timing) |> 
-  dplyr::mutate(Target = dplyr::case_when(grepl('^NF', env_obj) ~ "Native fish",
-                                   grepl('^NV', env_obj) ~ "Native vegetation",
-                                   grepl('^OS', env_obj) ~ "Other species",
-                                   grepl('^EF', env_obj) ~ "Priority ecosystem function",
-                                   grepl('^WB', env_obj) ~ "Waterbird",
-                                   .default = NA)) |> 
-  dplyr::distinct()
+# objective_mapping <- readr::read_csv(file.path(qaelpath, 'Toolkit', 'macquarie',  'EWR_to_Target_mapping.csv')) |> 
+#   # dplyr::filter(state == 'NSW') |> 
+#   dplyr::filter(grepl('Macq', l_t_w_p_short_name)) |> 
+#   dplyr::select(planning_unit_name, gauge, ewr_code, ewr_code_timing, 
+#                 eco_objective_code, env_group = target)
+# 
+# # go to env_obj
+# ewr2obj <- objective_mapping |> 
+#   dplyr::select(-env_group) |> 
+#   dplyr::distinct() |> 
+#   dplyr::mutate(eco_objective_code = stringr::str_remove_all(eco_objective_code, "\xa0"),
+#                 eco_objective_code = stringr::str_replace_all(eco_objective_code, "-", "_")) |> 
+#   dplyr::mutate(env_obj = strsplit(eco_objective_code, split = '_')) |>
+#   tidyr::unnest_longer(col = env_obj) |>
+#   dplyr::select(-eco_objective_code)
+# 
+# # then to Target
+# obj2target <- ewr2obj |> 
+#   dplyr::select(-ewr_code, -ewr_code_timing) |> 
+#   dplyr::mutate(Target = dplyr::case_when(grepl('^NF', env_obj) ~ "Native fish",
+#                                    grepl('^NV', env_obj) ~ "Native vegetation",
+#                                    grepl('^OS', env_obj) ~ "Other species",
+#                                    grepl('^EF', env_obj) ~ "Priority ecosystem function",
+#                                    grepl('^WB', env_obj) ~ "Waterbird",
+#                                    .default = NA)) |> 
+#   dplyr::distinct()
+# 
+# # obj2target <- obj2target |> 
+# #   dplyr::mutate(Target = stringr::str_replace(Target, 'Other species', 'Flow-dependent frogs'))
 
-# obj2target <- obj2target |> 
-#   dplyr::mutate(Target = stringr::str_replace(Target, 'Other species', 'Flow-dependent frogs'))
-
-# a few functions work better with a list of dfs than a bare df.
-objective_steps <- list(ewr2obj = ewr2obj, obj2target = obj2target)
-
-themeseqEET <- list(env_obj = c('ewr_code', 'env_obj'),
-                    Target = c('env_obj', 'Target'))
-
-edgesEET_orig <- make_edges(dflist = objective_steps,
-                      fromtos = themeseqEET) 
-
-nodesEET_orig <- make_nodes(edgesEET_orig)
+# # a few functions work better with a list of dfs than a bare df.
+# objective_steps <- list(ewr2obj = ewr2obj, obj2target = obj2target)
+# 
+# themeseqEET <- list(env_obj = c('ewr_code', 'env_obj'),
+#                     Target = c('env_obj', 'Target'))
+# 
+# edgesEET_orig <- make_edges(dflist = objective_steps,
+#                       fromtos = themeseqEET) 
+# 
+# nodesEET_orig <- make_nodes(edgesEET_orig)
 ```
-
 
 # RADAR - Values across themes
 
 radar plot?
+
 ```{r}
 yMax = max(filter(obj_sdl_to_plot, scenario %in% scenarios_to_plot2 & !is.na(Target))$ewr_achieved)+0.05
 ymin = 0 #RELATIVE VERSIONS OF THIS PLOT WILL HAVE VALUES LESS THAN ONE
@@ -1524,6 +1531,7 @@ plt_2
 
 
 ```
+
 ```{r}
 ## Radar for graphical abstract
 #FUDGEing data!!!
@@ -1599,8 +1607,6 @@ plt_2
 
 ```
 
-
-
 # Implications and conclusions
 
 ### Outline
@@ -1670,9 +1676,6 @@ The development of HydroBOT is necessary to better understand the impacts of cli
 
 ## Glossary {#sec-sec-glossary}
 
-
-
-
 ### Component overview
 
 The HydroBOT architecture comprises three major components, the Controller, Aggregator and Comparer, that receive data and information from several input sources, including input scenarios, hydrological modelling, spatial data, causal networks and response models ([@tbl-components]). Here we detail some specific details about each of these components and other input sources.
@@ -1693,7 +1696,7 @@ Aggregation functions Aggregation functions determine outcomes and reflect proce
 
 #### Spatial aggregation
 
-Maps allow large-scale visualization of ecological objectives under various scenarios. These visualisations can be quite important for communications and quickly grasping how outcomes aggregate spatially ([@fig-spatial-scaling]) and spatial patterns in the data ([@fig-gauge-to-sdl-map]). Management targets are often defined spatially, and in the case of EWRs, they are defined in local Planning Units (which are constituents of the SDL units defined above), where outcomes may depend on hydrographs at one or more gauges. Representing the outcomes as maps can provide intuitive assessment of the condition of values across space and whether different spatial scales or spatial locations are responding differently to scenarios. Moreover, the ecology (in this example) or other processes might themselves be large-scale, and so capturing the condition over a large area is a better descriptor of the true outcome than assessing each specific location separately. For example, objective EF3 is "Provide movement and dispersal opportunities for water dependent biota to complete lifecycles and disperse into new habitats within catchments", and so necessarily incorporates a spatial dimension. Particularly in these situations, the aggregation method should be considered carefully – for movement opportunities to succeed, perhaps the success of the SDL unit should be determined by the lowest value at a gauge if it represents a loss of connectivity. In contrast, for WB4: Increase opportunities for colonial waterbird breeding, it might be sufficient if a single site within the SDL unit provides those opportunities.
+Maps allow large-scale visualization of ecological objectives under various scenarios. These visualisations can be quite important for communications and quickly grasping how outcomes aggregate spatially ([@fig-spatial-scaling]) and spatial patterns in the data ([@fig-gauge-to-sdl-map]). Management targets are often defined spatially, and in the case of EWRs, they are defined in local Planning Units (which are constituents of the SDL units defined above), where outcomes may depend on hydrographs at one or more gauges. Representing the outcomes as maps can provide intuitive assessment of the condition of values across space and whether different spatial scales or spatial locations are responding differently to scenarios. Moreover, the ecology (in this example) or other processes might themselves be large-scale, and so capturing the condition over a large area is a better descriptor of the true outcome than assessing each specific location separately. For example, objective EF3 is "Provide movement and dispersal opportunities for water dependent biota to complete lifecycles and disperse into new habitats within catchments", and so necessarily incorporates a spatial dimension. Particularly in these situations, the aggregation method should be considered carefully -- for movement opportunities to succeed, perhaps the success of the SDL unit should be determined by the lowest value at a gauge if it represents a loss of connectivity. In contrast, for WB4: Increase opportunities for colonial waterbird breeding, it might be sufficient if a single site within the SDL unit provides those opportunities.
 
 ```{r}
 #| label: fig-spatial-scaling
@@ -1712,6 +1715,7 @@ nf_gauges + nf_PU + nf_maps_single +
 ## Response models {#sec-ewr-table}
 
 #### EWRs
+
 *GEORGIA Need a table of their English definitions, the full EWR table isn't helpful*
 
 ```{r}
