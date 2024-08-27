@@ -17,3 +17,15 @@ _site/
 renv/
 
 /_*.local
+
+*.docx
+
+*.log
+
+*.pdf
+
+*.tex
+
+*.html
+
+*.aux
