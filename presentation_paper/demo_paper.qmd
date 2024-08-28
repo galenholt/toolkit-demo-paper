@@ -310,6 +310,13 @@ sceneTarget2_pal <-  stats::setNames(c("#5F9776", "#5F9776", "#5F9776", "#5F9776
 sceneTarget2_pal
 ```
 
+# Highlights
+
+The HydroBOT toolkit for data and model integration and synthesis to assess outcomes for disparate target values.
+Scaling and synthesis of results across space, time, and groups of values.
+Comparison of outcomes resulting from climate change and the impacts of adaptation options.
+Automation, transparency, and error detection for consistent repeatable analyses.
+
 # Graphical abstract
 
 ![](~/../Deakin%20University/QAEL%20-%20WERP%20in%20house%20-%20WERP/Toolkit/Writing/Demonstration%20paper/images/GraphicalAbstract-01.png){#fig-graphab width="16cm"}
@@ -326,7 +333,22 @@ historical base level
 
 # Abstract
 
-Water management rarely manages only for water; instead, management targets are the myriad values across ecological, social, and economic outcomes that depend on that water. To assess past performance and plan future action, water managers need tools to understand how changes to hydrology (over which they typically have most control) affect these water-dependent values. Climate change accentuates the need to understand how values might shift and assess potential options for avoiding, ameliorating, and adapting to those impacts. However, models relating values to hydrology and management levers can be difficult to usefully integrate into management processes. These models are often developed for other uses, such as research, and are not easily integrated across values or types of values. Not only is the sheer number of potential values difficult to synthesize into management-relevant conclusions, but economic and ecological models might differ in language, approach, goals, scale, *et cetera*. Here, we describe and demonstrate HydroBOT, a holistic modelling toolkit co-designed from the ground up with the Murray-Darling Basin Authority (the primary federal water management agency in the Murray-Darling Basin, Australia). HydroBOT uses a modular, open-source architecture to integrate disparate models of response to hydrology into a consistent, repeatable framework. It then provides capacity to scale and synthesize those results across space, time, and groups of values, targeting outputs relevant to the water managers. A key feature of HydroBOT is flexibility with guardrails; it allows users to tailor analyses and syntheses to a range of questions, from local, short-term evaluation to longer-term basin-scale assessments of climate response across thousands of values. HydroBOT provides fundamentally new capacity to move beyond hydrology to assess outcomes across a range of target values, and its modularity and flexibility provides capacity for continual upgrades and improvements as new models are developed and new needs are identified.
+Water management rarely manages only for water; instead, management targets are the myriad values across ecological, social, and economic outcomes that depend on that water. To assess past performance and plan future action, water managers need tools to understand how changes to hydrology (over which they typically have most control) affect these water-dependent values. Climate change accentuates the need to understand how values might shift and assess potential options for avoiding, ameliorating, and adapting to those impacts. However, models relating values to hydrology and management levers can be difficult to usefully integrate into management processes. These models are often developed for other uses, such as research, and are not easily integrated across values or types of values. Not only is the sheer number of potential values difficult to synthesize into management-relevant conclusions, but economic and ecological models might differ in language, approach, goals, scale, *et cetera*. Here, we describe and demonstrate HydroBOT (Hydrology-dependent Basin Outcomes Toolkit), a holistic modelling toolkit co-designed from the ground up with the Murray-Darling Basin Authority (the primary federal water management agency in the Murray-Darling Basin, Australia). HydroBOT uses a modular, open-source architecture to integrate disparate models of response to hydrology into a consistent, repeatable framework. It then provides capacity to scale and synthesize those results across space, time, and groups of values, targeting outputs relevant to the water managers. A key feature of HydroBOT is flexibility with guardrails; it allows users to tailor analyses and syntheses to a range of questions, from local, short-term evaluation to longer-term basin-scale assessments of climate response across thousands of values. HydroBOT provides fundamentally new capacity to move beyond hydrology to assess outcomes across a range of target values, and its modularity and flexibility provides capacity for continual upgrades and improvements as new models are developed and new needs are identified.
+
+# Key words
+
+1) Environmental flows; 2) Water management; 3) Hydrology; 4) Toolkit; 5) R package; 6) Synthesis
+
+# Software availability
+
+Software name: HydroBOT (Hydrology-dependent Basin Outcomes Toolkit).
+Developer: QAEL (Quantitative Aquatic Ecosystem Laboratory) led by Galen Holt.
+First year available: 2023.
+Program language: R, Python.
+Program size: 22 MB.
+Operation system: Linux, macOS, Windows.
+Availability: https://github.com/MDBAuth/HydroBOT
+License: MIT
 
 # Introduction
 
@@ -1555,11 +1577,11 @@ plt_2
 
 # Implications and conclusions
 
-HydroBOT provides a consistent, scientifically robust, and repeatable capacity to model responses to flow, producing management-relevant outcomes at multiple dimensions. This capacity provides a step change for the Murray-Darling Basin Authority and other users to move beyond assessment of hydrologic outcomes and towards assessing the values that depend on that hydrology. Requirements such as those for a "healthy working basin" [@murray-darlingbasinauthority2011] that demand attention across socio-economic, cultural, and environmental values are commonly included in management plans for large basins [e.g. @deltastewardshipcouncil2013; @usdepartmentoftheinteriorbureauofreclamation2012; @ziolkowska2016; @connor2015], and reflect the interconnectedness and range of values provided by these systems. Key to assessing this range of values is modeling their dependence on hydrology and other management levers, and aggregating the outcomes to management-relevant scales.
+HydroBOT provides consistent, scientifically robust, and repeatable capacity to model responses to flow, producing management-relevant outcomes at multiple dimensions. This capacity provides a step change for the Murray-Darling Basin Authority and other users to move beyond assessment of hydrologic outcomes and towards assessing the values that depend on that hydrology. Requirements such as those for a "healthy working basin" [@murray-darlingbasinauthority2011] that demand attention across socio-economic, cultural, and environmental values are commonly included in management plans for large basins [e.g. @deltastewardshipcouncil2013; @usdepartmentoftheinteriorbureauofreclamation2012; @ziolkowska2016; @connor2015], and reflect the interconnections of a range of values provided by these systems. Key to assessing this range of values is modeling their dependence on hydrology and other management levers, and aggregating the outcomes to management-relevant scales.
 
-Large-scale natural resource management requires the capacity to make decisions relating to multiple spatial, temporal, and value dimensions, and is most successful when multiple scales within those dimensions are considered [@moore2021]. The HydroBOT aggregation and scaling framework navigates those dimensions for water-dependent social, economic, environmental, and cultural values, even when the underlying response models are highly detailed. Combining such disparate information in a standard and comparable manner can illuminate synergies and trade-offs, which could be critical for final judgement. Moreover, the scaling provided by HydroBOT condenses and synthesises large, complex outcomes to results tailored for interpretation for managment questions. Our example concerns the ecological values of the Murray-Darling Basin; however, the framework is equally applicable to social, economic, and cultural values and the toolkit itself has a modular design to incorporate such response models.
+Large-scale natural resource management requires the capacity to make decisions relating to multiple spatial, temporal, and value dimensions, and is most successful when multiple scales within those dimensions are considered [@moore2021]. The HydroBOT aggregation and scaling framework navigates those dimensions for water-dependent social, economic, environmental, and cultural values, even when the underlying response models are highly detailed. Combining such disparate information in a standard and comparable manner can illuminate synergies and trade-offs, which could be critical for decision making. Moreover, the scaling provided by HydroBOT condenses and synthesizes large, complex outcomes to results tailored for interpretation for management questions. Our example concerns the ecological values of the Murray-Darling Basin; however, the framework is equally applicable to social, economic, and cultural values and the toolkit itself has a modular design to incorporate disparate response models.
 
-Water management faces an increasing need and expectation for scientifically-sound and interpretable modelling from a range of stakeholders. These issues are magnified when facing major long-range decisionmaking to understand the impacts of climate change and potential policy or operational adaptations management agencies might undertake. Co-design of HydroBOT with a diverse team within the Murray-Darling Basin Authority yielded distinct benefits to achieving these goals, with developers and researchers better understanding and building in the needs of the MDBA, while the MDBA better understands the limitations, uses, and potential of the tool. The focus on communication both within MDBA and to external partners, including model provenance, production of tailored synthesis figures, and causal networks, is a key outcome to build trust and understanding in HydroBOT as a tool and the results it produces. HydroBOT provides fundamentally new capacity to assess a wide range of target values across scenarios and exciting opportunity for continued advances and improvement as we move into new future conditions.
+Water management faces an increasing need and expectation for scientifically-sound and interpretable modelling from a range of stakeholders. These issues are magnified when facing major long-range decision making to understand the impacts of climate change and potential policy or operational adaptations management agencies might undertake. Co-design of HydroBOT with a diverse team within the Murray-Darling Basin Authority yielded distinct benefits to achieving these goals, with developers and researchers better understanding and building in the needs of the MDBA, while the MDBA better understands the limitations, uses, and potential of the tool. The focus on communication both within MDBA and to external partners, including model provenance, production of tailored synthesis figures, and causal networks, is a key outcome to build trust and understanding in HydroBOT as a tool and the results it produces. HydroBOT provides new capacity to assess a wide range of target values across scenarios and exciting opportunity for continued advances and improvement with the development of new response models and climate scenarios.
 
 ### Outline
 
@@ -1615,6 +1637,18 @@ concerning which adaptation options should be implemented under changing climate
 
 The development of HydroBOT is necessary to better understand the impacts of climate change and the different adaptation options in response to climate change, on water-dependent social, economic, environmental and cultural values. It incorporates new and existing information, knowledge and models to enable transparent, repeatable assessments of impacts and adaptation to future climates. In summary, the toolkit ingests scenarios (for example, climate or flow timeseries), feeds them to a response model (such as the EWR tool), reports outcomes and enables comparisons among scenarios. It uses the links in the response models for visualisation of the complex inter-relationships between water-dependent outcomes. This aids transparency and improves communication of the outputs.
 
+# CRediT authorship contribution statement
+Galen Holt: Writing – original draft, Visualization, Validation, Software, Methodology, Investigation, Formal analysis, Data curation, Conceptualization. Georgia Dwyer: Writing – original draft, Visualization, Methodology,Investigation, Formal analysis, Conceptualization. David Robertson: Writing – review & editing, Supervision, Conceptualization, Funding acquisition. Martin Job: Writing – review & editing, Supervision, Conceptualization. Lara Palmer: Writing – review & editing, Supervision, Conceptualization. Rebecca E Lester Writing – review & editing, Supervision, Investigation, Conceptualization, Funding acquisition.
+
+# Declaration of competing interest
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+# Acknowledgements
+The work is supported by the Murray–Darling Water and Environment Research Program. *Rebecca Check*
+
+# Data availability
+All data and their sources have been explained in the manuscript.
+
 # References
 
 ::: {#refs}
@@ -1623,6 +1657,18 @@ The development of HydroBOT is necessary to better understand the impacts of cli
 # Appendix 1 {#sec-appendix1}
 
 ## Glossary {#sec-glossary}
+
+```{r}
+#| label: sec-glossary
+#| tbl-cap: Glossary adapted from the Murray-Darling Basin Long Term Watering Plans (LTWPs) (@nswdepartmentofplanningandenvironment2020). 
+
+gloss_tab <- readr::read_csv(file.path(demo_webdir, "definitions.csv"))|>
+  dplyr::filter(!is.na(Definition))
+
+knitr::kable(gloss_tab)
+
+```
+
 
 ## Component overview
 
@@ -1665,8 +1711,6 @@ nf_gauges + nf_PU + nf_maps_single +
 ## Response models {#sec-ewr-table}
 
 #### EWRs
-
-*GEORGIA Need a table of their English definitions, the full EWR table isn't helpful*
 
 ```{r}
 #| eval: false
