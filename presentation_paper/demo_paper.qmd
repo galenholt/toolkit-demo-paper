@@ -82,6 +82,8 @@ make_simpleyml(rstudioapi::documentPath())
 ```{r}
 #| label: packages
 #| include: false
+
+#renv::install("~/Georgia/HydroBOT")
 library(HydroBOT) 
 library(dplyr)
 library(sf)
@@ -101,7 +103,7 @@ demo_webdir <- file.path('~', '../Deakin University/QAEL - WERP in house - WERP/
 
 # Why is the execute-dir not working?
 # Outer directory 
-project_dir = file.path(demo_webdir, 'more_scenarios')  # '..', 
+project_dir = file.path(demo_webdir, 'demo_scenarios')  # '..', 
 
 # Hydrographs
 hydro_dir = file.path(project_dir, 'hydrographs')  
@@ -113,7 +115,7 @@ ewr_results <- file.path(project_dir, 'module_output', 'EWR')
 agg_results <- file.path(project_dir, 'aggregator_output', 'sdl_target') 
 
 # outputs of aggregator
-agg_results_pooled_ewrs <- file.path(project_dir, 'aggregator_output', 'pooled_ewr') 
+agg_results_gauge <- file.path(project_dir, 'aggregator_output', 'gauge_target') 
 
 ```
 
@@ -191,7 +193,9 @@ scenehydros <- read_hydro(hydro_dir,
                           scenariofilter = stringr::str_c(scenarios_to_plot, '_', scenarios_to_plot), 
                           long = TRUE, format = 'csv') |> 
   mutate(scenario = stringr::str_remove_all(scenario, '.*0_')) |> 
-  left_join(scenarios, by = 'scenario')
+  left_join(scenarios, by = 'scenario') |>
+  rename(gauge_flow = gauge)|>
+  tidyr::separate(gauge_flow, into = c("gauge", NA), sep = "_", remove = FALSE)
 
 #Agg data (1.2 GB)
 agged_data <- readRDS(file.path(agg_results, 'achievement_aggregated.rds')) |>
@@ -199,11 +203,22 @@ agged_data <- readRDS(file.path(agg_results, 'achievement_aggregated.rds')) |>
                          scenario = stringr::str_remove_all(scenario, '.*0_'))) |> 
   purrr::map(\(x) left_join(x, scenarios, by = 'scenario'))
 
+# because we use '_' for the 1.0 etc, it messes up some of the directories. Clean that up
+agged_data <- purrr::map(agged_data,
+                         \(x) dplyr::mutate(x, 
+                                            scenario = stringr::str_remove_all(scenario, '_clim.*')))
+
+
 #Agg data (1.2 GB)
-agged_data_pooled_ewrs <- readRDS(file.path(agg_results_pooled_ewrs, 'achievement_aggregated.rds')) |>
+agged_data_gauge <- readRDS(file.path(agg_results_gauge, 'achievement_aggregated.rds')) |>
   purrr::map(\(x) mutate(x, 
                          scenario = stringr::str_remove_all(scenario, '.*0_'))) |>
   purrr::map(\(x) left_join(x, scenarios, by = 'scenario'))
+
+# because we use '_' for the 1.0 etc, it messes up some of the directories. Clean that up
+agged_data_gauge <- purrr::map(agged_data_gauge,
+                         \(x) dplyr::mutate(x, 
+                                            scenario = stringr::str_remove_all(scenario, '_clim.*')))
 
 ```
 
@@ -283,9 +298,9 @@ scene_pal <- make_pal(unique(scenehydros$scenario),
 climate_code_pal <- stats::setNames(scene_pal[c(1, 4, 7)],
                                     unique(scenehydros$climate_code))
 
-sceneTarget_pal <- c(Target_pal, climate_code_pal) |> 
+sceneTarget_pal <- stats::setNames(c(envgroup_pal, climate_code_pal), 
+            c(NA, "Priority ecological function", 'Native fish', 'Native vegetation', 'Other species', 'Waterbirds', names(climate_code_pal))) |> 
   make_colors()
-
 
 #Target Palette
 sceneTarget2_pal <-  stats::setNames(c("#5F9776", "#5F9776", "#5F9776", "#5F9776", "#5F9776", "#4873B8", "#B7A447", "#FDC010", "#f47f51", "#2e3d5a", "#bf3729"), 
@@ -441,56 +456,24 @@ The EWR tool results are binary responses of hydrologic indicators and so, to li
 
 ```{r}
 #| label: fig-causal-example
-#| fig-cap: !expr glue::glue("a) HydroBOT incorporates causal networks that describe the ecological objectives for a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), ecological objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, ecological objectives, specific goals, ecological values, and 5-year management targets. The network shown here is for a single gauge ({gauges_to_plot[1]}) and Planning Unit, which is the scale at which EWR codes and ecological objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here. b) Subset of the causal network for gauge {gauges_to_plot[2]} relevant to a selection of *lengthsampleenvobj* ecological objectives. The data are at the gauge scale for the first and second columns (EWRs and ecological objectives) and at the SDL unit scale for the third (ecological values). Thus, the final set of nodes contain information from other gauges that are not shown here for clarity. Colors represent the log of the relative change in condition from the baseline for the halving (panel a, scenario A) and doubling (panel b, scenario I) 'climate' scenarios. Large reductions in condition are dark purple, large improvements are dark green, and no change is white. See Appendix 3 *sec-causalnetwork-versions* for more detailed causal network diagrams.")  
-
-
-
-# edges <- make_edges(dflist = causal_ewr, 
-#                fromtos = list(c('ewr_code', 'env_obj'), 
-#                               c('env_obj', 'Specific_goal'), 
-#                               c('Specific_goal', 'Target'), 
-#                               c('env_obj', 'target_5_year_2024')),
-#                gaugefilter = gauges_to_plot[1]) 
-# 
-# nodes <- make_nodes(edges)
-
-
-# To work with both html and word, save out and read back in.
-# causal_example <- make_causal_plot(nodes,
-#                  edges,
-#                  focalnodes = filter(nodes, NodeType == "ewr_code")$Name,
-#                  edge_pal = 'black',
-#                  node_pal = net_pal,
-#                  render = FALSE,
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'causal_structure') 
-
-# if (knitr::is_html_output()) {
-  # causal_example |> 
-  # DiagrammeR::render_graph()
-# } else {
-#   knitr::include_graphics("images/causal_structure.png")
-# }
-
-causal_structure <- png::readPNG(file.path(demo_webdir, 'images/causal_structure.png'))
-causal_structure_grob <- grid::rasterGrob(causal_structure, interpolate = TRUE)
-patchwork::wrap_plots(causal_structure_grob)
-
+#| fig-cap: !expr glue::glue("a) HydroBOT incorporates causal networks that describe the ecological objectives for a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), ecological objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecological functions. From left to right, the columns here represent EWR codes, ecological objectives, ecological values, and 5-year management targets. The network shown here is for a single gauge ({gauges_to_plot[1]}), which is the scale at which EWR codes and ecological objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here. Colors represent the log of the relative change in condition from the baseline for the halving (panel a, scenario A) 'climate' scenarios. Large reductions in condition are dark purple, large improvements are dark green, and no change is white. See Appendix 3 *sec-causalnetwork-versions* for more detailed causal network diagrams.")  
 
 aggNetworkdown_sub_rel_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkdown_sub_rel.png')) |>
   grid::rasterGrob(interpolate = TRUE)
-aggNetworkup_sub_rel_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkup_sub_rel.png')) |>
+# aggNetworkup_sub_rel_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkup_sub_rel.png')) |>
+#   grid::rasterGrob(interpolate = TRUE)
+net_legend <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkup_sub_legend.png')) |>
   grid::rasterGrob(interpolate = TRUE)
 
-patchwork::wrap_plots(causal_structure_grob,
-                      aggNetworkdown_sub_rel_grob, 
-                      aggNetworkup_sub_rel_grob)+
-                      #net_legend,
-                      #ncol = 2, widths = c(9, 1), byrow = FALSE) +
-  plot_annotation(tag_levels = list(c('a', 'b', 'c'))) +
-  plot_layout(nrow = 3)
+patchwork::wrap_plots(aggNetworkdown_sub_rel_grob) + inset_element(net_legend, 0.90, 0.60, 1, 1)
+                       
 
+# patchwork::wrap_plots(aggNetworkdown_sub_rel_grob, 
+#                       aggNetworkup_sub_rel_grob)+
+#                       net_legend,
+#                       #ncol = 2, widths = c(9, 1), byrow = FALSE) +
+#   plot_annotation(tag_levels = list(c('a', 'b', 'c'))) +
+#   plot_layout(nrow = 3)
 
 
 ```
@@ -578,7 +561,8 @@ This example aggregates the EWR outputs directly to the SDL unit, and shows that
 relevant_gauges <- filter(bom_basin_gauges,
                           gauge %in% unique(scenehydros$gauge))
 
-relevant_sdl_units <- agged_data$sdl_units[1:3,]
+relevant_sdl_units <- agged_data$sdl_units |>
+  distinct(SWSDLName, geometry, .keep_all = TRUE)
 
 relevant_basin_rivers2 <- relevant_sdl_units |>
   rename(sdl_geometry = geometry)|>
@@ -1170,7 +1154,7 @@ Perhaps most usefully, if scenarios are carefully developed to explore the range
 # Use the Target here to get to the big groups
 
 # qualitative axes
-qual_heatmap <- agged_data_pooled_ewrs$Target |>
+qual_heatmap <- agged_data$Target |>
   dplyr::filter(adapt_code %in% c(1,2,3, 4) &
                   scenario != 'MAX') |> # max isn't really relevant here
   dplyr::filter(!is.na(Target)) |> 
@@ -1192,7 +1176,7 @@ qual_heatmap <- agged_data_pooled_ewrs$Target |>
                 facet_col = 'SWSDLName')
 
 # Quantitative axes- it's more informative, but uglier
-quant_heatmap <- agged_data_pooled_ewrs$Target |>
+quant_heatmap <- agged_data$Target |>
   dplyr::filter(adapt_code %in% c(1,2,3) &
                   scenario != 'MAX') |> # max isn't really relevant here
   dplyr::filter(!is.na(Target)) |> 
@@ -1219,7 +1203,7 @@ quant_heatmap <- agged_data_pooled_ewrs$Target |>
 
 # interpolated raster- just one argument different
   # THe spacing is too uneven though
-quant_interp_heatmap <- agged_data_pooled_ewrs$Target |>
+quant_interp_heatmap <- agged_data$Target |>
   dplyr::filter(adapt_code %in% c(1,2,3) &
                   scenario != 'MAX') |> # max isn't really relevant here
   dplyr::filter(!is.na(Target)) |> 
@@ -1246,7 +1230,7 @@ quant_interp_heatmap <- agged_data_pooled_ewrs$Target |>
                 contour_arglist = list(interpolate = TRUE))
 
 # This would be better if we had a more even and tighter set of scenarios
-  contour_heatmap <- agged_data_pooled_ewrs$Target |>
+  contour_heatmap <- agged_data$Target |>
   dplyr::filter(adapt_code %in% c(1,2,3) &
                   scenario != 'MAX') |> # max isn't really relevant here
   dplyr::filter(!is.na(Target)) |> 
@@ -1286,14 +1270,16 @@ contour_heatmap
 Causal networks can be used to show outcomes in addition to the causal relationships themselves. This sort of visualisation allows identification of the holistic consequences of the different scenarios across the complex and interrelated sets of values, as well as identifying nodes that are unusually resilient or sensitive to change ([@fig-network-subset]). For example, NF7 is little changed across the range of climate scenarios considered, while EF5 shows greater sensitivity. The network structure can also identify critical nodes that have outsize consequences for other nodes in the network. Such nodes are critically important for outcomes, and so should be investigated to determine whether they capture key aspects of the system or are instead an artifact of model structure (possibly resulting from the way the network was developed) that may bias results. If their sensitivity does in fact capture the system, these nodes may be ideal targets for management intervention. The edges also identify the dependence between values, where we can see that different environmental outcomes depend on not only different hydrologic indicators (EWRs), but also different numbers of those indicators.
 
 ```{r}
-# #| label: network-setup
-# #| message: false
-# 
-# ## NOTE TO SELF: THIS ALL NEEDS TO BE A FUNCTION IN HydroBOT
+#| eval: false
+
+# RERUN IF YOU NEED TO REMAKE CAUSAL NETWORK
+
+# NETWORK 1) demonstrates steps in aggregation, some relative results, for one gauge
+
 # # just get the theme-scale values
 # # First we need the sequence lists
 # 
-aggparams <- yaml::read_yaml(file.path(agg_results,
+aggparams <- yaml::read_yaml(file.path(agg_results_gauge,
                                       'agg_metadata.yml'))
 
 themeseq <- aggparams$aggregation_sequence[
@@ -1306,6 +1292,8 @@ themefuns <- aggparams$aggregation_funsequence[
     c('planning_unit', 'sdl_units', 'mdb')
 ]
 
+causal_ewr <- causal_ewr
+
 # skip the _timing
 ewr_edges <- make_edges(dflist = causal_ewr,
                         fromtos = themeseq[2:length(themeseq)],
@@ -1317,7 +1305,7 @@ nodes <- make_nodes(ewr_edges)
 aggvals <- extract_vals_causal(agged_data,
                                whichaggs = themefuns,
                                valcol = 'ewr_achieved',
-                               targetlevels = names(themeseq))
+                               targetlevels = names(themeseq[2:length(themeseq)]))
 
 # filter to a single gauge. Multiple gauges should have separate networks or otherwise split the gauge-specific nodes. And include the larger scales pertaining to that gauge.
 
@@ -1331,7 +1319,7 @@ aggvals <- aggvals[as.vector(gaugematch),] |>
 
 # join to the nodes
 nodes_with_vals <- nodes |>
-  dplyr::filter(NodeType != 'ewr_code_timing') |>
+  dplyr::filter(NodeType != 'target_5_year_2024') |>
   dplyr::left_join(aggvals) |>
   dplyr::filter(!is.na(scenario)) |>
   # Scenario metadata fell off, return it
@@ -1361,6 +1349,10 @@ basenodes <- nodes_with_vals |>
 ```
 
 ```{r}
+#| eval: false
+
+# RERUN IF YOU NEED TO REMAKE CAUSAL NETWORK
+
 # #| label: make-networks
 # #| include: false
 # #| warning: false
@@ -1372,28 +1364,13 @@ aggNetworkdown_sub_rel <- basenodes |>
                  edge_pal = 'black',
                  node_pal = list(value = compare_pal),
                  node_colorset = 'logrel_ewr_achieved',
-                 render = FALSE,
+                 render = TRUE,
                  setLimits = c(min(basenodes$logrel_ewr_achieved),
                                0,
                                max(basenodes$logrel_ewr_achieved)),
                  save = TRUE,
-                 savedir = 'images',
+                 savedir = file.path(demo_webdir,'images'),
                  savename = 'aggNetworkdown_sub_rel')
-
-aggNetworkup_sub_rel <- basenodes |>
-  dplyr::filter(flow_multiplier == 2 & flow_addition == 0) |>
-  make_causal_plot(edges = ewr_edges,
-                   focalnodes = sampleenvobj,
-                 edge_pal = 'black',
-                 node_pal = list(value = compare_pal),
-                 node_colorset = 'logrel_ewr_achieved',
-                 render = FALSE,
-                 setLimits = c(min(basenodes$logrel_ewr_achieved),
-                               0,
-                               max(basenodes$logrel_ewr_achieved)),
-                 save = TRUE,
-                 savedir = 'images',
-                 savename = 'aggNetworkup_sub_rel')
 
 # GET LEGEND: THIS NEEDS TO BE INTEGRATED IN FUNCTION
 lims <- c(min(basenodes$logrel_ewr_achieved),
@@ -1409,7 +1386,7 @@ limtib <- tibble(x = seq(from = lims[1], to = lims[2], length.out = 10), y = 1) 
 limtib <- tibble(x = labeling::extended(lims[1], lims[3], 5), y = 1)
 
 allcols <- limtib |>
-  grouped_colors(pal_list = list(compare_pal), colorset = 'x')
+  grouped_colors(pal_list = list(achieve_pal), colorset = 'x')
 
 # Can I just make the legend and then steal it? using pretty breaks
 
@@ -1426,54 +1403,10 @@ pal_ggc <- ggplot(limtc, aes(x = condition, y = y, color = condition)) + geom_po
 
 net_legend <- ggpubr::get_legend(pal_ggc) |>
   ggpubr::as_ggplot()
-# 
-# # ggsave('images/aggNetworkup_sub_legend.png', width = 1, height = 2, units = 'cm')
-```
 
-```{r}
+ggsave(plot = net_legend, file.path(demo_webdir,'images', 'aggNetworkup_sub_legend.png'), width = 2, height = 4, units = 'cm')
 
-# Galen note: I commented this out because it doesn't seem to go anywhere. It looks copied over from Macquarie. It should all be in the toolkit now, it was just like this in Macquarie because it used an old version.
 
-# objective_mapping <- readr::read_csv(file.path(qaelpath, 'Toolkit', 'macquarie',  'EWR_to_Target_mapping.csv')) |> 
-#   # dplyr::filter(state == 'NSW') |> 
-#   dplyr::filter(grepl('Macq', l_t_w_p_short_name)) |> 
-#   dplyr::select(planning_unit_name, gauge, ewr_code, ewr_code_timing, 
-#                 eco_objective_code, env_group = target)
-# 
-# # go to env_obj
-# ewr2obj <- objective_mapping |> 
-#   dplyr::select(-env_group) |> 
-#   dplyr::distinct() |> 
-#   dplyr::mutate(eco_objective_code = stringr::str_remove_all(eco_objective_code, "\xa0"),
-#                 eco_objective_code = stringr::str_replace_all(eco_objective_code, "-", "_")) |> 
-#   dplyr::mutate(env_obj = strsplit(eco_objective_code, split = '_')) |>
-#   tidyr::unnest_longer(col = env_obj) |>
-#   dplyr::select(-eco_objective_code)
-# 
-# # then to Target
-# obj2target <- ewr2obj |> 
-#   dplyr::select(-ewr_code, -ewr_code_timing) |> 
-#   dplyr::mutate(Target = dplyr::case_when(grepl('^NF', env_obj) ~ "Native fish",
-#                                    grepl('^NV', env_obj) ~ "Native vegetation",
-#                                    grepl('^OS', env_obj) ~ "Other species",
-#                                    grepl('^EF', env_obj) ~ "Priority ecosystem function",
-#                                    grepl('^WB', env_obj) ~ "Waterbird",
-#                                    .default = NA)) |> 
-#   dplyr::distinct()
-# 
-# # obj2target <- obj2target |> 
-# #   dplyr::mutate(Target = stringr::str_replace(Target, 'Other species', 'Flow-dependent frogs'))
-
-# # a few functions work better with a list of dfs than a bare df.
-# objective_steps <- list(ewr2obj = ewr2obj, obj2target = obj2target)
-# 
-# themeseqEET <- list(env_obj = c('ewr_code', 'env_obj'),
-#                     Target = c('env_obj', 'Target'))
-# 
-# edgesEET_orig <- make_edges(dflist = objective_steps,
-#                       fromtos = themeseqEET) 
-# 
-# nodesEET_orig <- make_nodes(edgesEET_orig)
 ```
 
 # RADAR - Values across themes
@@ -1487,9 +1420,6 @@ radar plot?
 yMax = max(filter(obj_sdl_to_plot, scenario %in% scenarios_to_plot2 & !is.na(Target))$ewr_achieved)+0.05
 ymin = 0 #RELATIVE VERSIONS OF THIS PLOT WILL HAVE VALUES LESS THAN ONE
 
-
-Target_pal
-
 #Attempt to make background
 background_df <- data.frame(Order = as.factor(seq(1, length(unique(obj_sdl_to_plot$Target)))),
                             Target =  factor(unique(obj_sdl_to_plot$Target), levels = unique(obj_sdl_to_plot$Target)), 
@@ -1499,8 +1429,10 @@ background_df <- data.frame(Order = as.factor(seq(1, length(unique(obj_sdl_to_pl
   filter(!is.na(Target))
 
 
-plt_2 <- ggplot(filter(obj_sdl_to_plot, 
-                       scenario %in% scenarios_to_plot2 & !is.na(Target)),
+plt_2 <- obj_sdl_to_plot |>
+  mutate(Order = as.numeric(Target))|>
+  filter(scenario %in% scenarios_to_plot2 & !is.na(Target))|>
+  ggplot(
       aes(
       x = reorder(stringr::str_wrap(Target, 6), Order),
       y = ewr_achieved,
@@ -1532,12 +1464,14 @@ plt_2 <- ggplot(filter(obj_sdl_to_plot,
   scale_fill_manual(values = sceneTarget_pal, aesthetics = "fill", breaks = c("A", "E", "I"), name = "Climate scenario")+
   labs(y = "Proportion EWR achieved")
 
-plt_2
+#plt_2
 
 
 ```
 
 ```{r}
+#| eval: false
+
 ## Radar for graphical abstract
 #FUDGEing data!!!
 obj_sdl_to_plot_temp <- obj_sdl_to_plot |>
@@ -1574,7 +1508,7 @@ background_df <- data.frame(Order = as.factor(seq(1, length(unique(obj_sdl_to_pl
 yMax = 0.65
 ymin = 0 #RELATIVE VERSIONS OF THIS PLOT WILL HAVE VALUES LESS THAN ONE
 
-plt_2 <- ggplot(filter(obj_sdl_to_plot_temp, scenario %in% c("climatebaseadapt0",  "climateup2adapt0") & !is.na(Target)),
+plt_20 <- ggplot(filter(obj_sdl_to_plot_temp, scenario %in% c("climatebaseadapt0",  "climateup2adapt0") & !is.na(Target)),
       aes(
       x = reorder(stringr::str_wrap(Target, 6), Order),
       y = ewr_achieved,
@@ -1606,10 +1540,17 @@ plt_2 <- ggplot(filter(obj_sdl_to_plot_temp, scenario %in% c("climatebaseadapt0"
   scale_fill_manual(values = sceneTarget2_pal, aesthetics = "fill", breaks = c("A", "E", "I"), name = "Climate scenario")+
   labs(y = "Proportion EWR achieved")
 
+#plt_2
+
+#ggsave(plot = plt_20, filename = file.path(demo_webdir,"images", paste0("radar_env", Sys.Date(), ".pdf")), device = "pdf", width = 5, height = 5)
+
+```
+
+```{r}
+#| label: fig-radar
+#| fig-cap: Condition results visualised as a radar plot with the three climate scenarios. This approach allows visualising changes in outcome of disparate thematic variables (as illustrated in the graphical abstract) and is useful for quick broad-scale representation of the results.
+
 plt_2
-
-#ggsave(plot = plt_2, filename = file.path(demo_webdir,"images", paste0("radar_env", Sys.Date(), ".pdf")), device = "pdf", width = 5, height = 5)
-
 ```
 
 # Implications and conclusions
@@ -1674,8 +1615,6 @@ concerning which adaptation options should be implemented under changing climate
 
 The development of HydroBOT is necessary to better understand the impacts of climate change and the different adaptation options in response to climate change, on water-dependent social, economic, environmental and cultural values. It incorporates new and existing information, knowledge and models to enable transparent, repeatable assessments of impacts and adaptation to future climates. In summary, the toolkit ingests scenarios (for example, climate or flow timeseries), feeds them to a response model (such as the EWR tool), reports outcomes and enables comparisons among scenarios. It uses the links in the response models for visualisation of the complex inter-relationships between water-dependent outcomes. This aids transparency and improves communication of the outputs.
 
-*GEORGIA (priority ecosystem functions and environmental assets)*
-
 # References
 
 ::: {#refs}
@@ -1738,7 +1677,7 @@ nf_gauges + nf_PU + nf_maps_single +
 ewrs_in_pyewr |> 
   filter(Gauge %in% gauges_to_plot) |> 
   # Why these? Same as Georgia had
-  select(Catchment = LTWPShortName, Gauge, Code, StartMonth, EndMonth, TargetFrequency, TargetFrequencyMax, TargetFrequencyMin, EventsPerYear, Duration, MinSpell, FlowThresholdMin, FlowThresholdMax, `MaxInter-event`) |>  
+  dplyr::select(Catchment = LTWPShortName, Gauge, Code, StartMonth, EndMonth, TargetFrequency, TargetFrequencyMax, TargetFrequencyMin, EventsPerYear, Duration, MinSpell, FlowThresholdMin, FlowThresholdMax, `MaxInter-event`) |>  
   # huxtable::huxtable() |>
   # theme_article()
   knitr::kable()
