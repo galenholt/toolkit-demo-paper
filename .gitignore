@@ -18,7 +18,7 @@ renv/
 
 /_*.local
 
-*.docx
+.docx
 
 *.log
 
