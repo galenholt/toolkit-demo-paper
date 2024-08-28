@@ -312,10 +312,7 @@ sceneTarget2_pal
 
 # Highlights
 
-The HydroBOT toolkit for data and model integration and synthesis to assess outcomes for disparate target values.
-Scaling and synthesis of results across space, time, and groups of values.
-Comparison of outcomes resulting from climate change and the impacts of adaptation options.
-Automation, transparency, and error detection for consistent repeatable analyses.
+The HydroBOT toolkit for data and model integration and synthesis to assess outcomes for disparate target values. Scaling and synthesis of results across space, time, and groups of values. Comparison of outcomes resulting from climate change and the impacts of adaptation options. Automation, transparency, and error detection for consistent repeatable analyses.
 
 # Graphical abstract
 
@@ -337,18 +334,11 @@ Water management rarely manages only for water; instead, management targets are 
 
 # Key words
 
-1) Environmental flows; 2) Water management; 3) Hydrology; 4) Toolkit; 5) R package; 6) Synthesis
+1)  Environmental flows; 2) Water management; 3) Hydrology; 4) Toolkit; 5) R package; 6) Synthesis
 
 # Software availability
 
-Software name: HydroBOT (Hydrology-dependent Basin Outcomes Toolkit).
-Developer: QAEL (Quantitative Aquatic Ecosystem Laboratory) led by Galen Holt.
-First year available: 2023.
-Program language: R, Python.
-Program size: 22 MB.
-Operation system: Linux, macOS, Windows.
-Availability: https://github.com/MDBAuth/HydroBOT
-License: MIT
+Software name: HydroBOT (Hydrology-dependent Basin Outcomes Toolkit). Developer: QAEL (Quantitative Aquatic Ecosystem Laboratory) led by Galen Holt. First year available: 2023. Program language: R, Python. Program size: 22 MB. Operation system: Linux, macOS, Windows. Availability: https://github.com/MDBAuth/HydroBOT License: MIT
 
 # Introduction
 
@@ -1583,70 +1573,20 @@ Large-scale natural resource management requires the capacity to make decisions 
 
 Water management faces an increasing need and expectation for scientifically-sound and interpretable modelling from a range of stakeholders. These issues are magnified when facing major long-range decision making to understand the impacts of climate change and potential policy or operational adaptations management agencies might undertake. Co-design of HydroBOT with a diverse team within the Murray-Darling Basin Authority yielded distinct benefits to achieving these goals, with developers and researchers better understanding and building in the needs of the MDBA, while the MDBA better understands the limitations, uses, and potential of the tool. The focus on communication both within MDBA and to external partners, including model provenance, production of tailored synthesis figures, and causal networks, is a key outcome to build trust and understanding in HydroBOT as a tool and the results it produces. HydroBOT provides new capacity to assess a wide range of target values across scenarios and exciting opportunity for continued advances and improvement with the development of new response models and climate scenarios.
 
-### Outline
-
-What we achieved:
-
--   a toolkit that provides a consistent, scientifically robust and repeatable capacity to model responses to flow, with management-relevant outputs
-
--   co-design and development between scientists and managers
-
-What this provides:
-
--   new ability to assess the wide suite of values the MDBA is mandated to manage for.
-
-    -   moving beyond hydrology
-
--   Clear (or at least open) modelling to build trust
-
--   ability to assess a range of scenarios, including climate and climate adaptation
-
-Advantages:
-
--   Identification of areas of resilience and sensitivity.
-
--   Uncertainty, understanding parameter space.
-
--   Modularity
-
--   adapt best models for responses into unified model and target management relevance
-
--   agnostic to scenario
-
--   causal networks
-
-What cool software things do we do?
-
--   Modularity in architecture
-
--   ability to wrap models in multiple languages
-
--   flexibility- e.g. ability to aggregate differently
-
--   consistent comparison, with data provenance
-
--   metadata and use as parameters for repeatability
-
-### From elsewhere- incorporate
-
-*lots of this can be the backbone of the big-picture points above*
-
-We expand upon the utility of an existing diver-indicator model by linking its indicators *EF: indicators same as values here I suppose? I think cos this paper is quite dense and tackles a lot of different types of variables and data visualisation techniques, it's really important to use consistent terms.* to objectives. This increases the transparency in the causal relationships that underpin the model and builds understanding and trust in the outcomes.
-
-concerning which adaptation options should be implemented under changing climate by explicitly modelling effects on both ecological and other values.
-
-The development of HydroBOT is necessary to better understand the impacts of climate change and the different adaptation options in response to climate change, on water-dependent social, economic, environmental and cultural values. It incorporates new and existing information, knowledge and models to enable transparent, repeatable assessments of impacts and adaptation to future climates. In summary, the toolkit ingests scenarios (for example, climate or flow timeseries), feeds them to a response model (such as the EWR tool), reports outcomes and enables comparisons among scenarios. It uses the links in the response models for visualisation of the complex inter-relationships between water-dependent outcomes. This aids transparency and improves communication of the outputs.
-
 # CRediT authorship contribution statement
+
 Galen Holt: Writing – original draft, Visualization, Validation, Software, Methodology, Investigation, Formal analysis, Data curation, Conceptualization. Georgia Dwyer: Writing – original draft, Visualization, Methodology,Investigation, Formal analysis, Conceptualization. David Robertson: Writing – review & editing, Supervision, Conceptualization, Funding acquisition. Martin Job: Writing – review & editing, Supervision, Conceptualization. Lara Palmer: Writing – review & editing, Supervision, Conceptualization. Rebecca E Lester Writing – review & editing, Supervision, Investigation, Conceptualization, Funding acquisition.
 
 # Declaration of competing interest
+
 The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
 # Acknowledgements
+
 The work is supported by the Murray–Darling Water and Environment Research Program. *Rebecca Check*
 
 # Data availability
+
 All data and their sources have been explained in the manuscript.
 
 # References
@@ -1668,7 +1608,6 @@ gloss_tab <- readr::read_csv(file.path(demo_webdir, "definitions.csv"))|>
 knitr::kable(gloss_tab)
 
 ```
-
 
 ## Component overview
 
