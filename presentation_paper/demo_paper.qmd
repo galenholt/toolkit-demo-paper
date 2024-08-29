@@ -61,7 +61,7 @@ format:
   #   comments:
   #     hypothesis: true
   docx:
-    toc: true
+    toc: false
     # prefer-html: true
     # setting these to the html defaults so they don't get jumbled between format
     fig-width: 7
@@ -411,7 +411,7 @@ To demonstrate HydroBOT, we develop a set of example scenarios capturing some qu
 
 The purpose of HydroBOT is to assess how various climate and adaptation scenarios affect multiple sets of values, which may span many scales and disciplines. These scenarios are typically represented by their effect on the hydrograph, though other inputs could be included if relevant. We seek to make these assessments in a consistent and repeatable way despite differences in the response models. HydroBOT then has the capability to synthesize a wide range of outputs from the response models into results that compare scenarios and are digestible and useful for management decision making (@fig-tktomgmt). A co-design process including scientists, software developers, and managers was developed to ensure the toolkit achieved its goal of producing scientifically robust results that are also management-relevant.
 
-![Conceptualisation of HydroBOT architecture (blue arrows) and benefits to management (yellow arrows). Scenarios, represented by hydrographs, reflect observed flows or modeled scenarios (produced via hydrological modelling outside HydroBOT). These hydrographs are fed in a consistent way to various response models (see ) via the HydroBOT Controller (see ). Additional inputs of spatial data (see ) and causal networks (see ) provide grouping information for scalling via the HydroBOT Aggregator (see ). the HydroBOT Comparer synthesizes the results into management-relevant outputs that aid decision-making (see ). This decision-making process is also supported by feedback from stakeholders, other expert advice and the social and political landscape. Water planning and policy decisions can then guide the development of scenarios to assess potential adaptaion options, which in turn can be run through the HydroBOT archetecture.](../images/conceptual.png){#fig-tktomgmt width="16cm"}{#fig-tktomgmt width = 16cm}
+![Conceptualisation of HydroBOT architecture (blue arrows) and benefits to management (yellow arrows). Scenarios, represented by hydrographs, reflect observed flows or modeled scenarios (produced via hydrological modelling outside HydroBOT). These hydrographs are fed in a consistent way to various response models (see ) via the HydroBOT Controller (see ). Additional inputs of spatial data (see ) and causal networks (see ) provide grouping information for scalling via the HydroBOT Aggregator (see ). the HydroBOT Comparer synthesizes the results into management-relevant outputs that aid decision-making (see ). This decision-making process is also supported by feedback from stakeholders, other expert advice and the social and political landscape. Water planning and policy decisions can then guide the development of scenarios to assess potential adaptaion options, which in turn can be run through the HydroBOT archetecture.](../images/conceptual.png){#fig-tktomgmt}
 
 ## Co-design and scoping for management relevance
 
@@ -1652,7 +1652,7 @@ knitr::kable(gloss_tab)
 
 The HydroBOT architecture comprises three major components, the Controller, Aggregator and Comparer, that receive data and information from several input sources, including input scenarios, hydrological modelling, spatial data, causal networks and response models ([@fig-architecture, @tbl-components]). Here we detail some specific details about each of these components and other input sources.
 
-![Architecture of toolkit. Hydrographs representing are inputs, typically reflecting modeled scenarios or historic flows. The flow of data during a modeling run follows the bold arrows, with the additional components of the Causal network and Spatial units providing necessary grouping information for the Aggregator. Dashed lines indicate that hydrographs and direct Response model output can utilise the Comparer functionality directly. Causal networks are linked closely to each Response model, and while both are defined externally to the toolkit they require significant work to integrate into a compatible, modular toolkit component. Spatial units are typically more general, typically polygons of management interest, and require only light changes to make compatible. Each set of boxes represents a distinct component of the toolkit, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](../images/architecture.png){#fig-architecture width="16cm"}
+![Architecture of toolkit. Hydrographs representing are inputs, typically reflecting modeled scenarios or historic flows. The flow of data during a modeling run follows the bold arrows, with the additional components of the Causal network and Spatial units providing necessary grouping information for the Aggregator. Dashed lines indicate that hydrographs and direct Response model output can utilise the Comparer functionality directly. Causal networks are linked closely to each Response model, and while both are defined externally to the toolkit they require significant work to integrate into a compatible, modular toolkit component. Spatial units are typically more general, typically polygons of management interest, and require only light changes to make compatible. Each set of boxes represents a distinct component of the toolkit, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](../images/architecture.png){#fig-architecture}
 
 ```{r}
 #| label: tbl-components
@@ -1691,6 +1691,9 @@ nf_gauges + nf_PU + nf_maps_single +
 #### EWRs
 
 ```{r}
+
+# THIS CHUNK SEEMS TO BE THE RENDER ISSUE, NOT SURE WHY
+
 # #| eval: false
 # #| label: tbl-ewrs
 # #| tbl-cap: !expr glue::glue("Environmental water requirements (EWR) for two example gauges ({gauges_to_plot[1]} and {gauges_to_plot[2]}).")
@@ -1967,7 +1970,7 @@ The same set of nodes as in the text, but the actual condition values, rather th
 
 ```{r}
 #| label: fig-network-notbaseline
-#| fig-cap: "Causal networks as in @fig-network-subset, but with the raw condition values for the halved (a), baseline (b), and doubled (c) scenarios instead of relativized to the baseline."
+#| fig-cap: "Causal networks as in @fig-causal-results, but with the raw condition values for the halved (a), baseline (b), and doubled (c) scenarios instead of relativized to the baseline."
 
 # aggNetworkdown_sub <- nodes_with_vals |> 
 #   dplyr::filter(flow_multiplier == 0.5 & flow_addition == 0) |> 
