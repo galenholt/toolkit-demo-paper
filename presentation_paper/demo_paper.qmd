@@ -331,7 +331,22 @@ sceneTarget2_pal
 
 ```{r}
 #| label: move figs
+#| include: false
+file.copy(file.path(demo_webdir, 'images', 'GraphicalAbstract-01.png'), 
+          file.path('images', 'graphical_abstract.png'),
+          overwrite = TRUE)
 
+file.copy(file.path(demo_webdir, 'images', 'Conceptual_fig_demopaper2.png'), 
+          file.path('images', 'conceptual.png'),
+          overwrite = TRUE)
+
+file.copy(file.path(demo_webdir, 'images', 'Aggregations.png'), 
+          file.path('images', 'aggregations.png'),
+          overwrite = TRUE)
+
+file.copy(file.path(demo_webdir, 'images', 'architecture.png'), 
+          file.path('images', 'architecture.png'),
+          overwrite = TRUE)
 # This is a placeholder to move conceptual figs, since it HATES spaces in names of the raw {fig} divs
 
 ```
@@ -1402,6 +1417,7 @@ All data and their sources have been explained in the manuscript. HydroBOT code 
 ```{r}
 #| label: tbl-glossary
 #| tbl-cap: Glossary adapted from the Murray-Darling Basin Long Term Watering Plans (LTWPs) (@nswdepartmentofplanningandenvironment2020). 
+#| message: false
 
 gloss_tab <- readr::read_csv(file.path(demo_webdir, "definitions.csv"))|>
   dplyr::filter(!is.na(Definition))
@@ -1652,6 +1668,7 @@ knitr::kable(adapt_scenes)
 ```{r}
 #| label: fig-hydrographs
 #| fig-cap: Hydrographs for two example gauges (represented by colour) with 'climate' scenarios on rows and 'adaptation' scenarios as columns. Scenario codes as in @tbl-scenarios.
+#| message: false
 
 hydro_plot <- scenehydros |>
     dplyr::filter(scenario %in% scenarios_to_plot & gauge %in% gauges_to_plot) |>
@@ -1755,17 +1772,7 @@ Here, we show results at the gauge, SDL and basin scales, and also to show how t
 ```{r}
 #| label: fig-gauge-to-sdl-map-all-1
 #| fig-cap: "Outcomes for gauges for all ecological objectives contributing the priority ecosystem function."
-
-## GALEN NOT SURE WHY THIS ISNT WORKING 
-pupergauge <- agged_data_gauge$env_obj |>
-       dplyr::filter(scenario %in% scenarios_to_plot) |>
-  dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
-  dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |>
-  # clean names
-    mutate(scenario = paste0(climate_code, adapt_code)) |> st_drop_geometry() |> summarise(nunits = n_distinct(planning_unit_name), .by = gauge)
-
-max(pupergauge$nunits)
-View(pupergauge)
+#| message: false
 
 agged_gauges <- agged_data$ewr_code |> 
   theme_aggregate(from_theme = 'ewr_code', to_theme = 'env_obj',
@@ -1859,7 +1866,8 @@ Here, we show the full set of SDL units and ecological values that are shown in 
 ```{r}
 #| label: fig-smooth-all
 #| fig-cap: Smoothed fits to assess change in performance across the 'climate' scenarios. Points are individual ecological objectives, fitted lines are loess smooths. Separate fits are done for each adaptation option, and so differences between lines of different colors represents the impact of those adaptations. Rows are ecological values groupings, columns are SDL units. Note the very different scale of the y-axis. 
-#| message: false  
+#| message: false
+#| warning: false
 
 
 # sdl_smooth_groups / sdl_smooth_clim +
