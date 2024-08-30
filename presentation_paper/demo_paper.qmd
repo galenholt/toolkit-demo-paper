@@ -838,7 +838,6 @@ obj_in_groups <- obj_in_groups +
 
 obj_in_groups
 
-
 ```
 
 
@@ -1409,6 +1408,9 @@ The work is supported by the Murray--Darling Water and Environment Research Prog
 All data and their sources have been explained in the manuscript. HydroBOT code is available at github.com/MDBAuth/HydroBOT, and code to create this manuscript is available at github.com/MDBAuth/toolkit-demo-paper.
 
 # References
+
+::: {#refs}
+:::
 
 # Appendix 1 {#sec-appendix1}
 
