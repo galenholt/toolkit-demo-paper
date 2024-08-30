@@ -385,7 +385,7 @@ Water management rarely manages only for water; instead, management targets are 
 
 Software name: HydroBOT (Hydrology-dependent Basin Outcomes Toolkit). Developer: QAEL (Quantitative Aquatic Ecosystem Laboratory) led by Galen Holt. First year available: 2023. Program language: R, Python. Program size: 22 MB. Operation system: Linux, macOS, Windows. Availability: https://github.com/MDBAuth/HydroBOT License: MIT
 
-# Introduction
+# 1. Introduction
 
 *The whole intro needs more cites*
 
@@ -407,7 +407,7 @@ One common issue with modelling in general, and particularly integrated models s
 
 To demonstrate HydroBOT, we develop a set of example scenarios capturing some qualitative aspects of one intended use: the assessment and comparison of outcomes under different climate scenarios and different adaptations to those changes. These axes represent changes to the system due to processes over which managers have no control (i.e. a changing climate), and management actions which would typically be targeted interventions. We use this demonstration to illustrate the problem space and show how the toolkit can aid in assessing potential system change and prioritising management actions to mitigate impacts.
 
-# Methods
+# 2. Methods
 
 The purpose of HydroBOT is to assess how various climate and adaptation scenarios affect multiple sets of values, which may span many scales and disciplines. These scenarios are typically represented by their effect on the hydrograph, though other inputs could be included if relevant. We seek to make these assessments in a consistent and repeatable way despite differences in the response models. HydroBOT then has the capability to synthesize a wide range of outputs from the response models into results that compare scenarios and are digestible and useful for management decision making (@fig-tktomgmt). A co-design process including scientists, software developers, and managers was developed to ensure the toolkit achieved its goal of producing scientifically robust results that are also management-relevant.
 
@@ -512,7 +512,7 @@ hydro_plot_EWRs
 
 The EWR tool results are binary responses of hydrologic indicators and so, to link these to expected ecological responses, we extracted and cleaned causal networks from the relationships implied in the Long-Term Watering Plans, where the EWRs are defined [e.g. @nswdepartmentofplanningandenvironment2020]. These plans describe how the hydrologic indicators are expected to influence both proximate and larger-scale ecological outcomes. We extracted these causal relationships from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which were developed based on the best available information from water managers, ecologists, scientific publications, and analysis of gauged and modelled flows [e.g. @nswdepartmentofplanningandenvironment2020, @lobegeiger2022].
 
-These causal networks expand upon the utility of the EWR diver-indicator model by linking its indicators to the values being managed for. This increases the transparency in the causal relationships that underpin the model and builds understanding and trust in the outcomes. The causal network provides a dense network of links across a range of ecological outcomes at various scales, from the hydrologic indicators to components of the life cycle of single species to whole-community outcomes at 10- or 20-year target dates. For example, for the SF1 indicator described above might contribute to multiple ecological objectives pertaining to native fish (ecological objectives NF1-9; e.g. NF1 = No loss of native fish species), native vegetation (NV1), and ecosystem functions (EF1-5). These ecological objectives are defined to support the completion of all elements of a life cycle of an organism or group of organisms (taxonomic or spatial) to achieve a "goal state, condition or characteristic of an ecological asset or function" [@nswdepartmentofplanningandenvironment2020]. Outcomes for ecological objectives are then linked in the causal network to five ecological theme groups [native fish, native vegetation, waterbirds, other species, and priority ecosystem functions, @murray-darlingbasinauthority2019] and are associated with long-term targets (5, 10, and 20 year) of the LTWP's management strategies. The chain of dependencies from EWRs (hydrologic) to ecological objectives at multiple levels of detail to long-term targets are captured in the causal networks as links, with nodes defining the ecological values at different scales, from life-cycle objectives to themes and long-term targets. For visualisations of causal networks, see (@fig-causal-results and Appendix @sec-causalnetwork-versions). This structure not only provides a visual definition of the links in the LTWP, it also enables assessment of outcomes in direct equivalence to the LTWP's management strategies.
+These causal networks expand upon the utility of the EWR diver-indicator model by linking its indicators to the values being managed for. This increases the transparency in the causal relationships that underpin the model and builds understanding and trust in the outcomes. The causal network provides a dense network of links across a range of ecological outcomes at various scales, from the hydrologic indicators to components of the life cycle of single species to whole-community outcomes at 10- or 20-year target dates. For example, for the SF1 indicator described above might contribute to multiple ecological objectives pertaining to native fish (ecological objectives NF1-9; e.g. NF1 = No loss of native fish species), native vegetation (NV1), and ecosystem functions (EF1-5). These ecological objectives are defined to support the completion of all elements of a life cycle of an organism or group of organisms (taxonomic or spatial) to achieve a "goal state, condition or characteristic of an ecological asset or function" [@nswdepartmentofplanningandenvironment2020]. Outcomes for ecological objectives are then linked in the causal network to five ecological theme groups [native fish, native vegetation, waterbirds, other species, and priority ecosystem functions, @murray-darlingbasinauthority2019] and are associated with long-term targets (5, 10, and 20 year) of the LTWP's management strategies. The chain of dependencies from EWRs (hydrologic) to ecological objectives at multiple levels of detail to long-term targets are captured in the causal networks as links, with nodes defining the ecological values at different scales, from life-cycle objectives to themes and long-term targets. This structure not only provides a visual definition of the links in the LTWP, it also enables assessment of outcomes in direct equivalence to the LTWP's management strategies.
 
 #### Module standardization
 
@@ -552,7 +552,7 @@ To scale flow, we apply nine flow multipliers, ranging from 0.5 to 2.0, to the h
 
 For simplicity for this demonstration, we use arithmetic means for all aggregations except the initial step along the value dimension, though we typically present results only after this first step. The first value step gives achievement of EWR indicators from a set of usually three differently-lenient sub-indicators. We consider that if an EWR is achieved for any of its possible definitions, it is achieved. We thus use a maximum for that aggregation. Though we use means throughout, their meaning changes depending on the level of aggregation. For simplicity, we assume the value of each outcome represents some 'condition', and the 'condition' at a particular level can be assessed as the mean of the conditions contributing to it. For example, the condition of detailed ecological values such as fish spawning or bird fledging might simply be the proportion of EWRs that contribute to each value that are achieved. Then, the condition of ecological groups, e.g. native fish, might be the mean condition over all the NF1..n values, despite those depending on different numbers and sets of EWRs. This captures the idea that native fish condition improves when the life-cycle components captured by those lower-level values are met, whether it takes 1 or 10 EWRs.
 
-# Results and discussion
+# 3. Results and discussion
 
 Here, we present example results produced using HydroBOT, the demonstration scenarios and the EWR tool for the response model. These results demonstrate the flexibility and robustness of the toolkit, which give it the capability to produce rigorous but interpretable and management-relevant results in a reproducible way (all code for these results is available from github.com/MDBAuth/toolkit-demo-paper).
 
@@ -1447,7 +1447,7 @@ ggsave(plot = net_legend, file.path(demo_webdir,'images', 'aggNetworkup_sub_lege
 
 ```{r}
 #| label: fig-causal-results
-#| fig-cap: !expr glue::glue("a) HydroBOT incorporates causal networks that describe the ecological connections between ecological values in a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), ecological objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate ecological values such as NF5- Improve population structure for moderate to longlived riverine specialist native fish species, and the ecological theme groupings. The network shown here is for a single gauge ({gauges_to_plot[1]}), which is the scale at which EWR codes and ecological objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here. Colors represent change in condition of each value in the halving (panel a, scenario A) scenario, expressed as the log of condition relative to the baseline 'climate' scenario. Large reductions in condition are dark purple, large improvements are dark green, and no change is white. See Appendix 3 *sec-causalnetwork-versions* for more detailed causal network diagrams.")
+#| fig-cap: !expr glue::glue("a) HydroBOT incorporates causal networks that describe the ecological connections between ecological values in a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), ecological objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate ecological values such as NF5- Improve population structure for moderate to longlived riverine specialist native fish species, and the ecological theme groupings. The network shown here is for a single gauge ({gauges_to_plot[1]}), which is the scale at which EWR codes and ecological objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here. Colors represent change in condition of each value in the halving (panel a, scenario A) scenario, expressed as the log of condition relative to the baseline 'climate' scenario. Large reductions in condition are dark purple, large improvements are dark green, and no change is white.")
 
 aggNetworkdown_sub_rel_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkdown_sub_rel.png')) |>
   grid::rasterGrob(interpolate = TRUE)
@@ -1531,7 +1531,7 @@ plt_2 <- obj_sdl_to_plot |>
 plt_2
 ```
 
-# Implications and conclusions
+# 4. Implications and conclusions
 
 HydroBOT provides consistent, scientifically robust, and repeatable capacity to model responses to flow, producing management-relevant outcomes at multiple dimensions. This capacity provides a step change for the Murray-Darling Basin Authority and other users to move beyond assessment of hydrologic outcomes and towards assessing the values that depend on that hydrology. Requirements such as those for a "healthy working basin" [@murray-darlingbasinauthority2011] that demand attention across socio-economic, cultural, and environmental values are commonly included in management plans for large basins [e.g. @deltastewardshipcouncil2013; @usdepartmentoftheinteriorbureauofreclamation2012; @ziolkowska2016; @connor2015], and reflect the interconnections of a range of values provided by these systems. Key to assessing this range of values is modeling their dependence on hydrology and other management levers, and aggregating the outcomes to management-relevant scales.
 
@@ -1539,23 +1539,23 @@ Large-scale natural resource management requires the capacity to make decisions 
 
 Water management faces an increasing need and expectation for scientifically-sound and interpretable modelling from a range of stakeholders. These issues are magnified when facing major long-range decision making to understand the impacts of climate change and potential policy or operational adaptations management agencies might undertake. Co-design of HydroBOT with a diverse team within the Murray-Darling Basin Authority yielded distinct benefits to achieving these goals, with developers and researchers better understanding and building in the needs of the MDBA, while the MDBA better understands the limitations, uses, and potential of the tool. The focus on communication both within MDBA and to external partners, including model provenance, production of tailored synthesis figures, and causal networks, is a key outcome to build trust and understanding in HydroBOT as a tool and the results it produces. HydroBOT provides new capacity to assess a wide range of target values across scenarios and exciting opportunity for continued advances and improvement with the development of new response models and climate scenarios.
 
-# CRediT authorship contribution statement
+# 5. CRediT authorship contribution statement
 
 Galen Holt: Writing -- original draft, Visualization, Validation, Software, Methodology, Investigation, Formal analysis, Data curation, Conceptualization. Georgia Dwyer: Writing -- original draft, Visualization, Methodology,Investigation, Formal analysis, Conceptualization. David Robertson: Writing -- review & editing, Supervision, Conceptualization, Funding acquisition. Martin Job: Writing -- review & editing, Supervision, Conceptualization. Lara Palmer: Writing -- review & editing, Supervision, Conceptualization. Rebecca E Lester Writing -- review & editing, Supervision, Investigation, Conceptualization, Funding acquisition.
 
-# Declaration of competing interest
+# 6. Declaration of competing interest
 
 The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
-# Acknowledgements
+# 7. Acknowledgements
 
 The work is supported by the Murray--Darling Water and Environment Research Program. *Rebecca Check*
 
-# Data availability
+# 8. Data availability
 
 All data and their sources have been explained in the manuscript. HydroBOT code is available at github.com/MDBAuth/HydroBOT, and code to create this manuscript is available at github.com/MDBAuth/toolkit-demo-paper.
 
-# References
+# 9. References
 
 # Appendix 1 {#sec-appendix1}
 
@@ -1618,18 +1618,17 @@ nf_gauges + nf_PU + nf_maps_single +
 
 # THIS CHUNK SEEMS TO BE THE RENDER ISSUE, NOT SURE WHY
 
-# #| eval: false
-# #| label: tbl-ewrs
-# #| tbl-cap: !expr glue::glue("Environmental water requirements (EWR) for two example gauges ({gauges_to_plot[1]} and {gauges_to_plot[2]}).")
+#| label: tbl-ewrs
+#| tbl-cap: !expr glue::glue("Environmental water requirements (EWR) for two example gauges ({gauges_to_plot[1]} and {gauges_to_plot[2]}).")
 # 
 # 
-# ewrs_in_pyewr |> 
-#   filter(Gauge %in% gauges_to_plot) |> 
-#   # Why these? Same as Georgia had
-#   dplyr::select(Catchment = LTWPShortName, Gauge, Code, StartMonth, EndMonth, TargetFrequency, TargetFrequencyMax, TargetFrequencyMin, EventsPerYear, Duration, MinSpell, FlowThresholdMin, FlowThresholdMax, `MaxInter-event`) |>  
-#   # huxtable::huxtable() |>
-#   # theme_article()
-#   knitr::kable()
+ewrs_in_pyewr |>
+  filter(Gauge %in% gauges_to_plot) |>
+  # Why these? Same as Georgia had
+  dplyr::select(Catchment = LTWPShortName, Gauge, Code, StartMonth, EndMonth, TargetFrequency, TargetFrequencyMax, TargetFrequencyMin, EventsPerYear, Duration, MinSpell, FlowThresholdMin, FlowThresholdMax, `MaxInter-event`) |>
+  # huxtable::huxtable() |>
+  # theme_article()
+  knitr::kable()
 ```
 
 # Appendix 2
@@ -1762,36 +1761,118 @@ base_hydro_adapt <- scenehydros |>
 base_hydro_adapt
 ```
 
-# Appendix 3 {#sec-causalnetwork-versions}
 
-## Additional causal network plots
-
-#### 
-
-# Appendix 4
+# Appendix 3
 
 ## Additional comparison plots
 
 ### Map aggregation {#sec-map-versions}
 
-The goal here is to show the values at the sdl scale, but also to show how the gauges aggregate to that scale. In the text, @fig-gauge-to-sdl-map has a few examples of SDL-scaled outcomes, while @fig-spatial-scaling has the scaling for one. @fig-gauge-to-sdl-map-all shows the SDL outcomes for all ecological objectives contributing the priority ecosystem function, along with the constituent gauges.
+Here, we show results at the gauge, SDL and basin scales, and also to show how the gauges aggregate to the higher scales scale. In the text, @fig-gauge-to-sdl-map has a few examples of SDL-scaled outcomes and @fig-spatial-scaling demonstrates one set of scaling. Here, @fig-gauge-to-sdl-map-all-1 shows the outcomes for gauges for all ecological objectives contributing the priority ecosystem function; @fig-gauge-to-sdl-map-all-2 shows these outcomes at the SDL scale; and @fig-gauge-to-sdl-map-all-3 shows these outcomes at the basin scale.
 
 ```{r}
-#| label: fig-gauge-to-sdl-map-all
-#| fig-cap: "all panels version." 
+#| label: fig-gauge-to-sdl-map-all-1
+#| fig-cap: "Outcomes for gauges for all ecological objectives contributing the priority ecosystem function."
 
-# reduced set of objectives and scenarios- closer to the next option
-(ef_maps + theme(legend.position = 'none') ) + 
-  wrap_elements(nf_gauges + 
-                  guides(color = guide_colourbar(title.position="top")) +
-                  theme(legend.position = 'bottom')) + 
-  plot_annotation( tag_levels = 'a') +
-  plot_layout(widths = c(2,1))
+## GALEN NOT SURE WHY THIS ISNT WORKING 
+pupergauge <- agged_data_gauge$env_obj |>
+       dplyr::filter(scenario %in% scenarios_to_plot) |>
+  dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
+  dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |>
+  # clean names
+    mutate(scenario = paste0(climate_code, adapt_code)) |> st_drop_geometry() |> summarise(nunits = n_distinct(planning_unit_name), .by = gauge)
 
+max(pupergauge$nunits)
+View(pupergauge)
 
+agged_gauges <- agged_data$ewr_code |> 
+  theme_aggregate(from_theme = 'ewr_code', to_theme = 'env_obj',
+                  groupers = c('scenario', 'gauge', 'climate_code', 'adapt_code'),
+                  aggCols = 'ewr_achieved',
+                  funlist = ArithmeticMean,
+                  causal_edges = causal_ewr,
+                  auto_ewr_PU = FALSE) |> 
+  agg_names_to_cols(aggsequence = 'env_obj', 
+                    funsequence = 'ArithmeticMean', 
+                    aggCols = 'ewr_achieved')
+
+ ef_gauges <- agged_gauges |>
+       dplyr::filter(scenario %in% scenarios_to_plot) |>
+  dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
+  dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |> 
+  # clean names
+    mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'env_obj',
+                underlay_list = list(list(underlay = sdl_units |> 
+                                            filter(SWSDLName %in%
+                                                     unique(obj_sdl_to_plot$SWSDLName)),
+                                         pal_list = 'gray')),
+                setLimits = c(0,1)) 
+
+ef_gauges <- ef_gauges + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "Environmental objective",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
+ef_gauges
 ```
 
-The full set of SDL units and ecological values
+```{r}
+#| label: fig-gauge-to-sdl-map-all-2
+#| fig-cap: "Outcomes for SDL units for all ecological objectives contributing the priority ecosystem function. "
+
+ef_maps
+```
+
+```{r}
+#| label: fig-gauge-to-sdl-map-all-3
+#| fig-cap: "Outcomes for the basin for all ecological objectives contributing the priority ecosystem function."
+
+ ef_basin <- obj_sdl_to_plot |>
+   dplyr::group_by(scenario, env_obj, climate_code, adapt_code)|>
+   dplyr::reframe(ewr_achieved = mean(ewr_achieved)) |>
+   dplyr::filter(scenario %in% scenarios_to_plot) |>
+   dplyr::mutate(OBJECTID = as.double(1))|>
+   dplyr::right_join(basin, by = join_by(OBJECTID))|>
+   st_sf()|>
+   dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
+   dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |> 
+  # clean names
+  mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'env_obj',
+                setLimits = c(0,1)) 
+
+ef_basin <- ef_basin + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "Environmental objective",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
+ef_basin
+```
+
+Here, we show the full set of SDL units and ecological values that are shown in part in 
 
 ```{r}
 #| label: fig-smooth-all
@@ -1812,199 +1893,3 @@ sdl_smooth_groups # + coord_cartesian(ylim = c(0.5, 2)) # + geom_abline(slope = 
 
 qual_heatmap
 ```
-
-### Causal networks
-
-The causal networks shown in the text have been subset for readability, and baselined. Here, we have the ones they're based on. *I've turned these off for word because diagrammer hates word and I don't have the energy to do a workaround*.
-
-```{r}
-#| label: fig-full-networks
-#| fig-cap: !expr glue::glue("Subset of the causal network for gauge {gauges_to_plot[2]} for all ecological objectives. The data is at the gauge scale for the first and second columns (EWRs and ecological objectives) and at the SDL unit scale for the third (ecological values). Thus, the final set of nodes contain information from other gauges that are not shown here for clarity. Colors represent the condition for the halving (a), baseline (b), and doubling (c) 'climate' scenario. Low condition is dark blue, high is light yellow.")
-#| 
-# aggNetworkdown <- nodes_with_vals |> 
-#   dplyr::filter(flow_multiplier == 0.5 & flow_addition == 0) |> 
-#   make_causal_plot(edges = ewr_edges,
-#                  edge_pal = 'black',
-#                  node_pal = list(value = achieve_pal),
-#                  node_colorset = 'ewr_achieved',
-#                  setLimits = c(0,1),
-#                  render = FALSE,
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'aggNetworkdown')
-# 
-# aggNetworkbase <- nodes_with_vals |> 
-#   dplyr::filter(flow_multiplier == 1 & flow_addition == 0) |> 
-#   make_causal_plot(edges = ewr_edges,
-#                  edge_pal = 'black',
-#                  node_pal = list(value = achieve_pal),
-#                  node_colorset = 'ewr_achieved',
-#                  setLimits = c(0,1),
-#                  render = FALSE,
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'aggNetworkbase')
-# 
-# aggNetworkup <- nodes_with_vals |> 
-#   dplyr::filter(flow_multiplier == 2 & flow_addition == 0) |> 
-#   make_causal_plot(edges = ewr_edges,
-#                  edge_pal = 'black',
-#                  node_pal = list(value = achieve_pal),
-#                  node_colorset = 'ewr_achieved',
-#                  setLimits = c(0,1),
-#                  render = FALSE,
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'aggNetworkup')
-
-# DiagrammeR::render_graph(aggNetworkdown)
-# DiagrammeR::render_graph(aggNetworkbase)
-# DiagrammeR::render_graph(aggNetworkup)
-
-# make the legend
-# lim_full <- tibble(condition = seq(from = 0, to = 1, by = 0.1), y = 1)
-# 
-# pal_full <- ggplot(lim_full, aes(x = condition, y = y, color = condition)) + geom_point() +
-#   paletteer::scale_color_paletteer_c(achieve_pal)
-# 
-# fullnet_legend <- ggpubr::get_legend(pal_full) |> 
-#   ggpubr::as_ggplot()
-
-aggNetworkdown_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkdown.png')) |>
-  grid::rasterGrob(interpolate = TRUE)
-aggNetworkbase_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkbase.png')) |>
-  grid::rasterGrob(interpolate = TRUE)
-aggNetworkup_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkup.png')) |>
-  grid::rasterGrob(interpolate = TRUE)
-
-layout <- "
-AAAAABBBBB
-CCCCC##D##
-"
-patchwork::wrap_plots(aggNetworkdown_grob, 
-                      aggNetworkbase_grob, 
-                      aggNetworkup_grob,
-                      #fullnet_legend,
-                      design = layout, byrow = FALSE) +
-  plot_annotation(tag_levels = list(c('a', 'b', 'c')))
-
-```
-
-The same set of nodes as in the text, but the actual condition values, rather than relativized.
-
-```{r}
-#| label: fig-network-notbaseline
-#| fig-cap: "Causal networks as in @fig-causal-results, but with the raw condition values for the halved (a), baseline (b), and doubled (c) scenarios instead of relativized to the baseline."
-
-# aggNetworkdown_sub <- nodes_with_vals |> 
-#   dplyr::filter(flow_multiplier == 0.5 & flow_addition == 0) |> 
-#   make_causal_plot(edges = ewr_edges,
-#                    focalnodes = sampleenvobj,
-#                  edge_pal = 'black',
-#                  node_pal = list(value = achieve_pal),
-#                  node_colorset = 'ewr_achieved',
-#                  setLimits = c(0,1),
-#                  render = FALSE,
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'aggNetworkdown_sub')
-# 
-# aggNetworkbase_sub <- nodes_with_vals |> 
-#   dplyr::filter(flow_multiplier == 1 & flow_addition == 0) |> 
-#   make_causal_plot(edges = ewr_edges,
-#                    focalnodes = sampleenvobj,
-#                  edge_pal = 'black',
-#                  node_pal = list(value = achieve_pal),
-#                  node_colorset = 'ewr_achieved',
-#                  setLimits = c(0,1),
-#                  render = FALSE,
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'aggNetworkbase_sub')
-# 
-# aggNetworkup_sub <- nodes_with_vals |> 
-#   dplyr::filter(flow_multiplier == 2 & flow_addition == 0) |> 
-#   make_causal_plot(edges = ewr_edges,
-#                    focalnodes = sampleenvobj,
-#                  edge_pal = 'black',
-#                  node_pal = list(value = achieve_pal),
-#                  node_colorset = 'ewr_achieved',
-#                  setLimits = c(0,1),
-#                  render = FALSE,
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'aggNetworkup_sub')
-# 
-# # DiagrammeR::render_graph(aggNetworkdown_sub)
-# # DiagrammeR::render_graph(aggNetworkbase_sub)
-# # DiagrammeR::render_graph(aggNetworkup_sub)
-
-aggNetworkdown_sub_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkdown_sub.png')) |>
-  grid::rasterGrob(interpolate = TRUE)
-aggNetworkbase_sub_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkbase_sub.png')) |>
-  grid::rasterGrob(interpolate = TRUE)
-aggNetworkup_sub_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkup_sub.png')) |>
-  grid::rasterGrob(interpolate = TRUE)
-
-layout2 <- "
-AAAAAAAAAAA#
-BBBBBBBBBBBD
-CCCCCCCCCCC#
-"
-patchwork::wrap_plots(aggNetworkdown_sub_grob, 
-                      aggNetworkbase_sub_grob, 
-                      aggNetworkup_sub_grob,
-                      #fullnet_legend,
-                      design = layout2) +
-  plot_annotation(tag_levels = list(c('a', 'b', 'c')))
-```
-
-------------------------------------------------------------------------
-
-# Journal info
-
-## Environmental Modelling & Software
-
-• Author names and affiliations. Where the family name may be ambiguous (e.g., a double name), please indicate this clearly. Present the authors' affiliation addresses (where the actual work was done) below the names. Indicate all affiliations with a lower-case superscript letter immediately after the author's name and in front of the appropriate address. Provide the full postal address of each affiliation, including the country name and, if available, the e-mail address of each author.
-
-• Corresponding author. Clearly indicate who will handle correspondence at all stages of refereeing and publication, also post-publication. Ensure that telephone numbers (with country and area code) are provided in addition to the e-mail address and the complete postal address. Contact details must be kept up to date by the corresponding author.
-
-• Present/permanent address. If an author has moved since the work described in the article was done, or was visiting at the time, a 'Present address' (or 'Permanent address') may be indicated as a footnote to that author's name. The address at which the author actually did the work must be retained as the main, affiliation address. Superscript Arabic numerals are used for such footnotes.
-
-### Authorship
-
-Authorship should be limited to those who have made a significant contribution to the conception, design, execution, or interpretation of the reported study. All those who have made significant contributions should be listed as co-authors. Where there are others who have participated in certain substantive aspects of the research project, they should be acknowledged or listed as contributors. Acknowledgement of the contributions of authors is encouraged (see Acknowledgements section below). The corresponding author should ensure that all appropriate co-authors and no inappropriate co-authors are included on the paper, and that all co-authors have seen and approved the final version of the paper and have agreed to its submission for publication.
-
-Title, Authors, Affiliations and Contact details
-
-### Abbreviations
-
-Define abbreviations that are not standard in this field in a footnote to be placed on the first page of the article. Such abbreviations that are unavoidable in the abstract must be defined at their first mention there, as well as in the footnote. Ensure consistency of abbreviations throughout the article.
-
-## Separate files
-
-### Highlights
-
-Highlights are optional yet highly encouraged for this journal, as they increase the discoverability of your article via search engines. They consist of a short collection of bullet points that capture the novel results of your research as well as new methods that were used during the study (if any). Please have a look at the examples here: example Highlights.
-
-Highlights should be submitted in a separate editable file in the online submission system. Please use 'Highlights' in the file name and include 3 to 5 bullet points (maximum 85 characters, including spaces, per bullet point).
-
-Highlights are mandatory for this journal. They consist of a short collection of bullet points that convey the core findings of the article and should be submitted in a separate file in the online submission system. Please use 'Highlights' in the file name and include 3 to 5 bullet points (maximum 85 characters, including spaces, per bullet point). See https://www.elsevier.com/highlights for examples.
-
-### Graphical abstract
-
-A Graphical abstract is optional and should summarize the contents of the article in a concise, pictorial form designed to capture the attention of a wide readership online. Authors must provide images that clearly represent the work described in the article. Graphical abstracts should be submitted as a separate file in the online submission system. Image size: Please provide an image with a minimum of 531 × 1328 pixels (h × w) or proportionally more. The image should be readable at a size of 5 × 13 cm using a regular screen resolution of 96 dpi. Preferred file types: TIFF, EPS, PDF or MS Office files. See https://www.elsevier.com/graphicalabstracts for examples.
-
-### Abstract (not included in section numbering)
-
-A concise and factual abstract is required, with a restriction of 150 words. The abstract should state briefly the purpose of the research, the principal results and major conclusions. An abstract is often presented separately from the article, so it must be able to stand alone. For this reason, References should be avoided, but if essential, then cite the author(s) and year(s). Also, non-standard or uncommon abbreviations should be avoided, but if essential they must be defined at their first mention in the abstract itself.
-
-### Keywords
-
-Immediately after the abstract, provide a maximum of 6 keywords, using American spelling and avoiding general and plural terms and multiple concepts (avoid, for example, 'and', 'of'). Be sparing with abbreviations: only abbreviations firmly established in the field may be eligible. These keywords will be used for indexing purposes.
-
-### Software and/or data availability
-
-Most EMS papers should include a software/data availability section containing as much of the following information as possible: name of software or dataset, developer and contact information, year first available, hardware required, software required, availability and cost. Also for software: program language, program size; for data: form of repository (database, files, spreadsheet), size of archive, access form. Note that "Contact the author" is not acceptable for software or data access. Please use online data and software storage and retrieval systems such as GitHub, BitBucket, FigShare, HydroShare or others to make your data and software readily available. Links to commercial software and data access web sites are also acceptable.
-
-When a software component is an essential part of the paper, authors should be prepared to make it available to reviewers during the review process. To preserve the anonymity of reviewers, the authors should make the software available for a download, protecting it if needed by a password that is communicated to the editors.
