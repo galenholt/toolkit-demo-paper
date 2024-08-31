@@ -1076,7 +1076,7 @@ With a large number of scenarios, we can better characterize the way values resp
 
 The response to 'adaptation' options (difference between the lines in @fig-smooth-climate-adapt panel b) tends to be much stronger than the response to 'climate' (slopes), even though the shift in total water may be lower (particularly for the baseline '1' and +250 ML/d '2' adaptations; see x-axis of @fig-difference-baseline). Moreover, the adaptation options are not equally sensitive to the climate scenarios; adaptation options '2' and '3' show less change in response to climate than '1' (no adaptation) (@fig-smooth-all b). Thus, these 'adaptations' are increasing resilience to holistic 'climate' flow changes. Although these scenarios do not represent true adaptation options or climate scenarios, this shows that such changes to resilience are possible with targeted interventions, and HydroBOT provides the capacity to investigate them.
 
-*Galen/Georgia- the plots in a are unreadable now due to se. Fix and restate what this shows once we can see it. Also, the points are jittered in width, whcih is confusing. Can we pass a function in instad of 'jitter'? e.g jitter(width = 0.1, height = 0.1)? that might tighten it up and make it more obviously jitter and not variance. maybe ask for a low alpha?* 
+*Galen/Georgia- the plots in a are unreadable now due to se. Fix and restate what this shows once we can see it. Looks like it's because of some points that are massively high on y. Should we clip them off?* 
 
 ```{r}
 #| label: fig-smooth-climate-adapt
