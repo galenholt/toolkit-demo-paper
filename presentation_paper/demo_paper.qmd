@@ -1455,88 +1455,8 @@ Maps allow large-scale visualization of ecological objectives under various scen
 ```{r}
 #| label: build-map-figs
 #| include: false
-ef_maps <- obj_sdl_to_plot |>
-    dplyr::filter(scenario %in% scenarios_to_plot) |>
-  # Need to reduce dimensionality
-    dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |> 
-  # clean names
-  mutate(scenario = paste0(climate_code, adapt_code), 
-         SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
-  plot_outcomes(outcome_col = 'ewr_achieved',
-                outcome_lab = 'Proportion\nEWR achieved',
-                plot_type = 'map',
-                colorset = 'ewr_achieved',
-                pal_list = achieve_pal,
-                facet_row = 'scenario',
-                facet_col = 'env_obj',
-                underlay_list = list(underlay = basin,
-                                     pal_list = 'azure'),
-                setLimits = c(0,1)) 
 
-ef_maps <- ef_maps + 
-  scale_y_continuous(sec.axis = sec_axis(~ . ,
-                                         name = "Climate & Adaptation Option Scenario", 
-                                         breaks = NULL, labels = NULL)) +
-    scale_x_continuous(sec.axis = sec_axis(~ . , 
-                                           name = "Environmental objective",
-                                           breaks = NULL, labels = NULL)) +
-  theme(axis.ticks = element_blank(), 
-                         axis.text=element_blank())
 
-# gauges with blank sdl units
-  # because gauges contribute to multiple planning units, reporting them is not a good indicator of condition. However, to show how the aggregation works, we can do something here to get single values for them by using theme aggregate directly and allowing it to average over the multiple rows due to multiple planning units.
-agged_gauges <- agged_data$ewr_code |> 
-  theme_aggregate(from_theme = 'ewr_code', to_theme = 'env_obj',
-                  groupers = c('scenario', 'gauge', 'climate_code', 'adapt_code'),
-                  aggCols = 'ewr_achieved',
-                  funlist = ArithmeticMean,
-                  causal_edges = causal_ewr,
-                  auto_ewr_PU = FALSE) |> 
-  agg_names_to_cols(aggsequence = 'env_obj', 
-                    funsequence = 'ArithmeticMean', 
-                    aggCols = 'ewr_achieved')
-
-nf_gauges <- agged_gauges |>
-    dplyr::filter(env_obj == 'NF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
-  # clean names
-  mutate(scenario = paste0(climate_code, adapt_code)) |> 
-  plot_outcomes(outcome_col = 'ewr_achieved',
-                outcome_lab = 'Proportion\nEWR achieved',
-                plot_type = 'map',
-                colorset = 'ewr_achieved',
-                pal_list = achieve_pal,
-                underlay_list = list(list(underlay = basin,
-                                     pal_list = 'azure'),
-                                     list(underlay = sdl_units |> 
-                                            filter(SWSDLName %in%
-                                                     unique(obj_sdl_to_plot$SWSDLName)),
-                                         pal_list = 'gray')),
-                setLimits = c(0,1)) +
-  theme(axis.ticks = element_blank(), 
-                         axis.text=element_blank())
-
-# The 'env_ob' dataset is at the planning unit scale before agg to sdl
-nf_PU <- agged_data$env_obj |>
-    dplyr::filter(env_obj == 'NF1' & scenario == 'climatebaseadapt0') |> # Need to reduce dimensionality
-  # clean names
-  mutate(scenario = paste0(climate_code, adapt_code)) |> 
-  plot_outcomes(outcome_col = 'ewr_achieved',
-                outcome_lab = 'Proportion\nEWR achieved',
-                plot_type = 'map',
-                colorset = 'ewr_achieved',
-                pal_list = achieve_pal,
-                map_outlinecolor = NA,
-                underlay_list = list(list(underlay = basin,
-                                     pal_list = 'azure'),
-                                     list(underlay = sdl_units |> 
-                                            filter(SWSDLName %in%
-                                                     unique(obj_sdl_to_plot$SWSDLName)),
-                                         pal_list = 'gray')),
-                setLimits = c(0,1)) +
-  theme(axis.ticks = element_blank(), 
-                         axis.text=element_blank())
-
-# are there better ways to show this?
 
 # a single sdl map for comparison
 nf_maps_single <- obj_sdl_to_plot |>
@@ -1615,9 +1535,6 @@ nf_gauges + nf_PU + nf_maps_single +
 #### EWRs
 
 ```{r}
-
-# THIS CHUNK SEEMS TO BE THE RENDER ISSUE, NOT SURE WHY
-
 #| label: tbl-ewrs
 #| tbl-cap: !expr glue::glue("Environmental water requirements (EWR) for two example gauges ({gauges_to_plot[1]} and {gauges_to_plot[2]}).")
 # 
@@ -1787,10 +1704,12 @@ agged_gauges <- agged_data$ewr_code |>
                     funsequence = 'ArithmeticMean', 
                     aggCols = 'ewr_achieved')
 
+agged_gauges <- agged_gauges |>
+  dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
+  dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b')))
+
  ef_gauges <- agged_gauges |>
        dplyr::filter(scenario %in% scenarios_to_plot) |>
-  dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
-  dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |> 
   # clean names
     mutate(scenario = paste0(climate_code, adapt_code)) |> 
   plot_outcomes(outcome_col = 'ewr_achieved',
@@ -1816,12 +1735,70 @@ ef_gauges <- ef_gauges +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
+
+ ef_gauges_target <- agged_gauges |>
+  dplyr::group_by(scenario,env_group, climate_code, adapt_code, gauge, geometry)|>
+  dplyr::reframe(ewr_achieved = mean(ewr_achieved)) |>
+  dplyr::filter(scenario %in% scenarios_to_plot) |>
+  dplyr::filter(env_group == 'EF') |> 
+  # clean names
+    mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'env_group',
+                underlay_list = list(list(underlay = sdl_units |> 
+                                            filter(SWSDLName %in%
+                                                     unique(obj_sdl_to_plot$SWSDLName)),
+                                         pal_list = 'gray')),
+                setLimits = c(0,1)) 
+
+ef_gauges <- ef_gauges + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "Environmental objective",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
 ef_gauges
 ```
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-all-2
 #| fig-cap: "Outcomes for SDL units for all ecological objectives contributing the priority ecosystem function. "
+ef_maps <- obj_sdl_to_plot |>
+    dplyr::filter(scenario %in% scenarios_to_plot) |>
+  # Need to reduce dimensionality
+    dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |> 
+  # clean names
+  mutate(scenario = paste0(climate_code, adapt_code), 
+         SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n')) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'env_obj',
+                underlay_list = list(underlay = basin,
+                                     pal_list = 'azure'),
+                setLimits = c(0,1)) 
+
+ef_maps <- ef_maps + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "Environmental objective",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
 
 ef_maps
 ```
