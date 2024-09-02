@@ -1100,6 +1100,7 @@ Scenarios will often be defined along more than one axis. In the demonstration h
 Perhaps most usefully, if scenarios are carefully developed to explore the range of potential change in the system, then the heatmap represents the response surface of values over this range. Developing the response surface can be iterative, with subsequent scenarios developed to increase resolution near areas of rapid change in outcome. This approach differs from the usual approach of assessing only a small set of scenarios targeting specific proposed actions or environmental conditions *CITE*. Instead, by covering the range to generate a response surface, it can provide hypotheses about how proposed scenarios might perform and assess how sensitive the outcomes are to uncertainty in single scenarios. Specific proposed scenarios could of course be assessed as well and mapped onto the surface. For example, we might think of the flow multipliers here as defining the entire range of plausible climate shifts, and the addition scenarios as the entire potential range of additions. Then, specific proposed adaptations or climate sequences could be mapped onto these heatmaps at particular points. The reverse is also possible; identification of areas of high sensitivity in the heatmaps could be used to choose a set of potential adaptations designed to increase climate resilience. This idea extends to additional dimensions, which can then be collapsed in various ways (e.g. via principal component analysis, or by identifying dominant hydrometrics) to visualise with 2d heatmaps even when the response surface itself is best defined and studied in more dimensions.
 
 *Galen/Georgia- wrap text on y-facets, at least EF and NV. And probably the label too*
+*how big does the fig end up being in the word doc?*
 
 ```{r}
 #| label: build-heatmaps
@@ -1523,12 +1524,6 @@ nf_gauges + nf_PU + nf_maps_single +
   theme(legend.position = 'bottom')
 ```
 
-#### Temporal aggregation
-
-#### Objective aggregations
-
-
-## Response models {#sec-ewr-table}
 
 #### EWRs
 
@@ -1684,7 +1679,50 @@ base_hydro_adapt
 
 ### Map aggregation {#sec-map-versions}
 
-Here, we show results at the gauge, SDL and basin scales, and also to show how the gauges aggregate to the higher scales scale. In the text, @fig-gauge-to-sdl-map has a few examples of SDL-scaled outcomes and @fig-spatial-scaling demonstrates one set of scaling. Here, @fig-gauge-to-sdl-map-all-1 shows the outcomes for gauges for all ecological objectives contributing the priority ecosystem function; @fig-gauge-to-sdl-map-all-2 shows these outcomes at the SDL scale; and @fig-gauge-to-sdl-map-all-3 shows these outcomes at the basin scale.
+Here, we show results at the gauge, SDL and basin scales, and also to show how the outcomes aggregate along the thematic dimension. To start @fig-gauge-to-sdl-map-all-0 illustrates a subset of EWRs that contribute to priority ecosystem function at the gauge scale. Our aggregations sequence then proceeds to aggregate these EWR to the environmental objectives at each gauge. Here, @fig-gauge-to-sdl-map-all-1 shows the outcomes for gauges for all ecological objectives contributing the priority ecosystem function (left panels) in addition to a gauge level aggregation to the Ecological value scale of the thematic dimension. @fig-gauge-to-sdl-map-all-2 then shows these outcomes at the SDL scale; and @fig-gauge-to-sdl-map-all-3 shows these outcomes at the basin scale. In the text, @fig-gauge-to-sdl-map has a few examples of SDL-scaled outcomes and @fig-spatial-scaling demonstrates one set of scaling.
+
+```{r}
+#| label: fig-gauge-to-sdl-map-all-0
+#| fig-cap: "Outcomes for gauges for a subset of EWRs that contribute to priority ecosystem function."
+#| message: false
+
+agged_EWRs_gauges <- agged_data$ewr_code |>
+  left_join(causal_ewr$ewr2obj)|>
+  dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
+  dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |>
+  dplyr::filter(ewr_code %in% c('BF1' ,'CF' ,'LF1' ,'OB-WL' ,'SF1' ,'BK1' ,'VF' ,'AC1', 'OB1'))|>
+  distinct(ewr_code, gauge, scenario, .keep_all = TRUE)
+
+ef_EWR_gauges <- agged_EWRs_gauges |>
+       dplyr::filter(scenario %in% scenarios_to_plot) |>
+  # clean names
+    mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'ewr_code',
+                underlay_list = list(list(underlay = sdl_units |> 
+                                            filter(SWSDLName %in%
+                                                     unique(obj_sdl_to_plot$SWSDLName)),
+                                         pal_list = 'gray')),
+                setLimits = c(0,1)) 
+
+ef_EWR_gauges <- ef_EWR_gauges + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "EWR",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
+ef_EWR_gauges #+ 
+  #+ plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
+```
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-all-1
@@ -1733,10 +1771,9 @@ ef_gauges <- ef_gauges +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-
  ef_gauges_target <- agged_gauges |>
   dplyr::group_by(scenario,env_group, climate_code, adapt_code, gauge, geometry)|>
-  dplyr::reframe(ewr_achieved = mean(ewr_achieved)) |>
+  dplyr::summarise(ewr_achieved = mean(ewr_achieved)) |>
   dplyr::filter(scenario %in% scenarios_to_plot) |>
   dplyr::filter(env_group == 'EF') |> 
   # clean names
@@ -1754,17 +1791,17 @@ ef_gauges <- ef_gauges +
                                          pal_list = 'gray')),
                 setLimits = c(0,1)) 
 
-ef_gauges <- ef_gauges + 
+ef_gauges_target <- ef_gauges_target + 
   scale_y_continuous(sec.axis = sec_axis(~ . ,
                                          name = "Climate & Adaptation Option Scenario", 
                                          breaks = NULL, labels = NULL)) +
     scale_x_continuous(sec.axis = sec_axis(~ . , 
-                                           name = "Environmental objective",
+                                           name = "Ecological value",
                                            breaks = NULL, labels = NULL)) +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-ef_gauges
+ef_gauges + ef_gauges_target + plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
 ```
 
 ```{r}
@@ -1784,8 +1821,8 @@ ef_maps <- obj_sdl_to_plot |>
                 pal_list = achieve_pal,
                 facet_row = 'scenario',
                 facet_col = 'env_obj',
-                underlay_list = list(underlay = basin,
-                                     pal_list = 'azure'),
+                # underlay_list = list(underlay = basin,
+                #                      pal_list = 'azure'),
                 setLimits = c(0,1)) 
 
 ef_maps <- ef_maps + 
@@ -1798,14 +1835,45 @@ ef_maps <- ef_maps +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-ef_maps
+ef_maps_target <- obj_sdl_to_plot |>
+  dplyr::group_by(scenario,env_group, climate_code, adapt_code, SWSDLName, geometry)|>
+  dplyr::summarise(ewr_achieved = mean(ewr_achieved)) |>
+  dplyr::filter(scenario %in% scenarios_to_plot) |>
+  dplyr::filter(env_group == 'EF') |> 
+  # clean names
+    mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'env_group',
+                underlay_list = list(list(underlay = sdl_units |> 
+                                            filter(SWSDLName %in%
+                                                     unique(obj_sdl_to_plot$SWSDLName)),
+                                         pal_list = 'gray')),
+                setLimits = c(0,1)) 
+
+ef_maps_target <- ef_maps_target + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "Ecological value",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
+ef_maps + ef_maps_target + plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
+
 ```
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-all-3
 #| fig-cap: "Outcomes for the basin for all ecological objectives contributing the priority ecosystem function."
 
- ef_basin <- obj_sdl_to_plot |>
+ ef_basin_data <- obj_sdl_to_plot |>
    dplyr::group_by(scenario, env_obj, climate_code, adapt_code)|>
    dplyr::reframe(ewr_achieved = mean(ewr_achieved)) |>
    dplyr::filter(scenario %in% scenarios_to_plot) |>
@@ -1813,7 +1881,9 @@ ef_maps
    dplyr::right_join(basin, by = join_by(OBJECTID))|>
    st_sf()|>
    dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
-   dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |> 
+   dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) 
+ 
+ef_basin <- ef_basin_data |> 
   # clean names
   mutate(scenario = paste0(climate_code, adapt_code)) |> 
   plot_outcomes(outcome_col = 'ewr_achieved',
@@ -1835,17 +1905,43 @@ ef_basin <- ef_basin +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-ef_basin
+ef_basin_target <- ef_basin_data |>
+  dplyr::group_by(scenario, env_group, climate_code, adapt_code, geometry)|>
+  dplyr::summarise(ewr_achieved = mean(ewr_achieved)) |>
+  dplyr::filter(scenario %in% scenarios_to_plot) |>
+  dplyr::filter(env_group == 'EF') |> 
+  # clean names
+    mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'env_group',
+                setLimits = c(0,1)) 
+
+ef_basin_target <- ef_basin_target + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "Ecological value",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
+ef_basin + ef_basin_target + plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
 ```
 
-Here, we show the full set of SDL units and ecological values that are shown in part in 
+Here, we show the full set of SDL units and ecological values that are shown in part in @fig-smooth-climate-adapt panel b
 
 ```{r}
 #| label: fig-smooth-all
-#| fig-cap: Smoothed fits to assess change in performance across the 'climate' scenarios. Points are individual ecological objectives, fitted lines are loess smooths. Separate fits are done for each adaptation option, and so differences between lines of different colors represents the impact of those adaptations. Rows are ecological values groupings, columns are SDL units. Note the very different scale of the y-axis. 
+#| fig-cap: Smoothed fits to assess change in performance across the 'climate' scenarios. Points are individual ecological objectives, fitted lines are loess smooths. Separate fits are done for each adaptation option, and so differences between lines of different colors represents the impact of those adaptations. Rows are ecological values groupings, columns are SDL units. Note the different scales of the y-axis. 
+
 #| message: false
 #| warning: false
-
 
 # sdl_smooth_groups / sdl_smooth_clim +
 #   plot_layout(guides = 'collect', heights = c(3,1))
