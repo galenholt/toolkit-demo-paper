@@ -1512,19 +1512,6 @@ obj_maps_few
 
 ```
 
-
-
-```{r}
-#| label: fig-spatial-scaling
-#| fig-cap: Environmental water requirements (EWRs) are defined by hydrographs at gauges (a), and apply to Planning Units (b). The outcomes at these scales of definition can then be aggregated to larger spatial areas, such as SDL units (c), which we do here with an area-weighted mean for the example EWR NF1 in the baseline climate and adaptation scenario (E1, simple historical hydrograph with no climate or adaptation changes).
-
-
-nf_gauges + nf_PU + nf_maps_single +
-  plot_layout(guides = 'collect') &
-  theme(legend.position = 'bottom')
-```
-
-
 #### EWRs
 
 ```{r}
@@ -1807,6 +1794,11 @@ ef_gauges + ef_gauges_target + plot_layout(guides = "collect", heights = c(1,1),
 ```{r}
 #| label: fig-gauge-to-sdl-map-all-2
 #| fig-cap: "Outcomes for SDL units for all ecological objectives contributing the priority ecosystem function. "
+
+#GEORGIA INCORPORATE THIS INTO FIG LAB #Environmental water requirements (EWRs) are defined by hydrographs at gauges (a), and apply to Planning Units (b). The outcomes at these scales of definition can then be aggregated to larger spatial areas, such as SDL units (c), which we do here with an area-weighted mean for the example EWR NF1 in the baseline climate and adaptation scenario (E1, simple historical hydrograph with no climate or adaptation changes).
+
+
+
 ef_maps <- obj_sdl_to_plot |>
     dplyr::filter(scenario %in% scenarios_to_plot) |>
   # Need to reduce dimensionality
