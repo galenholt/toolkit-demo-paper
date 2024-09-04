@@ -538,7 +538,7 @@ Results from the response models are typically very granular in many dimensions 
 
 Aggregation and scaling condense that information to scales that are useful for interpretation and planning. Depending on the use, the desired scale(s) may range from local, short-term responses of fine-grained outcomes to large spatial scales over longer time periods for high-level outcomes such as environmental condition (@fig-aggregation-dims). Thus, HydroBOT must achieve a robust, consistent aggregation approach along three dimensions (time, space, and value), while maintaining the ability to define those aggregation steps flexibly to meet the needs of the specific analysis. For example, the EWR tool assesses EWRs at individual gauges, but outcomes may be desired within areas defined for management purposes (e.g. Sustainable Diversion Limit (SDL) units) or at the basin scale. Likewise, multiple EWRs are required to meet objectives for proximate ecological values, such as fish breeding, of which many are required for each larger ecological value (such as Native fish) or long-term target (see Appendix 1 for glossary [@sec-glossary]). The HydroBOT Aggregator enables scaling from the hydrology at each gauge to results at any of these scales. HydroBOT provides a standard set of spatial units for aggregation but can accept any user-supplied polygons as the spatial aggregation units ([@fig-aggregation-dims]). Aggregation along the value dimension follows the causal network, which is supplied by HydroBOT for included tools, though the user can specify other causal relationships if required.
 
-![Aggregation along multiple dimensions. HydroBOT provides flexible capability to aggregate along spatial, temporal and value scales. Boxes here show example scales, which may not all be used and which can be user-defined if others are needed. Users can control the sequence of steps along these axes, with the capability to switch between axes at different steps. *GEORGIA:* *TYPO IN SEASONAL. What if the top row is Gauge, EWRs, Env. objectives, Env. themes? I know the network calls them 'Targets', but in plain english that's putting a value judgement on them. And the BP calls them themes. Or if we put (e.g. NF1), (e.g. (Native fish) in the relevant boxes. I think we probably want a 'period of record' on the time axis, since that's what we do. The other axes also are just the scale, but the time axis has units and value judgements. Maybe change to Day, Season, Water year, period of record?*](../images/aggregations.png){#fig-aggregation-dims width="16cm"}
+![Aggregation along multiple dimensions. HydroBOT provides flexible capability to aggregate along spatial, temporal and value scales. Boxes here show example scales, which may not all be used and which can be user-defined if others are needed. Users can control the sequence of steps along these axes, with the capability to switch between axes at different steps.](../images/aggregations.png){#fig-aggregation-dims width="16cm"}
 
 A flexible approach to aggregation is needed as specific dimensions (time, space and value) and units within those are best combined in different ways, depending on the meaning of the data and the use of the final outputs. The choices made in these aggregation steps are critical to ensure the final values are scientifically justified and capture the intended meaning. The Aggregator defines a sequence of aggregation steps to take with the data, specifying the dimensions along which to aggregate and the aggregation functions to apply at each step. Each step can be along any dimension and multiple functions can be assigned at each step. The sequence of aggregation steps can interleave the dimensions, e.g. aggregate first along time to cover the period of the hydrograph, then along the value dimension to an intermediate level, then aggregate in space, then value again. For example, following @fig-aggregation-dims, the user might want to aggregate from hydrologic indicator (EWR) to life cycle values, such as waterbird fledging, to species at each gauge, then aggregate those gauges into a SDL unit to assess performance of each species over a larger area, followed by aggregating to larger ecological groups, e.g. native fish, waterbirds, native vegetation, ecosystem function.
 
@@ -562,7 +562,7 @@ We demonstrate toolkit functionality for ecological values by using the existing
 
 We develop a set of simple scenarios that capture two sorts of changes that may be commonly represented in management analyses. First, we consider scaled flow throughout the period of the hydrograph, representing overall increases or decreases in flow as might occur from large-scale climate patterns. Second, we consider short-duration additions to flow, representing periodic pulses of change as might happen from targeted interventions. Each scenario characterizes all water in the system including natural inflows, extraction, and release of environmental water, yielding a complete hydrograph (Appendix @sec-scenarios shows a selected subset). These do not reflect realistic future scenarios but provide an avenue to test and illustrate the capabilities of HydroBOT.
 
-To scale flow, we apply nine flow multipliers, ranging from 0.5 to 2.0, to the historical hydrographs (Appendix @tbl-scenarios). We refer to these as 'climate' scenarios, reflecting a common representation where entire hydrographs might shift to represent climate change, though these scenarios are not derived from climate models and do not represent hypothesized climate change. To achieve pulsed change for each of the 'climate' scenarios, four flow additions were applied including 1) no addition (baseline), 2) addition of 250 ML/d, 3) addition of 6500 ML/d, and 4) addition of 12000 ML/d (Appendix @tbl-scenarios). These additional flows were added throughout the period of September to December. We refer to these scenarios as 'climate adaptations' because management options are often available in the form of altering water availability for short time periods through mechanisms like water releases, though the options here do not represent proposed actions. *Georgia/Galen- do we ever use 12000? Can we just not mention it if no?*
+To scale flow, we apply nine flow multipliers, ranging from 0.5 to 2.0, to the historical hydrographs (Appendix @tbl-scenarios). We refer to these as 'climate' scenarios, reflecting a common representation where entire hydrographs might shift to represent climate change, though these scenarios are not derived from climate models and do not represent hypothesized climate change. To achieve pulsed change for each of the 'climate' scenarios, four flow additions were applied including 1) no addition (baseline), 2) addition of 250 ML/d, 3) addition of 6500 ML/d, and 4) addition of 12000 ML/d (Appendix @tbl-scenarios). These additional flows were added throughout the period of September to December. We refer to these scenarios as 'climate adaptations' because management options are often available in the form of altering water availability for short time periods through mechanisms like water releases, though the options here do not represent proposed actions.
 
 For simplicity for this demonstration, we use arithmetic means for all aggregations except the initial step along the value dimension, though we typically present results only after this first step. The first value step gives achievement of EWR indicators from a set of usually three differently-lenient sub-indicators. We consider that if an EWR is achieved for any of its possible definitions, it is achieved. We thus use a maximum for that aggregation. Though we use means throughout, their meaning changes depending on the level of aggregation. For simplicity, we assume the value of each outcome represents some 'condition', and the 'condition' at a particular level can be assessed as the mean of the conditions contributing to it. For example, the condition of detailed ecological values such as fish spawning or bird fledging might simply be the proportion of EWRs that contribute to each value that are achieved. Then, the condition of ecological groups, e.g. native fish, might be the mean condition over all the NF1..n values, despite those depending on different numbers and sets of EWRs. This captures the idea that native fish condition improves when the life-cycle components captured by those lower-level values are met, whether it takes 1 or 10 EWRs.
 
@@ -724,8 +724,7 @@ wrap_elements(full = sdl_achieve_bars) + wrap_elements(full = sdl_achieve_map) +
 
 ```
 
-The core response models may not themselves provide responses to all values of interest, as in the case of the EWR tool assessing hydrologic indicators rather than ecological consequences. We use the causal networks to link these response model outputs to additional values. In the EWR example, this linking is essential to address ecological outcomes and investigate how changes in flow affect ecological values at a range of detail. Thus, we can compare how native fish, native vegetation, waterbirds, other species, and ecosystem function targets are likely to respond to our hypothetical set of climates and adaptation scenarios (@fig-radar). Indeed, one of the primary purposes of HydroBOT is to provide this assessment of how high-level values respond to different scenarios. Such a summary collapses thousands of datapoints (EWR outcomes, proximate ecological responses) across many scenarios into digestible yet scientifically-robust visualisations. At a glance, we can see in @fig-radar that Priority ecosystem function outperforms Native fish in all scenarios, but is less sensitive to changes between them. Halving water (moving from E to A) reduces Waterbird outcomes more than doubling water (E to I) improves them, while the opposite is true for Priority ecosystem function and Native fish respond roughly proportionally. *Georgia- what is going on with OS? Why do they get worse with more water?? Sure seems like it'll raise more questions we don't want to deal with and doesnt' seem to be what's happening in the stacked bars. Also, can you add the spatial scale- it looks like over everything, but hard to tell for sure.* 
-
+The core response models may not themselves provide responses to all values of interest, as in the case of the EWR tool assessing hydrologic indicators rather than ecological consequences. We use the causal networks to link these response model outputs to additional values. In the EWR example, this linking is essential to address ecological outcomes and investigate how changes in flow affect ecological values at a range of detail. Thus, we can compare how native fish, native vegetation, waterbirds, other species, and ecosystem function targets are likely to respond to our hypothetical set of climates and adaptation scenarios (@fig-radar). Indeed, one of the primary purposes of HydroBOT is to provide this assessment of how high-level values respond to different scenarios. Such a summary collapses thousands of datapoints (EWR outcomes, proximate ecological responses) across many scenarios into digestible yet scientifically-robust visualisations. At a glance, we can see in @fig-radar that Priority ecosystem function outperforms Native fish in all scenarios, but is less sensitive to changes between them. Halving water (moving from E to A) reduces Waterbird outcomes more than doubling water (E to I) improves them, while the opposite is true for Priority ecosystem function and Native fish respond roughly proportionally. 
 
 ```{r}
 #| label: make-radar
@@ -744,6 +743,7 @@ background_df <- data.frame(Order = as.factor(seq(1, length(unique(obj_sdl_to_pl
 
 
 plt_2 <- obj_sdl_to_plot |>
+  filter(SWSDLName == "Macquarie–Castlereagh")|> #
   mutate(Order = as.numeric(Target))|>
   filter(scenario %in% scenarios_to_plot2 & !is.na(Target))|>
   ggplot(
@@ -786,14 +786,30 @@ plt_2 <- obj_sdl_to_plot |>
 
 ```{r}
 #| label: fig-radar
-#| fig-cap: Condition results visualised as a radar plot with the three climate scenarios. This approach allows visualising changes in outcome of disparate thematic variables (as illustrated in the graphical abstract) and is useful for quick broad-scale representation of the results.
+#| fig-cap: Condition results visualised as a radar plot with the three climate scenarios. This approach allows visualising changes in outcome of disparate thematic variables (as illustrated in the graphical abstract) and is useful for quick broad-scale representation of the results. Here, we present outcomes for larger scale values (e.g. native fish) fpr the Macquarie–Castlereagh area. Interestingly, the other species 
 
 plt_2
+
+
+#*Georgia- what is going on with OS? Why do they get worse with more water?? Sure seems like it'll raise more questions we don't want to deal with and doesnt' seem to be what's happening in the stacked bars. Also, can you add the spatial scale- it looks like over everything, but hard to tell for sure.* 
+  
+#Galen there are a few EWRs with FlowThresholdMax =< 9000 that probably fail when it gets too wet:
+temp <- ewrs_in_pyewr |>
+  filter(Gauge %in% relevant_gauges$gauge)|>
+  left_join(causal_ewr$ewr2obj, by = join_by(LTWPShortName, Gauge == gauge))|>
+  #filter(Target == "Other species")|>
+  filter(LTWPShortName == "Namoi")
+  
+  
+  distinct(Gauge, Code, FlowThresholdMin, FlowThresholdMax, .keep_all = TRUE)|>
+  mutate(FlowThresholdMax = as.numeric(FlowThresholdMax)) |>
+  filter(FlowThresholdMax < 1000000 & FlowThresholdMax > 0)
+
 ```
 
 High-level outcomes are essential, but managers need to drill down to understand how they arise, including comparing lower-level values, spatial areas, and the scenarios themselves. While there are many ways to display this information (See Appendix @fig-gauge-to-sdl-map for a mapped version), @fig-obj_in_groups consolidates a large amount of information across scenarios, planning units, and multiple value scales. Each set of colours (and row of panels) represents outcomes at the scale of large ecological groupings. Within each bar, the different shades represent single, smaller-scale, ecological values contributing to the larger grouping (e.g. WB1; Maintain the number and type of waterbird species), with the heights of these shades being the proportion of the constituent hydrologic requirements that are met (EWRs). Because the overall bar heights are then a sum of these proportions, we provide a dashed line as reference that shows the situation where all EWRs are met. This reference is necessary because the number of EWRs contributing to each small-scale ecological value varies, as does the number of small-scale ecological values contributing to the larger ecological value groups and spatial units.
 
-This view provides a useful overview of the impact of different scenarios on large ecological groupings across space, while also retaining the ability to assess more proximate constituent ecological values. For example, WB1 (Maintain the number and type of waterbird species) and WB2 (Increase total waterbird abundance across all functional groups) are only achieved to any appreciable extent in the Macquarie -- Castlereagh in the high water addition (3) scenarios, while they are met more generally in the Namoi, and show an interaction with the 'climate' scenarios in the Lachlan (met in 'adaptation' scenarios 1 and 2 only in the doubled water 'climate' scenario). At the larger ecological value scale, we can see that the effect of halving water (moving from the baseline E1 scenario to the A1 scenario) has a disproportionately greater impact on Native fish than doubling water (the I1 scenario) in the Macquarie -- Castlereagh, while the Lachlan and Namoi show larger impacts of doubling than halving. *GEORGIA- check this- all the climates had numbers and adaptations had letters previously in these descriptions, but the table has climate letters and adaptation numbers. Is what I have correct?*
+This view provides a useful overview of the impact of different scenarios on large ecological groupings across space, while also retaining the ability to assess more proximate constituent ecological values. For example, WB1 (Maintain the number and type of waterbird species) and WB2 (Increase total waterbird abundance across all functional groups) are only achieved to any appreciable extent in the Macquarie -- Castlereagh in the high water addition (3) scenarios, while they are met more generally in the Namoi, and show an interaction with the 'climate' scenarios in the Lachlan (met in 'adaptation' scenarios 1 and 2 only in the doubled water 'climate' scenario). At the larger ecological value scale, we can see that the effect of halving water (moving from the baseline E1 scenario to the A1 scenario) has a disproportionately greater impact on Native fish than doubling water (the I1 scenario) in the Macquarie -- Castlereagh, while the Lachlan and Namoi show larger impacts of doubling than halving. 
 
 ```{r}
 #| label: fig-obj_in_groups
@@ -1076,7 +1092,8 @@ With a large number of scenarios, we can better characterize the way values resp
 
 The response to 'adaptation' options (difference between the lines in @fig-smooth-climate-adapt panel b) tends to be much stronger than the response to 'climate' (slopes), even though the shift in total water may be lower (particularly for the baseline '1' and +250 ML/d '2' adaptations; see x-axis of @fig-difference-baseline). Moreover, the adaptation options are not equally sensitive to the climate scenarios; adaptation options '2' and '3' show less change in response to climate than '1' (no adaptation) (@fig-smooth-all b). Thus, these 'adaptations' are increasing resilience to holistic 'climate' flow changes. Although these scenarios do not represent true adaptation options or climate scenarios, this shows that such changes to resilience are possible with targeted interventions, and HydroBOT provides the capacity to investigate them.
 
-*Galen/Georgia- the plots in a are unreadable now due to se. Fix and restate what this shows once we can see it. Looks like it's because of some points that are massively high on y. Should we clip them off?* 
+*Galen/Georgia- the plots in a are unreadable now due to se. Fix and restate what this shows once we can see it. Also, the points are jittered in width, whcih is confusing. Can we pass a function in instad of 'jitter'? e.g jitter(width = 0.1, height = 0.1)? that might tighten it up and make it more obviously jitter and not variance. maybe ask for a low alpha?*
+*Galen, i think this is probably good enough now... i'm thinking that cuting the high points off is kind of dodgy, maybe we could jsut cut off native veg all together?*
 
 ```{r}
 #| label: fig-smooth-climate-adapt
@@ -1085,7 +1102,7 @@ The response to 'adaptation' options (difference between the lines in @fig-smoot
 #| warning: false
 
 sdl_smooth_clim + 
-  coord_cartesian(ylim = c(0.5, 2))+
+  coord_cartesian(ylim = c(0, 4))+
   labs(y = 'Condition relative\nto baseline')+
 sdl_smooth_groups_NFNamoi +
   labs(y = 'Condition relative\nto baseline')+
@@ -1099,6 +1116,7 @@ Scenarios will often be defined along more than one axis. In the demonstration h
 Perhaps most usefully, if scenarios are carefully developed to explore the range of potential change in the system, then the heatmap represents the response surface of values over this range. Developing the response surface can be iterative, with subsequent scenarios developed to increase resolution near areas of rapid change in outcome. This approach differs from the usual approach of assessing only a small set of scenarios targeting specific proposed actions or environmental conditions *CITE*. Instead, by covering the range to generate a response surface, it can provide hypotheses about how proposed scenarios might perform and assess how sensitive the outcomes are to uncertainty in single scenarios. Specific proposed scenarios could of course be assessed as well and mapped onto the surface. For example, we might think of the flow multipliers here as defining the entire range of plausible climate shifts, and the addition scenarios as the entire potential range of additions. Then, specific proposed adaptations or climate sequences could be mapped onto these heatmaps at particular points. The reverse is also possible; identification of areas of high sensitivity in the heatmaps could be used to choose a set of potential adaptations designed to increase climate resilience. This idea extends to additional dimensions, which can then be collapsed in various ways (e.g. via principal component analysis, or by identifying dominant hydrometrics) to visualise with 2d heatmaps even when the response surface itself is best defined and studied in more dimensions.
 
 *Galen/Georgia- wrap text on y-facets, at least EF and NV. And probably the label too*
+*how big does the fig end up being in the word doc? might be ok*
 
 ```{r}
 #| label: build-heatmaps
@@ -1501,10 +1519,6 @@ obj_maps_few <- obj_sdl_to_plot |>
 
 ```
 
-*GALEN/GEORGIA- show another version of this scaled up to the NF, NV, etc levels too, and use this section as an illustrative version of the stacked bar plot (with just a couple of the subsidiary bars in obj_maps_few)*
-
-*Maybe we can integate with the big one below that has all the EFs?*
-
 ```{r}
 #| label: fig-gauge-to-sdl-map
 #| fig-cap: "Ecological objectives aggregated to SDL unit spatial scale, illustrated here for three examples (Priority ecosystem function 3, native fish 1, and waterbirds 4). Polygon colours indicate the proportion of EWR passed for each objective in each SDL unit. Aggregation as in @fig-spatial-scaling. Includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x); and three adaptation options: 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d), though not all combinations [see Appendix @sec-map-versions]."
@@ -1512,25 +1526,6 @@ obj_maps_few <- obj_sdl_to_plot |>
 obj_maps_few
 
 ```
-
-
-
-```{r}
-#| label: fig-spatial-scaling
-#| fig-cap: Environmental water requirements (EWRs) are defined by hydrographs at gauges (a), and apply to Planning Units (b). The outcomes at these scales of definition can then be aggregated to larger spatial areas, such as SDL units (c), which we do here with an area-weighted mean for the example EWR NF1 in the baseline climate and adaptation scenario (E1, simple historical hydrograph with no climate or adaptation changes).
-
-
-nf_gauges + nf_PU + nf_maps_single +
-  plot_layout(guides = 'collect') &
-  theme(legend.position = 'bottom')
-```
-
-#### Temporal aggregation
-
-#### Objective aggregations
-
-
-## Response models {#sec-ewr-table}
 
 #### EWRs
 
@@ -1686,7 +1681,50 @@ base_hydro_adapt
 
 ### Map aggregation {#sec-map-versions}
 
-Here, we show results at the gauge, SDL and basin scales, and also to show how the gauges aggregate to the higher scales scale. In the text, @fig-gauge-to-sdl-map has a few examples of SDL-scaled outcomes and @fig-spatial-scaling demonstrates one set of scaling. Here, @fig-gauge-to-sdl-map-all-1 shows the outcomes for gauges for all ecological objectives contributing the priority ecosystem function; @fig-gauge-to-sdl-map-all-2 shows these outcomes at the SDL scale; and @fig-gauge-to-sdl-map-all-3 shows these outcomes at the basin scale.
+Here, we show results at the gauge, SDL and basin scales, and also to show how the outcomes aggregate along the thematic dimension. To start @fig-gauge-to-sdl-map-all-0 illustrates a subset of EWRs that contribute to priority ecosystem function at the gauge scale. Our aggregations sequence then proceeds to aggregate these EWR to the environmental objectives at each gauge. Here, @fig-gauge-to-sdl-map-all-1 shows the outcomes for gauges for all ecological objectives contributing the priority ecosystem function (left panels) in addition to a gauge level aggregation to the Ecological value scale of the thematic dimension. @fig-gauge-to-sdl-map-all-2 then shows these outcomes at the SDL scale; and @fig-gauge-to-sdl-map-all-3 shows these outcomes at the basin scale. @fig-gauge-to-sdl-map has a few examples of SDL-scaled outcomes and @fig-spatial-scaling demonstrates one set of scaling.
+
+```{r}
+#| label: fig-gauge-to-sdl-map-all-0
+#| fig-cap: "Outcomes for gauges for a subset of EWRs that contribute to priority ecosystem function."
+#| message: false
+
+agged_EWRs_gauges <- agged_data$ewr_code |>
+  left_join(causal_ewr$ewr2obj)|>
+  dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
+  dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |>
+  dplyr::filter(ewr_code %in% c('BF1' ,'CF' ,'LF1' ,'OB-WL' ,'SF1' ,'BK1' ,'VF' ,'AC1', 'OB1'))|>
+  distinct(ewr_code, gauge, scenario, .keep_all = TRUE)
+
+ef_EWR_gauges <- agged_EWRs_gauges |>
+       dplyr::filter(scenario %in% scenarios_to_plot) |>
+  # clean names
+    mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'ewr_code',
+                underlay_list = list(list(underlay = sdl_units |> 
+                                            filter(SWSDLName %in%
+                                                     unique(obj_sdl_to_plot$SWSDLName)),
+                                         pal_list = 'gray')),
+                setLimits = c(0,1)) 
+
+ef_EWR_gauges <- ef_EWR_gauges + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "EWR",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
+ef_EWR_gauges #+ 
+  #+ plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
+```
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-all-1
@@ -1735,10 +1773,9 @@ ef_gauges <- ef_gauges +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-
  ef_gauges_target <- agged_gauges |>
   dplyr::group_by(scenario,env_group, climate_code, adapt_code, gauge, geometry)|>
-  dplyr::reframe(ewr_achieved = mean(ewr_achieved)) |>
+  dplyr::summarise(ewr_achieved = mean(ewr_achieved)) |>
   dplyr::filter(scenario %in% scenarios_to_plot) |>
   dplyr::filter(env_group == 'EF') |> 
   # clean names
@@ -1756,22 +1793,23 @@ ef_gauges <- ef_gauges +
                                          pal_list = 'gray')),
                 setLimits = c(0,1)) 
 
-ef_gauges <- ef_gauges + 
+ef_gauges_target <- ef_gauges_target + 
   scale_y_continuous(sec.axis = sec_axis(~ . ,
                                          name = "Climate & Adaptation Option Scenario", 
                                          breaks = NULL, labels = NULL)) +
     scale_x_continuous(sec.axis = sec_axis(~ . , 
-                                           name = "Environmental objective",
+                                           name = "Ecological value",
                                            breaks = NULL, labels = NULL)) +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-ef_gauges
+ef_gauges + ef_gauges_target + plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
 ```
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-all-2
-#| fig-cap: "Outcomes for SDL units for all ecological objectives contributing the priority ecosystem function. "
+#| fig-cap: "Outcomes for SDL units for all ecological objectives contributing the priority ecosystem function. Environmental water requirements (EWRs) are defined by hydrographs at gauges and  apply to Planning Units. The outcomes at these scales of definition can then be aggregated to larger spatial areas, such as SDL units, which we do here with an area-weighted mean."
+
 ef_maps <- obj_sdl_to_plot |>
     dplyr::filter(scenario %in% scenarios_to_plot) |>
   # Need to reduce dimensionality
@@ -1786,8 +1824,8 @@ ef_maps <- obj_sdl_to_plot |>
                 pal_list = achieve_pal,
                 facet_row = 'scenario',
                 facet_col = 'env_obj',
-                underlay_list = list(underlay = basin,
-                                     pal_list = 'azure'),
+                # underlay_list = list(underlay = basin,
+                #                      pal_list = 'azure'),
                 setLimits = c(0,1)) 
 
 ef_maps <- ef_maps + 
@@ -1800,14 +1838,45 @@ ef_maps <- ef_maps +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-ef_maps
+ef_maps_target <- obj_sdl_to_plot |>
+  dplyr::group_by(scenario,env_group, climate_code, adapt_code, SWSDLName, geometry)|>
+  dplyr::summarise(ewr_achieved = mean(ewr_achieved)) |>
+  dplyr::filter(scenario %in% scenarios_to_plot) |>
+  dplyr::filter(env_group == 'EF') |> 
+  # clean names
+    mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'env_group',
+                underlay_list = list(list(underlay = sdl_units |> 
+                                            filter(SWSDLName %in%
+                                                     unique(obj_sdl_to_plot$SWSDLName)),
+                                         pal_list = 'gray')),
+                setLimits = c(0,1)) 
+
+ef_maps_target <- ef_maps_target + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "Ecological value",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
+ef_maps + ef_maps_target + plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
+
 ```
 
 ```{r}
 #| label: fig-gauge-to-sdl-map-all-3
 #| fig-cap: "Outcomes for the basin for all ecological objectives contributing the priority ecosystem function."
 
- ef_basin <- obj_sdl_to_plot |>
+ ef_basin_data <- obj_sdl_to_plot |>
    dplyr::group_by(scenario, env_obj, climate_code, adapt_code)|>
    dplyr::reframe(ewr_achieved = mean(ewr_achieved)) |>
    dplyr::filter(scenario %in% scenarios_to_plot) |>
@@ -1815,7 +1884,9 @@ ef_maps
    dplyr::right_join(basin, by = join_by(OBJECTID))|>
    st_sf()|>
    dplyr::mutate(env_group = stringr::str_extract(env_obj, '^[A-Z]+')) |>
-   dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) |> 
+   dplyr::filter(env_group == 'EF' & !(env_obj %in% c('EF3a', 'EF3b'))) 
+ 
+ef_basin <- ef_basin_data |> 
   # clean names
   mutate(scenario = paste0(climate_code, adapt_code)) |> 
   plot_outcomes(outcome_col = 'ewr_achieved',
@@ -1837,17 +1908,43 @@ ef_basin <- ef_basin +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-ef_basin
+ef_basin_target <- ef_basin_data |>
+  dplyr::group_by(scenario, env_group, climate_code, adapt_code, geometry)|>
+  dplyr::summarise(ewr_achieved = mean(ewr_achieved)) |>
+  dplyr::filter(scenario %in% scenarios_to_plot) |>
+  dplyr::filter(env_group == 'EF') |> 
+  # clean names
+    mutate(scenario = paste0(climate_code, adapt_code)) |> 
+  plot_outcomes(outcome_col = 'ewr_achieved',
+                outcome_lab = 'Proportion\nEWR achieved',
+                plot_type = 'map',
+                colorset = 'ewr_achieved',
+                pal_list = achieve_pal,
+                facet_row = 'scenario',
+                facet_col = 'env_group',
+                setLimits = c(0,1)) 
+
+ef_basin_target <- ef_basin_target + 
+  scale_y_continuous(sec.axis = sec_axis(~ . ,
+                                         name = "Climate & Adaptation Option Scenario", 
+                                         breaks = NULL, labels = NULL)) +
+    scale_x_continuous(sec.axis = sec_axis(~ . , 
+                                           name = "Ecological value",
+                                           breaks = NULL, labels = NULL)) +
+  theme(axis.ticks = element_blank(), 
+                         axis.text=element_blank())
+
+ef_basin + ef_basin_target + plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
 ```
 
-Here, we show the full set of SDL units and ecological values that are shown in part in 
+Here, we show the full set of SDL units and ecological values that are shown in part in @fig-smooth-climate-adapt panel b
 
 ```{r}
 #| label: fig-smooth-all
-#| fig-cap: Smoothed fits to assess change in performance across the 'climate' scenarios. Points are individual ecological objectives, fitted lines are loess smooths. Separate fits are done for each adaptation option, and so differences between lines of different colors represents the impact of those adaptations. Rows are ecological values groupings, columns are SDL units. Note the very different scale of the y-axis. 
+#| fig-cap: Smoothed fits to assess change in performance across the 'climate' scenarios. Points are individual ecological objectives, fitted lines are loess smooths. Separate fits are done for each adaptation option, and so differences between lines of different colors represents the impact of those adaptations. Rows are ecological values groupings, columns are SDL units. Note the different scales of the y-axis. 
+
 #| message: false
 #| warning: false
-
 
 # sdl_smooth_groups / sdl_smooth_clim +
 #   plot_layout(guides = 'collect', heights = c(3,1))
