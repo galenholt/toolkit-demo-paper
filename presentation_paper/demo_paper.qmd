@@ -533,7 +533,7 @@ Each response model will have a distinct set of outputs, reflecting the captured
 
 Results from the response models are typically very granular in many dimensions because the best response models operate near the scale of the processes being modelled [@levin1992; @holt2016; @gawne2018]. In many cases, those processes (e.g. fish breeding, crop planting) individually occur at small spatial and temporal scales. Note that this is the scale of the process itself, but may be repeated and connected over much larger scales. For example, fish may breed across the basin and migrate among breeding locations but each female breeds in only one location at a given time. Moreover, outcomes from response models are typically at small value scales as well, e.g. capturing portions of the life cycle of fish species, rather than an overall outcome for all fish, or representing planting of particular crops, rather than overall agricultural output. The consequence is that there are potentially thousands of different modeled outcomes across time, locations and values. This plethora of outcomes must then be aggregated to extract meaning at larger scales and condense the information for digestibility in management decision making.
 
-Aggregation and scaling condense that information to scales that are useful for interpretation and planning. Depending on the use, the desired scale(s) may range from local, short-term responses of fine-grained outcomes to large spatial scales over longer time periods for high-level outcomes such as environmental condition (@fig-aggregation-dims). Thus, HydroBOT must achieve a robust, consistent aggregation approach along three dimensions (time, space, and value), while maintaining the ability to define those aggregation steps flexibly to meet the needs of the specific analysis. For example, the EWR tool assesses EWRs at individual gauges, but outcomes may be desired within areas defined for management purposes [e.g. Sustainable Diversion Limit (SDL) units, @murray-darlingbasinauthority2011] or at the basin scale. Likewise, multiple EWRs are required to meet objectives for proximate ecological values, such as fish breeding, of which many are required for each larger ecological value (such as Native fish) or long-term target (see Appendix 1 for glossary \[@sec-glossary\]). The HydroBOT Aggregator enables scaling from the hydrology at each gauge to results at any of these scales. HydroBOT provides a standard set of spatial units for aggregation but can accept any user-supplied polygons as the spatial aggregation units ([@fig-aggregation-dims]). Aggregation along the value dimension follows the causal network, which is supplied by HydroBOT for included tools, though the user can specify other causal relationships if required.
+Aggregation and scaling condense that information to scales that are useful for interpretation and planning. Depending on the use, the desired scale(s) may range from local, short-term responses of fine-grained outcomes to large spatial scales over longer time periods for high-level outcomes such as environmental condition (@fig-aggregation-dims). Thus, HydroBOT must achieve a robust, consistent aggregation approach along three dimensions (time, space, and value), while maintaining the ability to define those aggregation steps flexibly to meet the needs of the specific analysis. For example, the EWR tool assesses EWRs at individual gauges, but outcomes may be desired within areas defined for management purposes [e.g. Sustainable Diversion Limit (SDL) units, @murray-darlingbasinauthority2011] or at the basin scale. Likewise, multiple EWRs are required to meet objectives for proximate ecological values, such as fish breeding, of which many are required for each larger ecological value (such as Native fish) or long-term target (see Appendix 1 for glossary [@sec-glossary]). The HydroBOT Aggregator enables scaling from the hydrology at each gauge to results at any of these scales. HydroBOT provides a standard set of spatial units for aggregation but can accept any user-supplied polygons as the spatial aggregation units ([@fig-aggregation-dims]). Aggregation along the value dimension follows the causal network, which is supplied by HydroBOT for included tools, though the user can specify other causal relationships if required.
 
 ![Aggregation along multiple dimensions. HydroBOT provides flexible capability to aggregate along spatial, temporal and value scales. Boxes here show example scales, which may not all be used and which can be user-defined if others are needed. Users can control the sequence of steps along these axes, with the capability to switch between axes at different steps.](../images/aggregations.png){#fig-aggregation-dims width="16cm"}
 
@@ -721,28 +721,37 @@ wrap_elements(full = sdl_achieve_bars) + wrap_elements(full = sdl_achieve_map) +
 
 ```
 
-The core response models may not themselves provide responses to all values of interest, as in the case of the EWR tool assessing hydrologic indicators rather than ecological consequences. We use the causal networks to link these response model outputs to additional values. In the EWR example, this linking is essential to address ecological outcomes and investigate how changes in flow affect ecological values at a range of detail. Thus, we can compare how native fish, native vegetation, waterbirds, other species, and ecosystem function targets are likely to respond to our hypothetical set of climates and adaptation scenarios (@fig-radar). Indeed, one of the primary purposes of HydroBOT is to provide this assessment of how high-level values respond to different scenarios. Such a summary collapses thousands of datapoints (EWR outcomes, proximate ecological responses) across many scenarios into digestible yet scientifically-robust visualisations. At a glance, we can see in @fig-radar that Priority ecosystem function outperforms Native fish in all scenarios, but is less sensitive to changes between them. Halving water (moving from E to A) reduces Native fish outcomes more than doubling water (E to I) improves them, while the opposite is true for Waterbirds and Priority ecosystem function responds roughly proportionally.
+The core response models may not themselves provide responses to all values of interest, as in the case of the EWR tool assessing hydrologic indicators rather than ecological consequences. We use the causal networks to link these response model outputs to additional values. In the EWR example, this linking is essential to address ecological outcomes and investigate how changes in flow affect ecological values at a range of detail. Thus, we can compare how native fish, native vegetation, waterbirds, other species, and ecosystem function targets are likely to respond to our hypothetical set of climates and adaptation scenarios (@fig-radar). Indeed, one of the primary purposes of HydroBOT is to provide this assessment of how high-level values respond to different scenarios. Such a summary collapses thousands of datapoints (EWR outcomes, proximate ecological responses) across many scenarios into digestible yet scientifically-robust visualisations. At a glance, we can see in @fig-radar that Priority ecosystem function outperforms Native vegetation in all scenarios, but is less sensitive to changes between them. Halving water (moving from E to A) reduces Native fish outcomes more than doubling water (E to I) improves them, while the opposite is true for Waterbirds and Native vegetation function responds roughly proportionally.
 
 ```{r}
 #| label: make-radar
 #| include: false
 
+# Names dont match
+agged_data$Target <- agged_data$Target |> 
+  mutate(Target = ifelse(Target == 'Waterbird', 'Waterbirds', Target))
 
-
-yMax = max(filter(obj_sdl_to_plot, scenario %in% scenarios_to_plot2 & !is.na(Target))$ewr_achieved)+0.05
+# Pretty should work better to just feed it the data, but it's not, so do a workaround
+yMax = max(filter(agged_data$Target, 
+                  scenario %in% scenarios_to_plot2 & 
+                    !is.na(Target) & 
+                    SWSDLName == "Macquarie–Castlereagh")$ewr_achieved) |> 
+  pretty() |> max()
 ymin = 0 #RELATIVE VERSIONS OF THIS PLOT WILL HAVE VALUES LESS THAN ONE
 
+line_df <- tibble(y = c(ymin, yMax/2, yMax))
+
 # Make background
-background_df <- data.frame(Order = as.factor(seq(1, length(unique(obj_sdl_to_plot$Target)))),
-                            Target =  factor(unique(obj_sdl_to_plot$Target),
-                                             levels = unique(obj_sdl_to_plot$Target)), 
-                            y = max(obj_sdl_to_plot$ewr_achieved),
-                            scenario = unique(obj_sdl_to_plot$scenario)[1])|>
+background_df <- data.frame(Order = as.factor(seq(1, length(unique(agged_data$Target$Target)))),
+                            Target =  factor(unique(agged_data$Target$Target),
+                                             levels = unique(agged_data$Target$Target)), 
+                            y = max(agged_data$Target$ewr_achieved),
+                            scenario = unique(agged_data$Target$scenario)[1])|>
     mutate(Order = as.numeric(Target))|>
   filter(!is.na(Target))
 
 
-plt_2 <- obj_sdl_to_plot |>
+plt_2 <- agged_data$Target |>
   filter(SWSDLName == "Macquarie–Castlereagh")|> #
   mutate(Order = as.numeric(Target))|>
   filter(scenario %in% scenarios_to_plot2 & !is.na(Target))|>
@@ -759,10 +768,13 @@ plt_2 <- obj_sdl_to_plot |>
            aes(x = reorder(stringr::str_wrap(Target, 6), Order), 
                y = ymin, fill = Target), colour = NA, width = 1, alpha = 0.4)+
   # Make dashed lines:
-  geom_hline(
+  geom_hline(data = line_df,
     aes(yintercept = y),
-    data.frame(y = c(ymin, 0, yMax/2, yMax)),
     color = "grey40", linetype = "longdash"
+  ) +
+    geom_text(data = line_df,
+    aes(label = y, y = y, x = "Waterbirds", fill = "Max"),
+    nudge_x = 0.5, color = "grey20"
   ) +
   # Make scenario BARS - EWR achieved
    geom_col(position=position_dodge(),width=0.65,size=0.3) +
@@ -776,7 +788,7 @@ plt_2 <- obj_sdl_to_plot |>
   # Make it circular:
   coord_polar()+
   theme_werp_toolkit(axis.ticks = element_blank(),
-                     axis.text = element_blank(),
+                     axis.text.y = element_blank(), # Leave .x, they label the arrows
                      text = element_text(size = 10), 
                      axis.title.x = element_blank(), 
                      axis.title.y = element_blank()) +
@@ -788,19 +800,19 @@ plt_2 <- obj_sdl_to_plot |>
 
 ```{r}
 #| label: fig-radar
-#| fig-cap: Condition results visualised as a radar plot with the three climate scenarios. This approach allows visualising changes in outcome of disparate thematic variables (as illustrated in the graphical abstract) and is useful for quick broad-scale representation of the results. Here, we present outcomes for larger scale values according to ecological groups for the Macquarie–-Castlereagh SDL unit. Outer dotted lines 
+#| fig-cap: Condition results visualised as a radar plot with the three climate scenarios. This approach allows visualising changes in outcome of disparate thematic variables (as illustrated in the graphical abstract) and is useful for quick broad-scale representation of the results. Here, we present outcomes for larger scale values according to ecological groups for the Macquarie–-Castlereagh SDL unit. Dotted lines provide axis values, with the outer line corresponding to a condition of 0.5 and the center of the circle being a condition of 0.  
 
 plt_2
 
 ```
 
-High-level outcomes are essential, but managers need to drill down to understand how they arise, including comparing lower-level values, spatial areas, and the scenarios themselves. While there are many ways to display this information (See Appendix @sec-map-versions for spatial analysis of each step), @fig-obj_in_groups consolidates a large amount of information across scenarios, planning units, and multiple value scales. Each set of colours (and row of panels) represents outcomes at the scale of large ecological groupings. Within each bar, the different shades represent single, smaller-scale, ecological values contributing to the larger grouping (e.g. WB1; Maintain the number and type of waterbird species), with the heights of these shades being the proportion of the constituent hydrologic requirements that are met (EWRs). Because the overall bar heights are then a sum of these proportions, we provide a dashed line as reference that shows the situation where all EWRs are met. This reference is necessary because the number of EWRs contributing to each small-scale ecological value varies, as does the number of small-scale ecological values contributing to the larger ecological value groups and spatial units.
+High-level outcomes are essential, but managers need to drill down to understand how they arise, including comparing lower-level values, spatial areas, and the scenarios themselves. While there are many ways to display this information (See Appendix @sec-map-versions for spatial analysis of each step), @fig-obj_in_groups consolidates a large amount of information across scenarios, planning units, and multiple value scales. Each set of colours (and row of panels) represents outcomes at the scale of large ecological value groups. Within each bar, the different shades represent single smaller-scale ecological values contributing to the larger value group (e.g. WB1; Maintain the number and type of waterbird species), with the heights of these shades being the proportion of the constituent hydrologic requirements that are met (EWRs). Because the overall bar heights are then a sum of these proportions, we provide a dashed line as reference that shows the situation where all EWRs are met. This reference is necessary because the number of EWRs contributing to each small-scale ecological value varies, as does the number of small-scale ecological values contributing to the larger ecological value groups and spatial units.
 
-This view provides a useful overview of the impact of different scenarios on large ecological groupings across space, while also retaining the ability to assess more proximate constituent ecological values. For example, WB1 (Maintain the number and type of waterbird species) and WB2 (Increase total waterbird abundance across all functional groups) are only achieved to any appreciable extent in the Macquarie--Castlereagh in the high water addition (3) scenarios, while they are met more generally in the Namoi, and show an interaction with the 'climate' scenarios in the Lachlan (met in 'adaptation' scenarios 1 and 2 only in the doubled water 'climate' scenario). At the larger ecological value scale, we can see that the effect of halving water (moving from the baseline E1 scenario to the A1 scenario) has a disproportionately greater impact on Native fish than doubling water (the I1 scenario) in the Macquarie--Castlereagh, while the Lachlan and Namoi show larger impacts of doubling than halving.
+This view provides a useful overview of the impact of different scenarios on large ecological value groups across space, while also retaining the ability to assess more proximate constituent ecological values. For example, WB1 (Maintain the number and type of waterbird species) and WB2 (Increase total waterbird abundance across all functional groups) are only achieved to any appreciable extent in the Macquarie--Castlereagh in the high water addition (3) scenarios, while they are met more generally in the Namoi, and show an interaction with the 'climate' scenarios in the Lachlan (met in 'adaptation' scenarios 1 and 2 only in the doubled water 'climate' scenario). At the larger ecological value group scale, we can see that the effect of halving water (moving from the baseline E1 scenario to the A1 scenario) has a disproportionately greater impact on Native fish than doubling water (the I1 scenario) in the Macquarie--Castlereagh, while the Lachlan and Namoi show larger impacts of doubling than halving.
 
 ```{r}
 #| label: fig-obj_in_groups
-#| fig-cap: "Proportion of EWRs achieved for broader ecological values, including: priority ecosystem function (EF), native fish (NF), native vegetation (NV), other species (OS) and waterbirds (WB) (Colours & rows). Columns are scaled to illustrate the number of ecological objectives that contribute to each broader ecological value, and shades of colours illustrate the proportion of EWRs that contribute to each consituent smaller-scale value. I.e. if all EWR contributing to ecological objectives for each ecological values the columns would reach the dashed horizonal lines. This view provides an assessment of the performance of individual small-scale values, as well as how those contribute to the overall sensitivity of the broader groups. Not all EWRs are applicable in all locations and there are not equal number of EWR in each category. This illustration includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x); and three adaptation options: 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d)" 
+#| fig-cap: "Proportion of EWRs achieved for broader ecological values, including: priority ecosystem function (EF), native fish (NF), native vegetation (NV), other species (OS) and waterbirds (WB) (Colours & rows). Columns are scaled to illustrate the number of ecological objectives that contribute to each broader ecological value, and shades of colours illustrate the proportion of EWRs that contribute to each constituent smaller-scale value, i.e. if all EWR contributing to ecological objectives for each ecological values the columns would reach the dashed horizonal lines. This view provides an assessment of the performance of individual small-scale values, as well as how those contribute to the overall sensitivity of the broader groups. Not all EWRs are applicable in all locations and there are not equal number of EWR in each category. This illustration includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x); and three adaptation options: 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d). Columns for scenarois A1, E1, and I1 for Macquarie--Castlereagh correspond to values shown in @fig-radar." 
 #| message: false
 #| warning: false
 
@@ -847,11 +859,11 @@ obj_in_groups
 
 ```
 
-Identification of disproportionate impacts and thresholds for when adaption options could be most effectively adopted is a key goal to maximise the impact of management actions. While we can see which scenarios are better or worse than others based on the outcomes (@fig-obj_in_groups, Appendix @sec-map-versions), calculating comparisons from a baseline makes these comparisons explicit. Here, we can represent both our 'climate' and 'adaptation' scenarios on a single axis by quantifying the difference in mean flow from the baseline condition (historical hydrograph, E1) using the baselining functionality provided by HydroBOT (see @sec-baselining). Plotting the proportion of EWRs achieved for each of the native fish ecological objectives shows how that EWR achievement is related to changes in the overall levels of flow. One striking feature of @fig-difference-baseline is that the lines do not smoothly increase; EWR achievement is not simply a direct relationship to flow volumes. Instead, the timing matters. There are particularly steep slopes between the '1' (baseline) and '2' (+250 ML/d) adaptations. The application of water at those particular times is thus disproportionately impactful, yielding greater outcomes even when they have less water than the baseline adaptations ('1s') for climate scenarios 'A' and 'E'. Such analyses can identify highly efficacious points to add water to the system.
+Identification of disproportionate impacts and thresholds for when adaption options could be most effectively adopted is a key goal to maximise the impact of management actions. While we can see which scenarios are better or worse than others based on the outcomes (@fig-obj_in_groups, Appendix @sec-map-versions), calculating comparisons from a baseline makes these comparisons explicit. Here, we can represent both our 'climate' and 'adaptation' scenarios on a single axis by quantifying the difference in mean flow from the baseline condition (historical hydrograph, E1) using the baselining functionality provided by HydroBOT (see @sec-baselining). Plotting the proportion of EWRs achieved for each of the Native fish ecological values shows how that EWR achievement is related to changes in the overall levels of flow. One striking feature of @fig-difference-baseline is that the lines do not smoothly increase; EWR achievement is not simply a direct relationship to flow volumes. Instead, the timing matters. There are particularly steep slopes between the '1' (baseline) and '2' (+250 ML/d) adaptations. The application of water at those particular times is thus disproportionately impactful, yielding greater outcomes even when they have less water than the baseline adaptations ('1s') for climate scenarios 'A' and 'E'. Such analyses can identify highly efficacious points to add water to the system, provided they represent real responses rather than model artefacts.
 
 ```{r}
 #| label: fig-difference-baseline
-#| fig-cap: "Quantitative scenario comparison for native fish objectives for three SDL units. Scenarios defined here as the difference in mean flow (GL) from the baseline historical scenario (E1). A key message here is that the lines are not smooth – EWR achievement is not simply a function of the amount of water. Instead, the 'adaptation' options, particularly the '2' scenarios of adding 250 ML/d of water, have disproportionately large impact (steep slopes). Shading indicates different ecological objectives within the native fish ecological value. This illustration includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x) and three adaptation options: 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d). HydroBOT provides inbuilt capacity for baselining with differences, relative change, or user-defined comparison functions. Difference was used here due to some additive flow changes, though relative would be a reasonable choice as well."
+#| fig-cap: "Quantitative scenario comparison for Native fish objectives for three SDL units. Scenarios defined here as the difference in mean flow (GL) from the baseline historical scenario (E1). A key message here is that the lines are not smooth – EWR achievement is not simply a function of the amount of water. Instead, the 'adaptation' options, particularly the '2' scenarios of adding 250 ML/d of water, have disproportionately large impact (steep slopes). Shading indicates different ecological objectives within the native fish ecological value. This illustration includes three climate scenarios: A (0.5x), E (historical base level/no change), and I (2x) and three adaptation options: 1 (no adaptation), 2 (+250 ML/d), and 3 (+6500 ML/d). HydroBOT provides inbuilt capacity for baselining with differences, relative change, or user-defined comparison functions. Difference was used here due to some additive flow changes, though relative would be a reasonable choice as well."
 #| message: false
 
 
@@ -1077,15 +1089,13 @@ sdl_smooth_adapt <- obj_sdl_to_plot |>
                 smooth_arglist = list())
 ```
 
-With a large number of scenarios, we can better characterize the way values respond along different axes of change. Here, we use smoothed fits to show trends in the performance of ecological objectives (and groups thereof) in response to changes in flow from both 'climate' and 'adaptation' scenarios (@fig-smooth-climate-adapt, Appendix @fig-smooth-all). We use baselining (see @sec-baselining) to show the relative change on both the x (flow) and y (response) axes. Thus, any slope other than 1:1 represents a disproportionate shift in condition. The responses seen in @fig-smooth-all vary between SDL unit (columns) and ecological values, indicating different sensitivity to both 'climate' and 'adaptation' flow conditions across space and among ecological groupings. For example, Waterbirds respond disproportionately positively to flow across the range in the Lachlan, more strongly to increases than decreases in flow in the Macquarie--Castlereagh, and approximately proportionately to flow changes in the Namoi. Native fish responses to flow increases run counter to those for Waterbirds in the Macquarie--Castlereagh (where they are less sensitive) and Namoi (more sensitive). Moreover, because we use smoothed fits, we can identify thresholds or areas of flow change that are disproportionately more important (small changes in flow can yield large shifts in condition).
+With a large number of scenarios, we can better characterize the way values respond using different axes of change. Here, we use smoothed fits to show trends in the performance of ecological values (and groups thereof) in response to changes in flow from both 'climate' and 'adaptation' scenarios (@fig-smooth-climate-adapt, Appendix @fig-smooth-all). We use baselining (see @sec-baselining) to show the relative change on both the x (flow) and y (response) axes. Thus, any slope other than 1:1 represents a disproportionate shift in condition. The responses seen in @fig-smooth-all vary between SDL unit (columns) and ecological values, indicating different sensitivity to both 'climate' and 'adaptation' flow conditions across space and among ecological groupings. For example, Waterbirds respond disproportionately positively to flow across the range in the Lachlan, more strongly to increases than decreases in flow in the Macquarie--Castlereagh, and approximately proportionately to flow changes in the Namoi. Native fish responses to flow increases run counter to those for Waterbirds in the Macquarie--Castlereagh (where they are less sensitive) and Namoi (more sensitive). Moreover, because we use smoothed fits, we can identify thresholds or areas of flow change that are disproportionately more important (small changes in flow can yield large shifts in condition).
 
 The response to 'adaptation' options (difference between the lines in @fig-smooth-climate-adapt panel b) tends to be much stronger than the response to 'climate' (slopes), even though the shift in total water may be lower (particularly for the baseline '1' and +250 ML/d '2' adaptations; see x-axis of @fig-difference-baseline). Moreover, the adaptation options are not equally sensitive to the climate scenarios; adaptation options '2' and '3' show less change in response to climate than '1' (no adaptation) (@fig-smooth-all b). Thus, these 'adaptations' are increasing resilience to holistic 'climate' flow changes. Although these scenarios do not represent true adaptation options or climate scenarios, this shows that such changes to resilience are possible with targeted interventions, and HydroBOT provides the capacity to investigate them.
 
-*Georgia- how's this? The y was supposed to be log scale (which is why it used to look OK and then stopped- the transy in plot_outcomes seems to have broken. I'll fix plot outcomes).*
-
 ```{r}
 #| label: fig-smooth-climate-adapt
-#| fig-cap: (a) Smoothed fits of shifts in condition (proportion of EWR achieved relative to the scenario with no climate or adaptation changes [E1]) of broad ecological values to relative changes in water availability (also relative to E1). All climate scenarios (without adaptation; adaptation = 1) are included. Dashed lines help visualise proportionality of outcome relative to flow changes -- lower line is a halving of condition, upper is a doubling. (b) The full combination of scenarios (all climate and adaptations options) are shown for the example of native fish in the Namoi. This illustrates the larger impact of the 'adaptation options' used here compared to the 'climate' shifts; differences between lines are greater than the change along the lines. Fitted lines are loess smooths. Y-axes are restricted to better visualise the majoity of the data; thus, a small amount of data is not plotted, but is accounted for in the loess fits. The full set of SDL units and groups as in b are shown in Appendix @fig-smooth-all.
+#| fig-cap: (a) Smoothed fits of shifts in condition (proportion of EWR achieved relative to the scenario with no climate or adaptation changes [E1]) of broad ecological values to relative changes in water availability (also relative to E1). All climate scenarios (without adaptation; adaptation = 1) are included. Dashed lines help visualise proportionality of outcome relative to flow changes -- the lower line is a halving of condition, upper is a doubling. (b) The full combination of scenarios (all climate and adaptations options) are shown for the example of native fish in the Namoi (with each represented as a dot). This illustrates the larger impact of the 'adaptation options' used here compared to the 'climate' shifts; differences between lines are greater than the change along the lines. Fitted lines are loess smooths. Y-axes are restricted to better visualise the majoity of the data; thus, a small amount of data is not plotted, but is accounted for in the loess fits. The full set of SDL units and groups as in b are shown in Appendix @fig-smooth-all.
 #| message: false
 #| warning: false
 
@@ -1103,9 +1113,9 @@ sdl_smooth_groups_NFNamoi +
 
 ```
 
-Scenarios will often be defined along more than one axis. In the demonstration here, we define both a flow multiplication axis as a proxy for 'climate' shifts, and a flow addition as a proxy for 'adaptations'. Similarly, values often respond to several different aspects of the flow regime, for example the mean flow and the flow variance or the return interval of floods or low-flow periods. Heatmaps or contour surfaces provide a powerful tool for visualising these interacting responses (@fig-contour, Appendix @fig-heatmap). By examining multiple driver axes, such plots can highlight important interactions and identify where thresholds occur and where change along one axis (e.g. adaptations) can mitigate change along the other (e.g. climate shifts). This ability to identify the axes that provide resilience or sensitivity to changes in others will be critically important for management uses of this toolkit targeting climate change adaptation or efficient use of limited water. These assessments must also take spatial and value differences into account; the different ecological values and SDL units show very different patterns in how they respond to the interaction between the 'climate' and 'adaptation' scenarios ([@fig-contour]).
+Scenarios will often be defined along more than one axis. In the demonstration here, we define both a flow multiplication axis as a proxy for 'climate' shifts, and a flow addition as a proxy for 'adaptations'. Similarly, values often respond to several different aspects of the flow regime, for example the mean flow and the flow variance or the return interval of floods or low-flow periods. Heatmaps or contour surfaces provide a powerful tool for visualising these interacting responses (@fig-contour, Appendix @fig-heatmap). By examining multiple driver axes, such plots can highlight important interactions and identify where thresholds occur and where change along one axis (e.g. adaptations) can mitigate change along the other (e.g. climate shifts). This ability to identify the axes that provide resilience or sensitivity to changes in others will be critically important for management uses of HydroBOT targeting climate change adaptation or efficient use of limited water. These assessments must also take spatial and value differences into account; the different ecological values and SDL units show very different patterns in how they respond to the interaction between the 'climate' and 'adaptation' scenarios ([@fig-contour]).
 
-Perhaps most usefully, if scenarios are carefully developed to explore the range of potential change in the system, then the heatmap represents the response surface of values over this range. Developing the response surface can be iterative, with subsequent scenarios developed to increase resolution near areas of rapid change in outcome. This approach differs from the usual approach of assessing only a small set of scenarios targeting specific proposed actions or environmental conditions *CITE*. Instead, by covering the range to generate a response surface, it can provide hypotheses about how proposed scenarios might perform and assess how sensitive the outcomes are to uncertainty in single scenarios. Specific proposed scenarios could of course be assessed as well and mapped onto the surface. For example, we might think of the flow multipliers here as defining the entire range of plausible climate shifts, and the addition scenarios as the entire potential range of additions. Then, specific proposed adaptations or climate sequences could be mapped onto these heatmaps at particular points. The reverse is also possible; identification of areas of high sensitivity in the heatmaps could be used to choose a set of potential adaptations designed to increase climate resilience. This idea extends to additional dimensions, which can then be collapsed in various ways (e.g. via principal component analysis, or by identifying dominant hydrometrics) to visualise with 2d heatmaps even when the response surface itself is best defined and studied in more dimensions.
+Perhaps most usefully, if scenarios are carefully developed to explore the range of potential change in the system, then the heatmap represents the response surface of values over this range. Developing the response surface can be iterative, with subsequent scenarios developed to increase resolution near areas of rapid change in outcome. This approach differs from the usual approach of assessing only a small set of scenarios targeting specific proposed actions or environmental conditions [@marchau2019; @helgeson2020]. Instead, by covering the range to generate a response surface, it can provide hypotheses about how proposed scenarios might perform and assess how sensitive the outcomes are to uncertainty in single scenarios. Specific proposed scenarios could, of course, also be assessed and mapped onto the surface. For example, we might think of the flow multipliers here as defining the entire range of plausible climate shifts, and the addition scenarios as the entire potential range of additions. Then, specific proposed adaptations or climate sequences could be mapped onto these heatmaps at particular points. The reverse is also possible; identification of areas of high sensitivity in the heatmaps could be used to choose a set of potential adaptations designed to increase climate resilience. This idea extends to additional dimensions, which can then be collapsed in various ways (e.g. via principal component analysis, or by identifying dominant hydrometrics) to visualise with 2d heatmaps even when the response surface itself is best defined and studied in more dimensions.
 
 ```{r}
 #| label: build-heatmaps
@@ -1149,9 +1159,9 @@ quant_heatmap <- agged_data$Target |>
   plot_outcomes(outcome_col = 'ewr_achieved',
                 outcome_lab = 'Condition',
                 y_col = 'flow_addition', 
-                y_lab = 'Flow addition',
+                y_lab = "Flow addition ('adaptation')",
                 x_col = 'flow_multiplier', 
-                x_lab = "Flow multiplier",
+                x_lab = "Flow multiplier ('climate')",
                 plot_type = 'heatmap',
                 transy = 'log10',
                 transx = 'log10',
@@ -1177,9 +1187,9 @@ quant_interp_heatmap <- agged_data$Target |>
   plot_outcomes(outcome_col = 'ewr_achieved',
                 outcome_lab = 'Condition',
                 y_col = 'flow_addition', 
-                y_lab = 'Flow addition',
+                y_lab = "Flow addition ('adaptation')",
                 x_col = 'flow_multiplier', 
-                x_lab = "Flow multiplier",
+                x_lab = "Flow multiplier ('climate')",
                 plot_type = 'heatmap',
                 transy = 'log10',
                 transx = 'log10',
@@ -1206,9 +1216,9 @@ quant_interp_heatmap <- agged_data$Target |>
   plot_outcomes(outcome_col = 'ewr_achieved',
                 outcome_lab = "Proportion\nEWR achieved",
                 y_col = 'flow_addition', 
-                y_lab = 'Flow addition',
+                y_lab = "Flow addition ('adaptation')",
                 x_col = 'flow_multiplier', 
-                x_lab = "Flow multiplier",
+                x_lab = "Flow multiplier ('climate')",
                 plot_type = 'heatmap',
                 transy = 'log10',
                 transx = 'log10',
