@@ -101,7 +101,6 @@ make_simpleyml(rstudioapi::documentPath())
 #| label: packages
 #| include: false
 
-#renv::install("~/Georgia/HydroBOT")
 library(HydroBOT) 
 library(dplyr)
 library(sf)
@@ -346,6 +345,14 @@ file.copy(file.path(demo_webdir, 'images', 'Aggregations.png'),
 file.copy(file.path(demo_webdir, 'images', 'architecture.png'), 
           file.path('images', 'architecture.png'),
           overwrite = TRUE)
+
+file.copy(file.path(demo_webdir, 'images', 'aggNetworkdown_sub_rel_illus.png'), 
+          file.path('images', 'causal_results.png'),
+          overwrite = TRUE)
+
+file.copy(file.path(demo_webdir, 'images', 'network_structure_illus.png'), 
+          file.path('images', 'all_causal.png'),
+          overwrite = TRUE)
 # This is a placeholder to move conceptual figs, since it HATES spaces in names of the raw {fig} divs
 
 ```
@@ -420,7 +427,7 @@ To demonstrate HydroBOT, we develop a set of example scenarios capturing some qu
 
 # Methods
 
-The purpose of HydroBOT is to assess how various climate and adaptation scenarios affect multiple sets of values, which may span many scales and disciplines. These scenarios are typically represented by their effect on the hydrograph, though other inputs could be included if relevant (e.g. time series of variables such as temperature). We seek to make the assessments of the impacts of those scenarios in a consistent and repeatable way despite differences in the response models. HydroBOT then has the capability to synthesize a wide range of outputs from individual response models into results that directly compare scenarios and are digestible and useful for management decision making (@fig-tktomgmt). A co-design process including scientists, software developers, and managers was developed to ensure HydroBOT achieved its goal of producing scientifically robust results that are also management-relevant. *Georgia- see q's for fig in demo_paper-newresultsetc RL.docx.*
+The purpose of HydroBOT is to assess how various climate and adaptation scenarios affect multiple sets of values, which may span many scales and disciplines. These scenarios are typically represented by their effect on the hydrograph, though other inputs could be included if relevant (e.g. time series of variables such as temperature). We seek to make the assessments of the impacts of those scenarios in a consistent and repeatable way despite differences in the response models. HydroBOT then has the capability to synthesize a wide range of outputs from individual response models into results that directly compare scenarios and are digestible and useful for management decision making (@fig-tktomgmt). A co-design process including scientists, software developers, and managers was developed to ensure HydroBOT achieved its goal of producing scientifically robust results that are also management-relevant.
 
 ![Conceptualisation of HydroBOT architecture (blue arrows) and links to management decision making (yellow arrows). Scenarios, represented by hydrographs, reflect observed flows or modeled scenarios (produced via hydrological modelling outside HydroBOT). These hydrographs are fed in a consistent way to various response models via the HydroBOT Controller Additional inputs of spatial data and causal networks provide grouping information for scalling via the HydroBOT Aggregator. the HydroBOT Comparer synthesizes the results into management-relevant outputs that aid decision making. This decision making process is also supported by feedback from stakeholders, other expert advice and the social and political landscape. Water planning and policy decisions can then guide the development of scenarios to assess potential adaptaion options, which in turn can be run through the HydroBOT archetecture.](../images/conceptual.png){#fig-tktomgmt}
 
@@ -1378,42 +1385,40 @@ net_legend <- ggpubr::get_legend(pal_ggc) |>
 
 ggsave(plot = net_legend, file.path(demo_webdir,'images', 'aggNetworkup_sub_legend.png'), width = 2, height = 4, units = 'cm')
 
+ggsave(plot = net_legend, file.path(demo_webdir,'images', 'aggNetworkup_sub_legend.pdf'), width = 2, height = 4, units = 'cm')
+
 
 ```
 
+![a) HydroBOT incorporates causal networks that describe the ecological connections between ecological values in a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), ecological objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate ecological values such as NF5- Improve population structure for moderate to long-lived riverine specialist native fish species, and the larger ecological value groupings. The network shown here is for a single gauge (`r gauges_to_plot[1]`), which is the scale at which EWR codes and the small-scale values (middle column) are defined. The ecological theme value definitions (Native fish, etc) are not tied to gauges, but only those that apply to the EWRs present at this gauge are shown here. Colors represent change in condition of each value in the halving climate scenario (A), expressed as the log of condition relative to the baseline 'climate' scenario. Large reductions in condition are dark purple, large improvements are dark green, and no change is white.](images/causal_results.png){#fig-causal-results}
+
 ```{r}
-#| label: fig-causal-results
+#| eval: false
+#| label: fig-causal-results-old
 #| fig-cap: !expr glue::glue("a) HydroBOT incorporates causal networks that describe the ecological connections between ecological values in a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), ecological objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate ecological values such as NF5- Improve population structure for moderate to longlived riverine specialist native fish species, and the ecological theme groupings. The network shown here is for a single gauge ({gauges_to_plot[1]}), which is the scale at which EWR codes and the small-scale values (middle column) are defined. The ecological theme value definitions (Native fish, etc) are not tied to gauges, but only those that apply to the EWRs present at this gauge are shown here. Colors represent change in condition of each value in the halving (panel a, scenario A) scenario, expressed as the log of condition relative to the baseline 'climate' scenario. Large reductions in condition are dark purple, large improvements are dark green, and no change is white.")
 
-aggNetworkdown_sub_rel_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkdown_sub_rel.png')) |>
-  grid::rasterGrob(interpolate = TRUE)
-# aggNetworkup_sub_rel_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkup_sub_rel.png')) |>
+# aggNetworkdown_sub_rel_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkdown_sub_rel.png')) |>
 #   grid::rasterGrob(interpolate = TRUE)
-net_legend <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkup_sub_legend.png')) |>
-  grid::rasterGrob(interpolate = TRUE)
-
-patchwork::wrap_plots(aggNetworkdown_sub_rel_grob) + inset_element(net_legend, 0.90, 0.60, 1, 1)
-                       
-
-# patchwork::wrap_plots(aggNetworkdown_sub_rel_grob, 
-#                       aggNetworkup_sub_rel_grob)+
-#                       net_legend,
-#                       #ncol = 2, widths = c(9, 1), byrow = FALSE) +
-#   plot_annotation(tag_levels = list(c('a', 'b', 'c'))) +
-#   plot_layout(nrow = 3)
+# # aggNetworkup_sub_rel_grob <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkup_sub_rel.png')) |>
+# #   grid::rasterGrob(interpolate = TRUE)
+# net_legend <- png::readPNG(file.path(demo_webdir, 'images/aggNetworkup_sub_legend.png')) |>
+#   grid::rasterGrob(interpolate = TRUE)
+# 
+# patchwork::wrap_plots(aggNetworkdown_sub_rel_grob) + inset_element(net_legend, 0.90, 0.60, 1, 1)
+                      
 ```
 
 # Implications and conclusions
 
-HydroBOT provides consistent, scientifically robust, and repeatable capacity to model responses to flow, producing management-relevant outcomes at multiple dimensions. This capacity provides a step change for the Murray-Darling Basin Authority and other users to move beyond assessment of hydrologic outcomes and towards assessing the values that depend on that hydrology. Requirements such as those for a "healthy working basin" [@murray-darlingbasinauthority2011] that demand attention across socio-economic, cultural, and environmental values are commonly included in management plans for large basins [e.g. @deltastewardshipcouncil2013; @usdepartmentoftheinteriorbureauofreclamation2012; @ziolkowska2016; @connor2015], and reflect the interconnections of a range of values provided by these systems. Key to assessing this range of values is modeling their dependence on hydrology and other management levers, and aggregating the outcomes to management-relevant scales.
+HydroBOT provides consistent, scientifically robust, and repeatable capacity to model responses to flow, producing management-relevant outcomes at multiple dimensions. This capacity provides a step change for management agencies such as the Murray-Darling Basin Authority to move beyond assessment of hydrologic outcomes and towards assessing the values that depend on that hydrology. Requirements such as those for a "healthy working basin" [@murray-darlingbasinauthority2011] that demand attention across socio-economic, cultural, and environmental values are commonly included in management plans for large basins [e.g. @deltastewardshipcouncil2013; @usdepartmentoftheinteriorbureauofreclamation2012; @ziolkowska2016; @connor2015], and reflect the interconnections of a range of values provided by these systems. Key to assessing this range of values is modeling their dependence on hydrology and other management levers, and aggregating the outcomes to management-relevant scales.
 
-Large-scale natural resource management requires the capacity to make decisions relating to multiple spatial, temporal, and value dimensions, and is most successful when multiple scales within those dimensions are considered [@moore2021]. The HydroBOT aggregation and scaling framework navigates those dimensions for water-dependent social, economic, environmental, and cultural values, even when the underlying response models are highly detailed. Combining such disparate information in a standard and comparable manner can illuminate synergies and trade-offs, which could be critical for decision making. Moreover, the scaling provided by HydroBOT condenses and synthesizes large, complex outcomes to results tailored for interpretation for management questions. Our example concerns the ecological values of the Murray-Darling Basin; however, the framework is equally applicable to social, economic, and cultural values and HydroBOT itself has a modular design to incorporate disparate response models.
+Large-scale natural resource management requires the capacity to make decisions relating to multiple spatial, temporal, and value dimensions, and is most successful when multiple scales within those dimensions are considered [@moore2021]. The HydroBOT aggregation and scaling framework navigates those dimensions for water-dependent social, economic, environmental, and cultural values, even when the underlying response models are highly detailed. Combining such disparate information in a standard and comparable manner can illuminate synergies and trade-offs, which could be critical for decision making. Moreover, the scaling provided by HydroBOT condenses and synthesizes large, complex outcomes to results tailored for interpretation for management questions. Our example concerns the ecological values of the Murray-Darling Basin; however, the framework is equally applicable to social, economic, and cultural values and to other locations. HydroBOT itself has a modular design to incorporate disparate response models and spatial units.
 
-Water management faces an increasing need and expectation for scientifically-sound and interpretable modelling from a range of stakeholders. These issues are magnified when facing major long-range decision making to understand the impacts of climate change and potential policy or operational adaptations management agencies might undertake. Co-design of HydroBOT with a diverse team within the Murray-Darling Basin Authority yielded distinct benefits to achieving these goals, with developers and researchers better understanding and building in the needs of the MDBA, while the MDBA better understands the limitations, uses, and potential of the tool. The focus on communication both within MDBA and to external partners, including model provenance, production of tailored synthesis figures, and causal networks, is a key outcome to build trust and understanding in HydroBOT as a tool and the results it produces. HydroBOT provides new capacity to assess a wide range of target values across scenarios and exciting opportunity for continued advances and improvement with the development of new response models and climate scenarios.
+Water management faces an increasing need and expectation for scientifically-sound and interpretable modelling from a range of stakeholders [@ryder2010; @gawne2018]. These issues are magnified when facing major long-range decision making to understand the impacts of climate change and potential policy or operational adaptations management agencies might undertake [@neave2015; @tonkin2019]. Co-design of HydroBOT with a diverse team within the Murray-Darling Basin Authority yielded distinct benefits to achieving these goals, with developers and researchers better understanding and building in the needs of the management agency, while the relevant managers better understand the limitations, uses, and potential of the tool. The focus on communication both within management agencies and to external partners, including model provenance, production of tailored synthesis figures, and causal networks, is a key outcome to build trust and understanding in HydroBOT as a tool and the results it produces. HydroBOT provides new capacity to assess a wide range of target values across scenarios and exciting opportunity for continued advances and improvement with the development of new response models and climate scenarios.
 
 # CRediT authorship contribution statement
 
-Galen Holt: Writing -- original draft, Visualization, Validation, Software, Methodology, Investigation, Formal analysis, Data curation, Conceptualization. Georgia Dwyer: Writing -- original draft, Visualization, Methodology,Investigation, Formal analysis, Conceptualization. David Robertson: Writing -- review & editing, Supervision, Conceptualization, Funding acquisition. Martin Job: Writing -- review & editing, Supervision, Conceptualization. Lara Palmer: Writing -- review & editing, Supervision, Conceptualization. Rebecca E Lester Writing -- review & editing, Supervision, Investigation, Conceptualization, Funding acquisition.
+Galen Holt\\\*: Writing -- original draft, Visualization, Validation, Software, Methodology, Investigation, Formal analysis, Data curation, Conceptualization. Georgia Dwyer\\\*: Writing -- original draft, Visualization, Methodology, Investigation, Formal analysis, Conceptualization. David Robertson: Writing -- review & editing, Supervision, Conceptualization, Funding acquisition. Martin Job: Writing -- review & editing, Supervision, Conceptualization. Lara Palmer: Writing -- review & editing, Supervision, Conceptualization. Rebecca E Lester Writing -- review & editing, Supervision, Investigation, Conceptualization, Funding acquisition. \\\*Holt and Dwyer co-first authors.
 
 # Declaration of competing interest
 
@@ -1421,7 +1426,7 @@ The authors declare that they have no known competing financial interests or per
 
 # Acknowledgements
 
-The work is supported by the Murray--Darling Water and Environment Research Program. *Rebecca Check*
+The work is supported by the Murray--Darling Water and Environment Research Program.
 
 # Data availability
 
@@ -1458,7 +1463,7 @@ gloss_tab <- readr::read_csv(file.path(demo_webdir, "definitions.csv"), show_col
 
 The HydroBOT architecture comprises three major components, the Controller, Aggregator and Comparer, that receive data and information from several input sources, including input scenarios, hydrological modelling, spatial data, causal networks and response models ([@fig-architecture, @tbl-components]). Here we detail some specific details about each of these components and other input sources.
 
-![Architecture of toolkit. Hydrographs representing are inputs, typically reflecting modeled scenarios or historic flows. The flow of data during a modeling run follows the bold arrows, with the additional components of the Causal network and Spatial units providing necessary grouping information for the Aggregator. Dashed lines indicate that hydrographs and direct Response model output can utilise the Comparer functionality directly. Causal networks are linked closely to each Response model, and while both are defined externally to HydroBOT they require significant work to integrate into a compatible, modular toolkit component. Spatial units are typically more general, typically polygons of management interest, and require only light changes to make compatible. Each set of boxes represents a distinct component of HydroBOT, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](../images/architecture.png){#fig-architecture}
+![Architecture of the HydroBOT toolkit. Hydrographs representing are inputs, typically reflecting modeled scenarios or historic flows. The flow of data during a modeling run follows the bold arrows, with the additional components of the Causal network and Spatial units providing necessary grouping information for the Aggregator. Dashed lines indicate that hydrographs and direct Response model output can utilise the Comparer functionality directly. Causal networks are linked closely to each Response model and, while both are defined externally to HydroBOT, they require significant work to integrate into a compatible, modular HydroBOT component. Spatial units are typically more general, typically polygons of management interest, and require only light changes to make compatible. Each set of boxes represents a distinct component of HydroBOT, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](../images/architecture.png){#fig-architecture}
 
 ```{r}
 #| label: tbl-components
@@ -1557,41 +1562,44 @@ ewr_tab <- ewrs_in_pyewr |>
 
 Causal networks are available linking the EWRs to other values. Here, we show a limited set for a single gauge, illustrating some of the value levels that can be linked. This network is derived from the New South Wales Long Term Watering plans [@nswdpiemacq2020].
 
+![The toolkit incorporates causal networks that describe the environmental objectives for a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate environmental Objectives typically capturing portions of the life cycle or chanes in abundance, species goals (which also include ecosystem components such as 'Refugia'), target ecological groupings, and 5-year management targets. The network shown here is for a single gauge (`r gauges_to_plot[1]`) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.](images/all_causal.png){#fig-causal-example}
+
 ```{r}
-#| label: fig-causal-example
+#| eval: false
+#| label: fig-causal-example-old
 #| fig-cap: !expr glue::glue("The toolkit incorporates causal networks that describe the environmental objectives for a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate environmental Objectives typically capturing portions of the life cycle or chanes in abundance, species goals (which also include ecosystem components such as 'Refugia'), target ecological groupings, and 5-year management targets. The network shown here is for a single gauge ({gauges_to_plot[1]}) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.")   
 
-edges <- make_edges(dflist = causal_ewr, 
-               fromtos = list(c('ewr_code', 'env_obj'), 
-                              c('env_obj', 'Specific_goal'), 
-                              c('Specific_goal', 'Target'), 
-                              c('env_obj', 'target_5_year_2024')),
-               gaugefilter = gauges_to_plot[1]) 
-
-nodes <- make_nodes(edges)
-
-
-# To work with both html and word, save out and read back in.
-causal_example <- make_causal_plot(nodes,
-                 edges,
-                 focalnodes = filter(nodes, NodeType == "ewr_code")$Name,
-                 edge_pal = 'black',
-                 node_pal = net_pal,
-                 render = FALSE,
-                 save = TRUE,
-                 savedir = 'images',
-                 savename = 'causal_structure') 
-
-# if (knitr::is_html_output()) {
-  # causal_example |> 
-  # DiagrammeR::render_graph()
-# } else {
-#   knitr::include_graphics("images/causal_structure.png")
-# }
-
-causal_structure <- png::readPNG('images/causal_structure.png')
-causal_structure_grob <- grid::rasterGrob(causal_structure, interpolate = TRUE)
-patchwork::wrap_plots(causal_structure_grob)
+# edges <- make_edges(dflist = causal_ewr, 
+#                fromtos = list(c('ewr_code', 'env_obj'), 
+#                               c('env_obj', 'Specific_goal'), 
+#                               c('Specific_goal', 'Target'), 
+#                               c('env_obj', 'target_5_year_2024')),
+#                gaugefilter = gauges_to_plot[1]) 
+# 
+# nodes <- make_nodes(edges)
+# 
+# 
+# # To work with both html and word, save out and read back in.
+# causal_example <- make_causal_plot(nodes,
+#                  edges,
+#                  focalnodes = filter(nodes, NodeType == "ewr_code")$Name,
+#                  edge_pal = 'black',
+#                  node_pal = net_pal,
+#                  render = FALSE,
+#                  save = TRUE,
+#                  savedir = 'images',
+#                  savename = 'causal_structure') 
+# 
+# # if (knitr::is_html_output()) {
+#   # causal_example |> 
+#   # DiagrammeR::render_graph()
+# # } else {
+# #   knitr::include_graphics("images/causal_structure.png")
+# # }
+# 
+# causal_structure <- png::readPNG('images/causal_structure.png')
+# causal_structure_grob <- grid::rasterGrob(causal_structure, interpolate = TRUE)
+# patchwork::wrap_plots(causal_structure_grob)
 
 ```
 
