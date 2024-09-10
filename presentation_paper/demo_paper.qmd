@@ -54,6 +54,20 @@ number-sections: true
 
 echo: false
 
+crossref:
+  custom:
+    - kind: float
+      key: suppfig
+      latex-env: suppfig
+      reference-prefix: Figure S
+      space-before-numbering: false
+    - kind: float
+      key: supptbl
+      latex-env: supptbl
+      reference-prefix: Table S
+      space-before-numbering: false
+      caption-location: top
+
 format:
   # html:
   #   embed-resources: true
@@ -62,9 +76,9 @@ format:
   #     hypothesis: true
   docx:
     toc: false
-    # prefer-html: true
+    prefer-html: true
     # 7 and 5 are html defaults and look better, but 6.3 is 16cm and so full-page width in word and usually submissions
-    fig-width: 6.3 # 7
+    fig-width: 6.2 # 7
     fig-height: 4.5 # 5
     reference-doc: ../default_word_template.docx
 ---
@@ -357,27 +371,7 @@ file.copy(file.path(demo_webdir, 'images', 'network_structure_illus.png'),
 
 ```
 
-# TODO
-
--   FIND.REPLACE for consistent terminology broader ecological values OR environmental targets ?? ecological objective OR ecological objective flow OR water availability
-
-    -   I've taken a slightly new tack here and tried to end-run the goofy particular names of the levels that NSW made up. Everything is a 'value', just at different levels of detail or sorts of groupings (e.g. NF5, Murray Cod, Native Fish, Improved Fish Condition are all 'values'). And then just tried to describe them as different levels/types of value, rather than define "Objective" vs "Environmental_objective" vs "Target" vs whatever. Especialy because some of the names (e.g. Target) imply a value judgement, but are actually just groups of species (and the Basin Watering Strategy calls them 'themes' anyway). I'm sure I've missed some, and it does get more wordy sometimes, but it does keep it more general and less need for super jargony definitions that are often specific to NSW.
-
--   And 'Aggregator/Aggregation'- can we call this 'onward modeling' or at least 'scaling'?
-
--   FIND OUR NAMES- there are to-dos scattered around.
-
--   historical base level
-
--   citations
-
--   Affiliation info for all authors
-
--   Cover letter etc
-
--   Are the words in the glossary all actually in the text?
-
-# Highlights
+# Highlights {.unnumbered}
 
 -   The HydroBOT toolkit provides new management modelling capability for data and model integration demonstrated for the Murray-Darling Basin
 
@@ -389,19 +383,19 @@ file.copy(file.path(demo_webdir, 'images', 'network_structure_illus.png'),
 
 -   HydroBOT emphasizes automation, transparency, and error detection for consistent repeatable analyses.
 
-# Graphical abstract
+# Graphical abstract {.unnumbered}
 
-![](../images/graphical_abstract.png){#fig-graphab width="16cm"}
+![](../images/graphical_abstract.png){#graphab width="16cm"}
 
-# Abstract
+# Abstract {.unnumbered}
 
 Water management rarely focuses only on water-related outcomes; instead, management targets the myriad values across ecological, social, and economic outcomes that depend on that water. To assess past performance and plan future actions, water managers need tools to understand how changes to hydrology (over which they typically have most control) affect these water-dependent values. Climate change accentuates the need to understand how values might shift and assess potential options for avoiding, ameliorating, and adapting to those impacts. However, models relating values to hydrology and management levers can be difficult to usefully integrate into management processes. These models are often developed for other uses, such as research, and are not easily integrated across values or types of values. Not only is the sheer number of potential values difficult to synthesize into management-relevant conclusions, but economic and ecological models might differ in language, approach, goals, scale, *et cetera*. Here, we describe and demonstrate HydroBOT (Hydrology-dependent Basin Outcomes Toolkit), a holistic modelling toolkit co-designed from the ground up with the Murray-Darling Basin Authority (the primary federal water management agency in the Murray-Darling Basin, Australia). HydroBOT uses a modular, open-source architecture to integrate disparate models of response to hydrology into a consistent, repeatable framework, here demonstrated for the Murray-Darling Basin. It then provides capacity to scale and synthesize those results across space, time, and groups of values, targeting outputs relevant to the water managers. A key feature of HydroBOT is flexibility with guardrails; it allows users to tailor analyses and syntheses to a range of questions, from local, short-term evaluation to longer-term basin-scale assessments of climate response across thousands of values. HydroBOT provides fundamentally new capacity to move beyond hydrology to assess outcomes across a range of target values, and its modularity and flexibility provides capacity for continual upgrades and improvements as new models are developed and new needs are identified.
 
-# Key words
+# Key words {.unnumbered}
 
 1\) Environmental flows; 2) Water management; 3) Hydrology; 4) Toolkit; 5) R package; 6) Synthesis
 
-# Software availability
+# Software availability {.unnumbered}
 
 Software name: HydroBOT (Hydrology-dependent Basin Outcomes Toolkit). Developer: QAEL (Quantitative Aquatic Ecosystem Laboratory) led by Galen Holt. First year available: 2023. Program language: R, Python. Program size: 22 MB. Operation system: Linux, macOS, Windows. Availability: https://github.com/MDBAuth/HydroBOT License: MIT
 
@@ -443,9 +437,9 @@ A key goal of HydroBOT is to provide a flexible platform for comparing outcomes 
 
 ### Architecture
 
-Taken holistically, the HydroBOT architecture comprises five primary components and the links between them (@fig-tktomgmt). The data-flow through HydroBOT is represented by the boxes along the top of @fig-tktomgmt, and in more detail in the Supplement (@fig-architecture). Input data (hydrographs) is ingested by the Controller, which packages and runs Response Models. Results from the Response Models are then processed by the Aggregator, and the analysis and final outputs are prepared by the Comparer. The two components outside this data flow are the Causal networks and Spatial units, which are used within the Aggregator and Comparer to define groupings for aggregation and for visual representation of space and the complex inter-relationships defined in the response models. Each of these components is described in more detail below.
+Taken holistically, the HydroBOT architecture comprises five primary components and the links between them (@fig-tktomgmt). The data-flow through HydroBOT is represented by the boxes along the top of @fig-tktomgmt, and in more detail in the Supplement (@suppfig-architecture). Input data (hydrographs) is ingested by the Controller, which packages and runs Response Models. Results from the Response Models are then processed by the Aggregator, and the analysis and final outputs are prepared by the Comparer. The two components outside this data flow are the Causal networks and Spatial units, which are used within the Aggregator and Comparer to define groupings for aggregation and for visual representation of space and the complex inter-relationships defined in the response models. Each of these components is described in more detail below.
 
-HydroBOT provides the tools and capacity to integrate disparate response models, which may be developed elsewhere, typically by subject-matter experts or for other purposes. These may include Causal networks describing the dependencies and outcomes from those models. Thus, the Response models and Causal networks are both depicted as being defined externally to HydroBOT (@fig-tktomgmt; @fig-architecture) , and new response models require development to integrate them into compatible, modular HydroBOT components. Spatial units (typically polygons of management interest) also originate elsewhere and some are provided by HydroBOT with light changes for optimisation.
+HydroBOT provides the tools and capacity to integrate disparate response models, which may be developed elsewhere, typically by subject-matter experts or for other purposes. These may include Causal networks describing the dependencies and outcomes from those models. Thus, the Response models and Causal networks are both depicted as being defined externally to HydroBOT (@fig-tktomgmt; @suppfig-architecture) , and new response models require development to integrate them into compatible, modular HydroBOT components. Spatial units (typically polygons of management interest) also originate elsewhere and some are provided by HydroBOT with light changes for optimisation.
 
 The HydroBOT architecture emphasizes modularity. Each of the components can save its outputs, allowing users to run HydroBOT as a whole or re-run only needed components to update analysis. For example, if a user wished to change how they aggregate the results of the modules, they could re-run the aggregation step and the subsequent comparison step to match without re-running earlier steps. This ability to adjust intermediate steps allows rapid iteration of results to address a given management question, or adaptation of preexisting results to new questions. Modularity also allows rapid, iterative development of HydroBOT itself. Any HydroBOT component can be updated without affecting others, and so obtaining new results from updated components (e.g. new aggregation capability) simply requires re-running HydroBOT from that point forward.
 
@@ -459,9 +453,9 @@ HydroBOT was originally designed for analysis of management questions in the Mur
 
 As a result of the scan of available response models, HydroBOT development proceeded with the EWR tool as a single response model, but with an architecture designed to allow modular integration of additional response models as they become available. The scan accentuated a critical feature of this modularity; HydroBOT must be able to incorporate and standardise models written in various languages and with a wide range of input needs and outputs. HydroBOT achieves this by wrapping those other tools so as to make their differences as hidden from the user as possible. In the case of Python modules, HydroBOT uses the {reticulate} R package [@ushey2023] in combination with small amounts of internal Python code to call Python modules directly. The Python code internal to HydroBOT performs limited cleaning and translation to prevent passing large objects between languages and ensure that any idiosyncrasies in module inputs and outputs are handled consistently. Python dependencies (and Python itself) are automatically installed on first use of Controller functions that call Python modules unless they already exist on the user's system. This approach provides essentially invisible Python for most users, while providing flexibility for the user to provide their own Python environment if desired. Modules in other languages are not yet available, but the key requirement is that they be available in a format that is scriptable. In that case, HydroBOT will provide small setup and cleanup functions as with the Python modules and wrapper functions to call these modules.
 
-The modularity of HydroBOT means it can be run stepwise, with the user calling the relevant functions at each step ([@fig-architecture]). The outputs of each step can be saved or returned directly to an interactive session or both. Typically, sufficient selected outputs would be saved for reproducibility and speed unless the project is small enough to retain a comprehensive set in memory or re-run quickly in a notebook. There are also wrapper functions that allow running the entire HydroBOT toolkit from Controller through Aggregator, which are extremely useful for large runs or remote runs on batching services. One particularly useful wrapper provides the ability to run from a yaml config file providing function arguments. This function allows the use of a default file and a 'modified run' file, making it ideal for holding many parameters constant at a default for a particular set of analyses and only changing some on a per-run basis in a smaller file. It also takes command-line or R list arguments, making it a flexible solution to run HydroBOT from the command line, in scripting contexts, or Quarto notebooks. The metadata saved at each step in the process is a yaml file with parameters that are a superset of those needed to run HydroBOT. Thus, an exactly identical run can be produced by running HydroBOT using an output metadata file as an input parameter file. These metadata files also include the git hash, further allowing reproducibility and documenting provenance in the face of code changes.
+The modularity of HydroBOT means it can be run stepwise, with the user calling the relevant functions at each step ([@suppfig-architecture]). The outputs of each step can be saved or returned directly to an interactive session or both. Typically, sufficient selected outputs would be saved for reproducibility and speed unless the project is small enough to retain a comprehensive set in memory or re-run quickly in a notebook. There are also wrapper functions that allow running the entire HydroBOT toolkit from Controller through Aggregator, which are extremely useful for large runs or remote runs on batching services. One particularly useful wrapper provides the ability to run from a yaml config file providing function arguments. This function allows the use of a default file and a 'modified run' file, making it ideal for holding many parameters constant at a default for a particular set of analyses and only changing some on a per-run basis in a smaller file. It also takes command-line or R list arguments, making it a flexible solution to run HydroBOT from the command line, in scripting contexts, or Quarto notebooks. The metadata saved at each step in the process is a yaml file with parameters that are a superset of those needed to run HydroBOT. Thus, an exactly identical run can be produced by running HydroBOT using an output metadata file as an input parameter file. These metadata files also include the git hash, further allowing reproducibility and documenting provenance in the face of code changes.
 
-In practice, HydroBOT functions are primarily run in one of two ways. Interactive investigation of relatively small sets of hydrographs and small numbers of scenarios can be done in notebooks (typically Quarto; @allaire2022) or simple R scripts. Larger investigations typically would be run on remote computers as part of batching systems, whether HPC, Azure, AWS, or other, with the outputs at the end of the aggregation (and potentially each step) returned. The Comparer step would usually not be run as part of this larger batching, but considered interactively for two reasons. First, through the aggregation step, all operations can proceed in parallel over scenarios, and in some cases parallelizing over gauges is possible. The Comparer necessarily looks across scenarios, and so breaks this parallelisation. Conducting comparisons interactively is typically not excessively CPU- or memory-intensive, provided the Aggregator step has been well thought through. If there are enough data to require high processing or memory, it is unlikely to be simplified enough to make interpretable figures and additional aggregation should be undertaken. Second, the primary goal of the Comparer is to produce usable, interpretable outputs. Arriving at a set of meaningful outputs is an iterative process that rarely will be precisely known *a priori*, and so working through this step interactively is necessary. If, however, HydroBOT is being used for ongoing monitoring of the same analyses (e.g. a 'dashboard'), then the first iteration may be done interactively, with subsequent uses incorporating those settings written into a script to auto-generate the same figures.
+In practice, HydroBOT functions are primarily run in one of two ways. Interactive investigation of relatively small sets of hydrographs and small numbers of scenarios can be done in notebooks [typically Quarto; @allaire2022] or simple R scripts. Larger investigations typically would be run on remote computers as part of batching systems, whether HPC, Azure, AWS, or other, with the outputs at the end of the aggregation (and potentially each step) returned. The Comparer step would usually not be run as part of this larger batching, but considered interactively for two reasons. First, through the aggregation step, all operations can proceed in parallel over scenarios, and in some cases parallelizing over gauges is possible. The Comparer necessarily looks across scenarios, and so breaks this parallelisation. Conducting comparisons interactively is typically not excessively CPU- or memory-intensive, provided the Aggregator step has been well thought through. If there are enough data to require high processing or memory, it is unlikely to be simplified enough to make interpretable figures and additional aggregation should be undertaken. Second, the primary goal of the Comparer is to produce usable, interpretable outputs. Arriving at a set of meaningful outputs is an iterative process that rarely will be precisely known *a priori*, and so working through this step interactively is necessary. If, however, HydroBOT is being used for ongoing monitoring of the same analyses (e.g. a 'dashboard'), then the first iteration may be done interactively, with subsequent uses incorporating those settings written into a script to auto-generate the same figures.
 
 ## Toolkit components
 
@@ -469,7 +463,7 @@ Here we describe the specific implementation of each component of the HydroBOT t
 
 ### HydroBOT Controller {#sec-controller}
 
-The HydroBOT 'Controller' is the interface between the externally generated input data (i.e. scenarios), the chosen response model, and other external and internal HydroBOT components (Appendix @fig-architecture). This component initiates the downstream processing steps according to user-defined settings for a particular run. It includes arguments for locating the input data and the response model(s) to use along with any necessary parameters for those models. The Controller can also control later components, allowing the full HydroBOT toolkit to be run at once. These include defining aggregation steps as discussed in @sec-aggregator and analysis of the results with the Comparer ( @sec-comparer ). The Controller determines whether and where outputs are returned at each step. Having control over the full HydroBOT toolkit process enables large batched runs using parameter files to specify the control arguments in yaml files. This core functionality of the Controller is delivered via simple functions that apply to the input data for each scenario and can be looped over scenarios in parallel. The Controller can be accessed by the user by using Quarto notebooks to work interactively, R scripts, or via the command line, depending on the use case.
+The HydroBOT 'Controller' is the interface between the externally generated input data (i.e. scenarios), the chosen response model, and other external and internal HydroBOT components (Appendix @suppfig-architecture). This component initiates the downstream processing steps according to user-defined settings for a particular run. It includes arguments for locating the input data and the response model(s) to use along with any necessary parameters for those models. The Controller can also control later components, allowing the full HydroBOT toolkit to be run at once. These include defining aggregation steps as discussed in @sec-aggregator and analysis of the results with the Comparer ( @sec-comparer ). The Controller determines whether and where outputs are returned at each step. Having control over the full HydroBOT toolkit process enables large batched runs using parameter files to specify the control arguments in yaml files. This core functionality of the Controller is delivered via simple functions that apply to the input data for each scenario and can be looped over scenarios in parallel. The Controller can be accessed by the user by using Quarto notebooks to work interactively, R scripts, or via the command line, depending on the use case.
 
 ### Causal networks {#sec-causal_networks}
 
@@ -483,11 +477,11 @@ The impacts of climate and adaptation options on social, cultural, environmental
 
 #### EWR (Environmental Water Requirements) {#sec-ewr}
 
-The EWR tool, which forms the core of this demonstration, is one such response model, written in Python and in use by the MDBA internally, the state of New South Wales for water planning, and other interested stakeholders [@murray-darlingbasinauthority2024]. It models the response of hydrologic indicators in Murray-Darling Basin, chosen to indicate ecological values according to links established in Long Term Watering Plans [@nswdpiemacq2020; @delwp2022]. The EWR tool holds databases of the environmental water requirements (EWRs; the indicators) and the volume, frequency, timing and duration of flows or inundation required to meet those indicators (Appendix @tbl-ewrs). These indicators were developed based on hypothesized relationships to the ecological objectives of the MDB, which protect or enhance environmental assets and ecosystem functions that are valued based on ecological significance [@sheldon2024; @nswdpiemacq2020]. The EWR tool itself only provides an assessment of the hydrologic indicators, assessing whether spatially explicit flow timeseries data meets each EWR (hydrologic indicator) at each gauge (illustrated in @fig-ewr-example). The precise definitions for each EWR differ at each gauge, due to the unique hydrology and channel morphology. For example, a small fresh for 10 days is required every year, ideally between October and April to meet indicator EWR SF1 (small fresh 1), but the flow volume defined as a 'small fresh' differs between gauges. For HydroBOT to model environmental outcomes, we connect the EWR tool results to a specific causal network defining these links (small example shown in @fig-causal-results, all links for a single gauge in Appendix @fig-causal-example).
+The EWR tool, which forms the core of this demonstration, is one such response model, written in Python and in use by the MDBA internally, the state of New South Wales for water planning, and other interested stakeholders [@murray-darlingbasinauthority2024]. It models the response of hydrologic indicators in Murray-Darling Basin, chosen to indicate ecological values according to links established in Long Term Watering Plans [@nswdpiemacq2020; @delwp2022]. The EWR tool holds databases of the environmental water requirements (EWRs; the indicators) and the volume, frequency, timing and duration of flows or inundation required to meet those indicators (Appendix @supptbl-ewrs). These indicators were developed based on hypothesized relationships to the ecological objectives of the MDB, which protect or enhance environmental assets and ecosystem functions that are valued based on ecological significance [@sheldon2024; @nswdpiemacq2020]. The EWR tool itself only provides an assessment of the hydrologic indicators, assessing whether spatially explicit flow timeseries data meets each EWR (hydrologic indicator) at each gauge (illustrated in @fig-ewr-example). The precise definitions for each EWR differ at each gauge, due to the unique hydrology and channel morphology. For example, a small fresh for 10 days is required every year, ideally between October and April to meet indicator EWR SF1 (small fresh 1), but the flow volume defined as a 'small fresh' differs between gauges. For HydroBOT to model environmental outcomes, we connect the EWR tool results to a specific causal network defining these links (small example shown in @fig-causal-results, all links for a single gauge in Appendix @suppfig-causal-example).
 
 ```{r}
 #| label: fig-ewr-example
-#| fig-cap: !expr glue::glue("The flow levels of various EWR are illustrated at two example gauges ({paste0(gauges_to_plot, collapse = ' and ')}) on historical hydrographs. This does not illustrate the required frequency, duration or timing for these EWRs; some of the lines crossed by the hydrograph here would not count as achieving the EWR if the flows did not stay above the relevant EWR line long enough or did not cross it again within the defined timeframe. See Appendix @tbl-ewrs.")
+#| fig-cap: !expr glue::glue("The flow levels of various EWR are illustrated at two example gauges ({paste0(gauges_to_plot, collapse = ' and ')}) on historical hydrographs. This does not illustrate the required frequency, duration or timing for these EWRs; some of the lines crossed by the hydrograph here would not count as achieving the EWR if the flows did not stay above the relevant EWR line long enough or did not cross it again within the defined timeframe. See Appendix @supptbl-ewrs.")
 
 ewrs_in_pyewr <- get_ewr_table() |> 
   rename(gauge = Gauge)
@@ -530,7 +524,7 @@ hydro_plot_EWRs
 
 The EWR tool results are binary responses of hydrologic indicators and so, to link these to expected ecological responses, we extracted and cleaned causal networks from the relationships implied in the Long-Term Watering Plans, where the EWRs are defined [e.g. @nswdpiemacq2020]. These plans describe how the hydrologic indicators are expected to influence both proximate and larger-scale ecological outcomes. We extracted these causal relationships from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which were developed based on the best available information from water managers, ecologists, scientific publications, and analysis of gauged and modelled flows [e.g. @nswdpiemacq2020; @lobegeiger2022].
 
-These causal networks expand the utility of the EWR driver-indicator model by linking its indicators to the values for which the system is being managed. This increases the transparency in the causal relationships that underpin the model and builds understanding and trust in the outcomes. The causal network provides a dense network of links across a range of ecological outcomes at various scales, from the hydrologic indicators to components of the life cycle of single species to whole-community outcomes at 10- or 20-year target dates. For example, for the SF1 indicator described above might contribute to multiple ecological objectives pertaining to native fish (ecological objectives NF1-9; e.g. NF1 = No loss of native fish species), native vegetation (NV1), and ecosystem functions (EF1-5). These ecological objectives are defined to support the completion of all elements of a life cycle of an organism or group of organisms (taxonomic or spatial) to achieve a "defined goal for a state, condition or characteristic of an ecological asset or function" [@nswdpiemacq2020, p. x (glossary)]. Outcomes for ecological objectives are then linked in the causal network to five large-scale ecological 'theme' groups [native fish, native vegetation, waterbirds, other species, and priority ecosystem functions, @murray-darlingbasinauthority2019] and are associated with long-term targets (5, 10, and 20 year) of the LTWP management strategies. The chain of dependencies from EWRs (hydrologic) to ecological values at multiple levels of detail to long-term targets are captured in the causal networks as links, with nodes defining the ecological values at different scales, from life-cycle objectives to species, groups of species or processes, to long-term targets. This structure not only provides a visual definition of the links in the LTWP, it also enables assessment of outcomes that are directly equivalent to the LTWP management strategies.
+These causal networks expand the utility of the EWR driver-indicator model by linking its indicators to the values for which the system is being managed. This increases the transparency in the causal relationships that underpin the model and builds understanding and trust in the outcomes. The causal network provides a dense network of links across a range of ecological outcomes at various scales, from the hydrologic indicators to components of the life cycle of single species to whole-community outcomes at 10- or 20-year target dates. For example, for the SF1 indicator described above might contribute to multiple ecological objectives pertaining to native fish (ecological objectives NF1-9; e.g. NF1 = No loss of native fish species), native vegetation (NV1), and ecosystem functions (EF1-5). These ecological objectives are defined to support the completion of all elements of a life cycle of an organism or group of organisms (taxonomic or spatial) to achieve a "defined goal for a state, condition or characteristic of an ecological asset or function" [@nswdpiemacq2020; p.x--glossary]. Outcomes for ecological objectives are then linked in the causal network to five large-scale ecological 'theme' groups [native fish, native vegetation, waterbirds, other species, and priority ecosystem functions, @murray-darlingbasinauthority2019] and are associated with long-term targets (5, 10, and 20 year) of the LTWP management strategies. The chain of dependencies from EWRs (hydrologic) to ecological values at multiple levels of detail to long-term targets are captured in the causal networks as links, with nodes defining the ecological values at different scales, from life-cycle objectives to species, groups of species or processes, to long-term targets. This structure not only provides a visual definition of the links in the LTWP, it also enables assessment of outcomes that are directly equivalent to the LTWP management strategies.
 
 #### Module standardization
 
@@ -562,11 +556,11 @@ The plotting functions in the Comparer provide capability to present and visuali
 
 ## Demonstration scenarios
 
-We demonstrate toolkit functionality for ecological values by using the existing EWR (Environmental Water Requirements) tool for the response model (see @sec-modules for a description of the EWR module and its associated causal network). Our input data consists of hypothetical flow timeseries generated from historical hydrographs at `r length(unique(agged_data$ewr_code$gauge))` gauges. These gauges fall within the Lachlan, Macquarie--Castlereagh, and Namoi SDL units of the Murray-Darling Basin, Australia ([@fig-sdl-comparison]A). These SDL units have detailed LTWPs, and so well-specified EWRs and causal networks [@nswdpiemacq2020; @nsw; @nswdpielachlan2020; @nswdpienamoi2020].
+We demonstrate toolkit functionality for ecological values by using the existing EWR (Environmental Water Requirements) tool for the response model (see @sec-modules for a description of the EWR module and its associated causal network). Our input data consists of hypothetical flow timeseries generated from historical hydrographs at `r length(unique(agged_data$ewr_code$gauge))` gauges. These gauges fall within the Lachlan, Macquarie--Castlereagh, and Namoi SDL units of the Murray-Darling Basin, Australia ([@fig-sdl-comparison]A). These SDL units have detailed LTWPs, and so well-specified EWRs and causal networks [@nswdpiemacq2020; @nswdpielachlan2020; @nswdpienamoi2020].
 
 We develop a set of simple scenarios that capture two sorts of changes that may be commonly represented in management analyses. First, we consider scaled flow throughout the period of the hydrograph, representing overall increases or decreases in flow as might occur from large-scale climate patterns. Second, we consider short-duration additions to flow, representing periodic pulses of change as might happen from targeted interventions. Each scenario characterizes all water in the system including natural inflows, extraction, and release of environmental water, yielding a complete hydrograph (Appendix @sec-scenarios shows a selected subset). These do not reflect realistic future scenarios but provide an avenue to test and illustrate the capabilities of HydroBOT.
 
-To scale flow, we apply nine flow multipliers, ranging from 0.5 to 2.0, to the historical hydrographs (Appendix @tbl-scenarios). We refer to these as 'climate' scenarios, reflecting a common representation where entire hydrographs might shift to represent climate change, though these scenarios are not derived from climate models and do not represent hypothesized climate change. To achieve pulsed change for each of the 'climate' scenarios, four flow additions were applied including 1) no addition (baseline), 2) addition of 250 ML/d, 3) addition of 6500 ML/d, and 4) addition of 12000 ML/d (Appendix @tbl-scenarios). These additional flows were added throughout the period of September to December. We refer to these scenarios as 'climate adaptations' because management options are often available in the form of altering water availability for short time periods through mechanisms like water releases, though the options here do not represent proposed actions.
+To scale flow, we apply nine flow multipliers, ranging from 0.5 to 2.0, to the historical hydrographs (Appendix @supptbl-scenarios). We refer to these as 'climate' scenarios, reflecting a common representation where entire hydrographs might shift to represent climate change, though these scenarios are not derived from climate models and do not represent hypothesized climate change. To achieve pulsed change for each of the 'climate' scenarios, four flow additions were applied including 1) no addition (baseline), 2) addition of 250 ML/d, 3) addition of 6500 ML/d, and 4) addition of 12000 ML/d (Appendix @supptbl-scenarios). These additional flows were added throughout the period of September to December. We refer to these scenarios as 'climate adaptations' because management options are often available in the form of altering water availability for short time periods through mechanisms like water releases, though the options here do not represent proposed actions.
 
 For simplicity for this demonstration, we use arithmetic means for all aggregations except the initial step along the value dimension, though we typically present results only after this first step. The first value step gives achievement of EWR indicators from a set of usually three differently-lenient sub-indicators. We consider that, if an EWR is achieved for any of its possible definitions, it is achieved. We thus use a maximum for that aggregation. Though we use means throughout, their meaning changes depending on the level of aggregation. For simplicity, we assume the value of each outcome represents some 'condition', and the 'condition' at a particular level can be assessed as the mean of the conditions contributing to it. For example, the condition of detailed ecological values such as fish spawning or bird fledging might simply be the proportion of EWRs that contribute to each value that are achieved. Then, the condition of ecological groups, e.g. native fish, might be the mean condition over all the NF1..n values, despite those depending on different numbers and sets of EWRs. This captures the idea that native fish condition improves when the life-cycle components captured by those lower-level values are met, whether it takes 1 or 10 EWRs.
 
@@ -674,7 +668,7 @@ inset_map <- ggplot(ozmaps::ozmap_country) +
 
 ```{r}
 #| label: fig-sdl-comparison
-#| fig-cap: (a) Map of the Murray-Darling basin in eastern Australia. (b) Gauge locations within three SDL units (Macquarie –- Castlereagh, Lachlan, and Namoi). Scenario comparison for different Sustainable Diversion Limit areas (c) emphasizing quantititive differences and (d) spatial patterns. The proportion of environmental watering requirements (EWRs) that are achieved under each scenario for each SDL unit are shown. Climate scenarios and adaptation options as in Appendix @tbl-scenarios.
+#| fig-cap: (a) Map of the Murray-Darling basin in eastern Australia. (b) Gauge locations within three SDL units (Macquarie –- Castlereagh, Lachlan, and Namoi). Scenario comparison for different Sustainable Diversion Limit areas (c) emphasizing quantititive differences and (d) spatial patterns. The proportion of environmental watering requirements (EWRs) that are achieved under each scenario for each SDL unit are shown. Climate scenarios and adaptation options as in Appendix @supptbl-scenarios.
 #| message: false
 
 # The bars
@@ -1096,13 +1090,13 @@ sdl_smooth_adapt <- obj_sdl_to_plot |>
                 smooth_arglist = list())
 ```
 
-With a large number of scenarios, we can better characterize the way values respond using different axes of change. Here, we use smoothed fits to show trends in the performance of ecological values (and groups thereof) in response to changes in flow from both 'climate' and 'adaptation' scenarios (@fig-smooth-climate-adapt, Appendix @fig-smooth-all). We use baselining (see @sec-baselining) to show the relative change on both the x (flow) and y (response) axes. Thus, any slope other than 1:1 represents a disproportionate shift in condition. The responses seen in @fig-smooth-all vary between SDL unit (columns) and ecological values, indicating different sensitivity to both 'climate' and 'adaptation' flow conditions across space and among ecological groupings. For example, Waterbirds respond disproportionately positively to flow across the range in the Lachlan, more strongly to increases than decreases in flow in the Macquarie--Castlereagh, and approximately proportionately to flow changes in the Namoi. Native fish responses to flow increases run counter to those for Waterbirds in the Macquarie--Castlereagh (where they are less sensitive) and Namoi (more sensitive). Moreover, because we use smoothed fits, we can identify thresholds or areas of flow change that are disproportionately more important (small changes in flow can yield large shifts in condition).
+With a large number of scenarios, we can better characterize the way values respond using different axes of change. Here, we use smoothed fits to show trends in the performance of ecological values (and groups thereof) in response to changes in flow from both 'climate' and 'adaptation' scenarios (@fig-smooth-climate-adapt, Appendix @suppfig-smooth-all). We use baselining (see @sec-baselining) to show the relative change on both the x (flow) and y (response) axes. Thus, any slope other than 1:1 represents a disproportionate shift in condition. The responses seen in @suppfig-smooth-all vary between SDL unit (columns) and ecological values, indicating different sensitivity to both 'climate' and 'adaptation' flow conditions across space and among ecological groupings. For example, Waterbirds respond disproportionately positively to flow across the range in the Lachlan, more strongly to increases than decreases in flow in the Macquarie--Castlereagh, and approximately proportionately to flow changes in the Namoi. Native fish responses to flow increases run counter to those for Waterbirds in the Macquarie--Castlereagh (where they are less sensitive) and Namoi (more sensitive). Moreover, because we use smoothed fits, we can identify thresholds or areas of flow change that are disproportionately more important (small changes in flow can yield large shifts in condition).
 
-The response to 'adaptation' options (difference between the lines in @fig-smooth-climate-adapt panel b) tends to be much stronger than the response to 'climate' (slopes), even though the shift in total water may be lower (particularly for the baseline '1' and +250 ML/d '2' adaptations; see x-axis of @fig-difference-baseline). Moreover, the adaptation options are not equally sensitive to the climate scenarios; adaptation options '2' and '3' show less change in response to climate than '1' (no adaptation) (@fig-smooth-all b). Thus, these 'adaptations' are increasing resilience to holistic 'climate' flow changes. Although these scenarios do not represent true adaptation options or climate scenarios, this shows that such changes to resilience are possible with targeted interventions, and HydroBOT provides the capacity to investigate them.
+The response to 'adaptation' options (difference between the lines in @fig-smooth-climate-adapt panel b) tends to be much stronger than the response to 'climate' (slopes), even though the shift in total water may be lower (particularly for the baseline '1' and +250 ML/d '2' adaptations; see x-axis of @fig-difference-baseline). Moreover, the adaptation options are not equally sensitive to the climate scenarios; adaptation options '2' and '3' show less change in response to climate than '1' (no adaptation) (@suppfig-smooth-all b). Thus, these 'adaptations' are increasing resilience to holistic 'climate' flow changes. Although these scenarios do not represent true adaptation options or climate scenarios, this shows that such changes to resilience are possible with targeted interventions, and HydroBOT provides the capacity to investigate them.
 
 ```{r}
 #| label: fig-smooth-climate-adapt
-#| fig-cap: (a) Smoothed fits of shifts in condition (proportion of EWR achieved relative to the scenario with no climate or adaptation changes [E1]) of broad ecological values to relative changes in water availability (also relative to E1). All climate scenarios (without adaptation; adaptation = 1) are included. Dashed lines help visualise proportionality of outcome relative to flow changes -- the lower line is a halving of condition, upper is a doubling. (b) The full combination of scenarios (all climate and adaptations options) are shown for the example of native fish in the Namoi (with each represented as a dot). This illustrates the larger impact of the 'adaptation options' used here compared to the 'climate' shifts; differences between lines are greater than the change along the lines. Fitted lines are loess smooths. Y-axes are restricted to better visualise the majoity of the data; thus, a small amount of data is not plotted, but is accounted for in the loess fits. The full set of SDL units and groups as in b are shown in Appendix @fig-smooth-all.
+#| fig-cap: (a) Smoothed fits of shifts in condition (proportion of EWR achieved relative to the scenario with no climate or adaptation changes [E1]) of broad ecological values to relative changes in water availability (also relative to E1). All climate scenarios (without adaptation; adaptation = 1) are included. Dashed lines help visualise proportionality of outcome relative to flow changes -- the lower line is a halving of condition, upper is a doubling. (b) The full combination of scenarios (all climate and adaptations options) are shown for the example of native fish in the Namoi (with each represented as a dot). This illustrates the larger impact of the 'adaptation options' used here compared to the 'climate' shifts; differences between lines are greater than the change along the lines. Fitted lines are loess smooths. Y-axes are restricted to better visualise the majoity of the data; thus, a small amount of data is not plotted, but is accounted for in the loess fits. The full set of SDL units and groups as in b are shown in Appendix @suppfig-smooth-all.
 #| message: false
 #| warning: false
 
@@ -1120,7 +1114,7 @@ sdl_smooth_groups_NFNamoi +
 
 ```
 
-Scenarios will often be defined along more than one axis. In the demonstration here, we define both a flow multiplication axis as a proxy for 'climate' shifts, and a flow addition as a proxy for 'adaptations'. Similarly, values often respond to several different aspects of the flow regime, for example the mean flow and the flow variance or the return interval of floods or low-flow periods. Heatmaps or contour surfaces provide a powerful tool for visualising these interacting responses (@fig-contour, Appendix @fig-heatmap). By examining multiple driver axes, such plots can highlight important interactions and identify where thresholds occur and where change along one axis (e.g. adaptations) can mitigate change along the other (e.g. climate shifts). This ability to identify the axes that provide resilience or sensitivity to changes in others will be critically important for management uses of HydroBOT targeting climate change adaptation or efficient use of limited water. These assessments must also take spatial and value differences into account; the different ecological values and SDL units show very different patterns in how they respond to the interaction between the 'climate' and 'adaptation' scenarios ([@fig-contour]).
+Scenarios will often be defined along more than one axis. In the demonstration here, we define both a flow multiplication axis as a proxy for 'climate' shifts, and a flow addition as a proxy for 'adaptations'. Similarly, values often respond to several different aspects of the flow regime, for example the mean flow and the flow variance or the return interval of floods or low-flow periods. Heatmaps or contour surfaces provide a powerful tool for visualising these interacting responses (@fig-contour, Appendix @suppfig-heatmap). By examining multiple driver axes, such plots can highlight important interactions and identify where thresholds occur and where change along one axis (e.g. adaptations) can mitigate change along the other (e.g. climate shifts). This ability to identify the axes that provide resilience or sensitivity to changes in others will be critically important for management uses of HydroBOT targeting climate change adaptation or efficient use of limited water. These assessments must also take spatial and value differences into account; the different ecological values and SDL units show very different patterns in how they respond to the interaction between the 'climate' and 'adaptation' scenarios ([@fig-contour]).
 
 Perhaps most usefully, if scenarios are carefully developed to explore the range of potential change in the system, then the heatmap represents the response surface of values over this range. Developing the response surface can be iterative, with subsequent scenarios developed to increase resolution near areas of rapid change in outcome. This approach differs from the usual approach of assessing only a small set of scenarios targeting specific proposed actions or environmental conditions [@marchau2019; @helgeson2020]. Instead, by covering the range to generate a response surface, it can provide hypotheses about how proposed scenarios might perform and assess how sensitive the outcomes are to uncertainty in single scenarios. Specific proposed scenarios could, of course, also be assessed and mapped onto the surface. For example, we might think of the flow multipliers here as defining the entire range of plausible climate shifts, and the addition scenarios as the entire potential range of additions. Then, specific proposed adaptations or climate sequences could be mapped onto these heatmaps at particular points. The reverse is also possible; identification of areas of high sensitivity in the heatmaps could be used to choose a set of potential adaptations designed to increase climate resilience. This idea extends to additional dimensions, which can then be collapsed in various ways (e.g. via principal component analysis, or by identifying dominant hydrometrics) to visualise with 2d heatmaps even when the response surface itself is best defined and studied in more dimensions.
 
@@ -1441,9 +1435,9 @@ All data and their sources have been explained in the manuscript. HydroBOT code 
 
 ## Glossary {#sec-glossary}
 
+::: {#supptbl-glossary}
+
 ```{r}
-#| label: tbl-glossary
-#| tbl-cap: Glossary adapted from the Murray-Darling Basin Long Term Watering Plans (LTWPs) (@nswdpiemacq2020). 
 #| message: false
 
 gloss_tab <- readr::read_csv(file.path(demo_webdir, "definitions.csv"), show_col_types = FALSE)|>
@@ -1459,27 +1453,38 @@ gloss_tab <- readr::read_csv(file.path(demo_webdir, "definitions.csv"), show_col
 
 ```
 
+Glossary adapted from the Murray-Darling Basin Long Term Watering Plans (LTWPs) [@nswdpiemacq2020].
+
+:::
+
 ## Component overview
 
-The HydroBOT architecture comprises three major components, the Controller, Aggregator and Comparer, that receive data and information from several input sources, including input scenarios, hydrological modelling, spatial data, causal networks and response models ([@fig-architecture, @tbl-components]). Here we detail some specific details about each of these components and other input sources.
+The HydroBOT architecture comprises three major components, the Controller, Aggregator and Comparer, that receive data and information from several input sources, including input scenarios, hydrological modelling, spatial data, causal networks and response models ([@suppfig-architecture, @supptbl-components]). Here we detail some specific details about each of these components and other input sources.
 
-![Architecture of the HydroBOT toolkit. Hydrographs representing are inputs, typically reflecting modeled scenarios or historic flows. The flow of data during a modeling run follows the bold arrows, with the additional components of the Causal network and Spatial units providing necessary grouping information for the Aggregator. Dashed lines indicate that hydrographs and direct Response model output can utilise the Comparer functionality directly. Causal networks are linked closely to each Response model and, while both are defined externally to HydroBOT, they require significant work to integrate into a compatible, modular HydroBOT component. Spatial units are typically more general, typically polygons of management interest, and require only light changes to make compatible. Each set of boxes represents a distinct component of HydroBOT, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](../images/architecture.png){#fig-architecture}
+![Architecture of the HydroBOT toolkit. Hydrographs representing are inputs, typically reflecting modeled scenarios or historic flows. The flow of data during a modeling run follows the bold arrows, with the additional components of the Causal network and Spatial units providing necessary grouping information for the Aggregator. Dashed lines indicate that hydrographs and direct Response model output can utilise the Comparer functionality directly. Causal networks are linked closely to each Response model and, while both are defined externally to HydroBOT, they require significant work to integrate into a compatible, modular HydroBOT component. Spatial units are typically more general, typically polygons of management interest, and require only light changes to make compatible. Each set of boxes represents a distinct component of HydroBOT, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](../images/architecture.png){#suppfig-architecture}
+
+
+::: {#supptbl-components}
 
 ```{r}
-#| label: tbl-components
-#| tbl-cap: Components of HydroBOT architecture
 
 comp_tab <- readr::read_csv(here::here('presentation_paper/component_table.csv'), show_col_types = FALSE)
 
 # Both huxtable and knitr are bad for word export. Probably will just have to save CSVs for submission
 
+comp_tab |> 
+  # Too much text in the last col
+  dplyr::select(-last_col()) |> 
 # if (knitr::is_html_output()) {
-  knitr::kable(comp_tab)
-# } else {
+  knitr::kable()
 #   huxtable::huxtable(comp_tab) |> theme_article()
 # }
 # 
 ```
+
+Components of HydroBOT architecture
+
+:::
 
 ### Aggregation
 
@@ -1492,9 +1497,7 @@ Maps allow large-scale visualization of ecological objectives under various scen
 ```{r}
 #| label: build-map-figs
 #| include: false
-
-
-
+#| 
 # a single sdl map for comparison
 nf_maps_single <- obj_sdl_to_plot |>
     dplyr::filter(env_obj == 'NF1' & scenario == 'climatebaseadapt0') |>
@@ -1540,9 +1543,9 @@ obj_maps_few <- obj_sdl_to_plot |>
 
 #### EWRs
 
+::: {#supptbl-ewrs}
+
 ```{r}
-#| label: tbl-ewrs
-#| tbl-cap: !expr glue::glue("Environmental water requirements (EWR) for two example gauges ({gauges_to_plot[1]} and {gauges_to_plot[2]}).")
 # 
 # 
 ewr_tab <- ewrs_in_pyewr |>
@@ -1558,15 +1561,19 @@ ewr_tab <- ewrs_in_pyewr |>
 # }
 ```
 
+Environmental water requirements (EWR) for two example gauges (`r gauges_to_plot[1]` and `r gauges_to_plot[2]`).
+
+:::
+
 #### Causal network
 
 Causal networks are available linking the EWRs to other values. Here, we show a limited set for a single gauge, illustrating some of the value levels that can be linked. This network is derived from the New South Wales Long Term Watering plans [@nswdpiemacq2020].
 
-![The toolkit incorporates causal networks that describe the environmental objectives for a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate environmental Objectives typically capturing portions of the life cycle or chanes in abundance, species goals (which also include ecosystem components such as 'Refugia'), target ecological groupings, and 5-year management targets. The network shown here is for a single gauge (`r gauges_to_plot[1]`) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.](images/all_causal.png){#fig-causal-example}
+![The toolkit incorporates causal networks that describe the environmental objectives for a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate environmental Objectives typically capturing portions of the life cycle or chanes in abundance, species goals (which also include ecosystem components such as 'Refugia'), target ecological groupings, and 5-year management targets. The network shown here is for a single gauge (`r gauges_to_plot[1]`) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.](images/all_causal.png){#suppfig-causal-example}
 
 ```{r}
 #| eval: false
-#| label: fig-causal-example-old
+#| label: suppfig-causal-example-old
 #| fig-cap: !expr glue::glue("The toolkit incorporates causal networks that describe the environmental objectives for a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate environmental Objectives typically capturing portions of the life cycle or chanes in abundance, species goals (which also include ecosystem components such as 'Refugia'), target ecological groupings, and 5-year management targets. The network shown here is for a single gauge ({gauges_to_plot[1]}) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.")   
 
 # edges <- make_edges(dflist = causal_ewr, 
@@ -1607,9 +1614,11 @@ Causal networks are available linking the EWRs to other values. Here, we show a 
 
 ## Scenarios {#sec-scenarios}
 
+
+::: {#supptbl-scenarios}
+
 ```{r}
-#| label: tbl-scenarios
-#| tbl-cap: Demonstration scenarios are a factorial combination of 'climate' (scaled flow) and 'adaptation' (pulsed additions). Climate scenarios included in this demonstration were produced by applying a flow multiplier to historical flows. Adaptation options were applied to each climate scenario with additional flows added throughout the period of September to December. For ease of display in some figures, we provide alpha codes for the 'climate' changes and numeric codes for the 'adaptations'. Mostly frequently, we present the ‘A’ (0.5 x historical flow), ‘E’ (1.0 x historical flow and ‘I’ (2.0 x historical flow) scenarios, with adaptions 1 (no flow addition), 2 (addition of 250 ML/d) and 3 (addition of 6500 ML/d).
+
 #| layout-ncol: 2
 #| tbl-subcap: 
 #|  - "Climate"
@@ -1628,20 +1637,25 @@ climate_scenes <- scenarios |>
          `Flow multiplier` = flow_multiplier) |>
   distinct()
 
-# Huxtables look better, but won't go side-by-side. and despite saying they work better in word, they're much worse. Though better for the other tables. Ugh. Why are tables so hard?
+# Huxtables look better, but won't go side-by-side. and despite saying they work better in word, they're much worse. Ugh. Why are tables so hard?
 
 # huxtable::huxtable(climate_scenes) |> theme_article()
 # huxtable::huxtable(adapt_scenes) |> theme_article()
 
 knitr::kable(climate_scenes |> 
-               mutate(`Flow multiplier` = signif(`Flow multiplier`, 2)))
+               mutate(`Flow multiplier` = signif(`Flow multiplier`, 2))) 
 knitr::kable(adapt_scenes)
 
 ```
 
+Demonstration scenarios are a factorial combination of 'climate' (scaled flow) and 'adaptation' (pulsed additions). Climate scenarios included in this demonstration were produced by applying a flow multiplier to historical flows. Adaptation options were applied to each climate scenario with additional flows added throughout the period of September to December. For ease of display in some figures, we provide alpha codes for the 'climate' changes and numeric codes for the 'adaptations'. Mostly frequently, we present the ‘A’ (0.5 x historical flow), ‘E’ (1.0 x historical flow and ‘I’ (2.0 x historical flow) scenarios, with adaptions 1 (no flow addition), 2 (addition of 250 ML/d) and 3 (addition of 6500 ML/d) in most plots, with scenario 4 only appearing in heatmaps and smoothed fits.
+
+:::
+
+
+::: {#suppfig-hydrographs}
+
 ```{r}
-#| label: fig-hydrographs
-#| fig-cap: Hydrographs for two example gauges (represented by colour) with 'climate' scenarios on rows and 'adaptation' scenarios as columns. Scenario codes as in @tbl-scenarios.
 #| message: false
 
 hydro_plot <- scenehydros |>
@@ -1667,12 +1681,16 @@ hydro_plot <- scenehydros |>
 hydro_plot
 ```
 
+Hydrographs for two example gauges (represented by colour) with 'climate' scenarios on rows and 'adaptation' scenarios as columns. Scenario codes as in @supptbl-scenarios.
+
+:::
+
+
 ## Baselined hydrographs {#sec-baselining}
 
-```{r}
-#| label: fig-baseline-hydro-clim
-#| fig-cap: Change in flow relative to the baseline scenario. These are flat lines because the relativisation occurs at each timepoint.The baseline scenario is represented by the observed historical data with no climate change or adaptaion options applied (scenario E1)
+::: {#suppfig-baseline-hydro-clim}
 
+```{r}
 
 # Relative is how we should look at this for climate scenarios, but when the addition in the adaptation options happens when the baseline is at 0 or close to it, it goes to inf. So make two plots, I think.
 
@@ -1704,10 +1722,14 @@ base_hydro_clim <- scenehydros |>
 base_hydro_clim
 ```
 
+Change in flow relative to the baseline scenario. These are flat lines because the relativisation occurs at each timepoint.The baseline scenario is represented by the observed historical data with no climate change or adaptaion options applied (scenario E1)
+
+:::
+
+::: {#suppfig-baseline-hydro-adapt}
+
 ```{r}
-#| label: fig-baseline-hydro-adapt
-#| fig-cap: Change in flow volume compared to the baseline scenario. This comparison is done using the difference, and so represents the flow additions. The baseline scenario is represented by the observed historical data with no climate change or adaptaion options applied (scenario E1)
-#| 
+
 # Look at difference just at the the base multiplier
 base_hydro_adapt <- scenehydros |>
     dplyr::filter(scenario %in% scenarios_to_plot & 
@@ -1734,17 +1756,23 @@ base_hydro_adapt <- scenehydros |>
 base_hydro_adapt
 ```
 
+Change in flow volume compared to the baseline scenario. This comparison is done using the difference, and so represents the flow additions. The baseline scenario is represented by the observed historical data with no climate change or adaptaion options applied (scenario E1)
+
+:::
+
+
 # Appendix 3
 
 ## Additional comparison plots
 
 ### Map aggregation {#sec-map-versions}
 
-Here, we show results at the gauge, SDL and basin scales, and also to show how the outcomes aggregate along the thematic dimension. To start @fig-gauge-to-sdl-map-all-0 illustrates a subset of EWRs that contribute to priority ecosystem function at the gauge scale. Our aggregations sequence then proceeds to aggregate these EWR to the environmental objectives at each gauge. Here, @fig-gauge-to-sdl-map-all-1 shows the outcomes for gauges for all ecological objectives contributing the priority ecosystem function (left panels) in addition to a gauge level aggregation to the Ecological value scale of the thematic dimension. @fig-gauge-to-sdl-map-all-2 then shows these outcomes at the SDL scale; and @fig-gauge-to-sdl-map-all-3 shows these outcomes at the basin scale.
+Here, we show results at the gauge, SDL and basin scales, and also to show how the outcomes aggregate along the thematic dimension. To start @suppfig-gauge-to-sdl-map-all-0 illustrates a subset of EWRs that contribute to priority ecosystem function at the gauge scale. Our aggregations sequence then proceeds to aggregate these EWR to the environmental objectives at each gauge. Here, @suppfig-gauge-to-sdl-map-all-1 shows the outcomes for gauges for all ecological objectives contributing the priority ecosystem function (left panels) in addition to a gauge level aggregation to the Ecological value scale of the thematic dimension. @suppfig-gauge-to-sdl-map-all-2 then shows these outcomes at the SDL scale; and @suppfig-gauge-to-sdl-map-all-3 shows these outcomes at the basin scale.
+
+::: {#suppfig-gauge-to-sdl-map-all-0}
 
 ```{r}
-#| label: fig-gauge-to-sdl-map-all-0
-#| fig-cap: "Outcomes for gauges for a subset of EWRs that contribute to priority ecosystem function."
+
 #| message: false
 
 agged_EWRs_gauges <- agged_data$ewr_code |>
@@ -1781,13 +1809,17 @@ ef_EWR_gauges <- ef_EWR_gauges +
   theme(axis.ticks = element_blank(), 
                          axis.text=element_blank())
 
-ef_EWR_gauges #+ 
+suppressMessages(print(ef_EWR_gauges)) #+ 
   #+ plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
 ```
 
+Outcomes for gauges for a subset of EWRs that contribute to priority ecosystem function.
+
+:::
+
+
+::: {#suppfig-gauge-to-sdl-map-all-1}
 ```{r}
-#| label: fig-gauge-to-sdl-map-all-1
-#| fig-cap: "Outcomes for gauges for all ecological objectives contributing the priority ecosystem function."
 #| message: false
 
 agged_gauges <- agged_data$ewr_code |> 
@@ -1865,9 +1897,13 @@ ef_gauges_target <- ef_gauges_target +
 ef_gauges + ef_gauges_target + plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
 ```
 
+Outcomes for gauges for all ecological objectives contributing the priority ecosystem function.
+
+:::
+
+::: {#suppfig-gauge-to-sdl-map-all-2}
+
 ```{r}
-#| label: fig-gauge-to-sdl-map-all-2
-#| fig-cap: "Outcomes for SDL units for all ecological objectives contributing the priority ecosystem function. Environmental water requirements (EWRs) are defined by hydrographs at gauges and  apply to Planning Units. The outcomes at these scales of definition can then be aggregated to larger spatial areas, such as SDL units, which we do here with an area-weighted mean."
 #| message: false
 
 ef_maps <- obj_sdl_to_plot |>
@@ -1932,9 +1968,13 @@ ef_maps + ef_maps_target + plot_layout(guides = "collect", heights = c(1,1), wid
 
 ```
 
+Outcomes for SDL units for all ecological objectives contributing the priority ecosystem function. Environmental water requirements (EWRs) are defined by hydrographs at gauges and  apply to Planning Units. The outcomes at these scales of definition can then be aggregated to larger spatial areas, such as SDL units, which we do here with an area-weighted mean.
+
+:::
+
+::: {#suppfig-gauge-to-sdl-map-all-3}
+
 ```{r}
-#| label: fig-gauge-to-sdl-map-all-3
-#| fig-cap: "Outcomes for the basin for all ecological objectives contributing the priority ecosystem function."
 #| message: false
 
  ef_basin_data <- obj_sdl_to_plot |>
@@ -1998,11 +2038,15 @@ ef_basin_target <- ef_basin_target +
 ef_basin + ef_basin_target + plot_layout(guides = "collect", heights = c(1,1), widths = c(10,2), nrow = 1)
 ```
 
-Here, we show the full set of SDL units and ecological values that are shown in part in @fig-smooth-climate-adapt panel b
+Outcomes for the basin for all ecological objectives contributing the priority ecosystem function.
+
+:::
+
+Here, we show the full set of SDL units and ecological values that are shown in part in @fig-smooth-climate-adapt panel b.
+
+::: {#suppfig-smooth-all}
 
 ```{r}
-#| label: fig-smooth-all
-#| fig-cap: Smoothed fits to assess change in performance across the 'climate' scenarios. Points are individual ecological objectives, fitted lines are loess smooths. Separate fits are done for each adaptation option, and so differences between lines of different colors represents the impact of those adaptations. Rows are ecological values groupings, columns are SDL units. Note the different scales of the y-axis. 
 #| message: false
 #| warning: false
 
@@ -2012,11 +2056,19 @@ Here, we show the full set of SDL units and ecological values that are shown in 
 suppressMessages(suppressWarnings(print(sdl_smooth_groups))) # + coord_cartesian(ylim = c(0.5, 2)) # + geom_abline(slope = 1, intercept = 1)
 ```
 
+Smoothed fits to assess change in performance across the 'climate' scenarios. Points are individual ecological objectives, fitted lines are loess smooths. Separate fits are done for each adaptation option, and so differences between lines of different colors represents the impact of those adaptations. Rows are ecological values groupings, columns are SDL units. Note the different scales of the y-axis.
+
+:::
+
 ### Heatmaps
 
+::: {#suppfig-heatmap}
+
 ```{r}
-#| label: fig-heatmap
-#| fig-cap: Condition results visualised as a heatmap with the two scenario definitions on the axes. This approach allows visualising changes in outcome as the result of multiple axes on which scenarios might differ. These axes might be different aspects of scenario creation (as here), or they might be different axes describing the outcome of scenarios (e.g. two different hydrometrics such as mean flow and flow variance)
 
 qual_heatmap
 ```
+
+Condition results visualised as a heatmap with the two scenario definitions on the axes. This approach allows visualising changes in outcome as the result of multiple axes on which scenarios might differ. These axes might be different aspects of scenario creation (as here), or they might be different axes describing the outcome of scenarios (e.g. two different hydrometrics such as mean flow and flow variance).
+
+:::
