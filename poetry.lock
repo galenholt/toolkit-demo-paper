@@ -1501,13 +1501,13 @@ tests = ["pytest"]
 
 [[package]]
 name = "py-ewr"
-version = "2.2.4"
+version = "2.2.5"
 description = "Environmental Water Requirement calculator"
 optional = false
 python-versions = "*"
 files = [
-    {file = "py_ewr-2.2.4-py3-none-any.whl", hash = "sha256:bf23e1f213974d701922fcc56d7fdb770243cbc0cfa1886a8fa302f86664bbfc"},
-    {file = "py_ewr-2.2.4.tar.gz", hash = "sha256:91533175cc9e426472f3d69588002b7bd6d1e58901de4af44e98d99f4fb588ae"},
+    {file = "py_ewr-2.2.5-py3-none-any.whl", hash = "sha256:a1a914dfcc87197858fe84a3de3d490d0734b1f96f98b5c759bffa675df4b20d"},
+    {file = "py_ewr-2.2.5.tar.gz", hash = "sha256:dd49374d88944664b96897e12720221edc895a95939703dab3d29bf61222aded"},
 ]
 
 [package.dependencies]
