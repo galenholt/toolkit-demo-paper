@@ -162,7 +162,7 @@ scenarios_to_plot <- c("climatedown2adapt0",
                       "climateup2adapt250",
                       "climateup2adapt6500")
 
-scenarios_to_plot2 <- c("climatedown2adapt0", 
+radar_scenarios <- c("climatedown2adapt0", 
                       "climatebaseadapt0",
                       "climateup2adapt0")
 ```
@@ -170,7 +170,6 @@ scenarios_to_plot2 <- c("climatedown2adapt0",
 ```{r}
 #| label: scenario-info
 #| include: false
-print(file.path(hydro_dir,'scenario_metadata.yml'))
 
 scenarios <- yaml::read_yaml(file.path(hydro_dir,                                     
                                        'scenario_metadata.yml'))
@@ -731,7 +730,7 @@ agged_data$Target <- agged_data$Target |>
 
 # Pretty should work better to just feed it the data, but it's not, so do a workaround
 yMax = max(filter(agged_data$Target, 
-                  scenario %in% scenarios_to_plot2 & 
+                  scenario %in% radar_scenarios & 
                     !is.na(Target) & 
                     SWSDLName == "Macquarie–Castlereagh")$ewr_achieved) |> 
   pretty() |> max()
@@ -752,7 +751,7 @@ background_df <- data.frame(Order = as.factor(seq(1, length(unique(agged_data$Ta
 plt_2 <- agged_data$Target |>
   filter(SWSDLName == "Macquarie–Castlereagh")|> #
   mutate(Order = as.numeric(Target))|>
-  filter(scenario %in% scenarios_to_plot2 & !is.na(Target))|>
+  filter(scenario %in% radar_scenarios & !is.na(Target))|>
   ggplot(
       aes(
       x = reorder(stringr::str_wrap(Target, 6), Order),
