@@ -1,6 +1,9 @@
 ---
 title: "Simple toolkit template"
 echo: true
+params:
+  RERUN_EWR: false
+  RERUN_AGG: true
 ---
 
 ### Load libraries
@@ -13,6 +16,10 @@ library(dplyr)
 library(ggplot2)
 ```
 
+```{r}
+future::plan(future::multisession)
+
+```
 
 ## User arguments
 
@@ -26,7 +33,6 @@ As a user, we need to set
 
 -   Aggregation sequence and functions
 
--   Figures (typically interactive)
 
 ## Paths
 
@@ -34,7 +40,6 @@ As a user, we need to set
 #demo_webdir <- file.path('../WERP_toolkit_demo')
 demo_webdir <- file.path('~', '../Deakin University/QAEL - WERP in house - WERP/Toolkit/Writing/Demonstration paper')
 
-# Why is the execute-dir not working?
 # Outer directory 
 project_dir = file.path(demo_webdir, 'demo_scenarios')  # '..', 
 
@@ -45,8 +50,8 @@ hydro_dir = file.path(project_dir, 'hydrographs')
 ewr_results <- file.path(project_dir, 'module_output', 'EWR')  
 
 # outputs of aggregator
-agg_results_1 <- file.path(project_dir, 'aggregator_output', 'sdl_target') 
-agg_results_2 <- file.path(project_dir, 'aggregator_output', 'gauge_target') 
+agg_results_sdl <- file.path(project_dir, 'aggregator_output', 'sdl_target') 
+agg_results_gauge <- file.path(project_dir, 'aggregator_output', 'gauge_target') 
 
 # outputs of aggregator
 agg_results_pooled_ewrs <- file.path(project_dir, 'aggregator_output', 'pooled_ewr') 
@@ -55,8 +60,7 @@ agg_results_pooled_ewrs <- file.path(project_dir, 'aggregator_output', 'pooled_e
 
 ## Module controls
 
-EWR currently, will add others as available. For this demo, we'll return only the summary and yearly outputs, though all EWR outputs are available.
-The `returnType` argument keeps them in-memory rather than saving and reading back in. To demonstrate, I'm not doing that but it would make sense for small runs.
+We need yearly for analysis, and nothing returned here.
 
 ```{r}
 outputType <- list('summary', 'yearly')
@@ -84,7 +88,6 @@ aggseq_1 <- list(all_time = 'all_time',
                planning_unit = planning_units,
                env_obj =  c('ewr_code', "env_obj"),
                sdl_units = sdl_clip,
-               #Specific_goal = c('env_obj', "Specific_goal"),
                Target = c('env_obj', 'Target'),
                mdb = basin,
                target_5_year_2024 = c('Target', 'target_5_year_2024'))
@@ -95,7 +98,6 @@ funseq_1 <- list('ArithmeticMean',
                'ArithmeticMean',
                'ArithmeticMean',
                'SpatialWeightedMean',
-               #'ArithmeticMean',
                'ArithmeticMean',
                'SpatialWeightedMean',
                'ArithmeticMean')
@@ -103,91 +105,48 @@ funseq_1 <- list('ArithmeticMean',
 
 aggseq_2 <- list(all_time = 'all_time',
                ewr_code = c('ewr_code_timing', 'ewr_code'),
-               #planning_unit = planning_units,
                env_obj =  c('ewr_code', "env_obj"),
-               #sdl_units = sdl_clip,
-               #Specific_goal = c('env_obj', "Specific_goal"),
                Target = c('env_obj', 'Target'),
-               #mdb = basin,
                target_5_year_2024 = c('Target', 'target_5_year_2024'))
-
 
 funseq_2 <- list('ArithmeticMean', 
                'CompensatingFactor',
-               #'ArithmeticMean',
                'ArithmeticMean',
-               #'SpatialWeightedMean',
-               #'ArithmeticMean',
                'ArithmeticMean',
-               #'SpatialWeightedMean',
-               'ArithmeticMean')
-
-
-aggseq_2 <- list(all_time = 'all_time',
-               ewr_code = c('ewr_code_timing', 'ewr_code'),
-               #planning_unit = planning_units,
-               env_obj =  c('ewr_code', "env_obj"),
-               #sdl_units = sdl_clip,
-               #Specific_goal = c('env_obj', "Specific_goal"),
-               Target = c('env_obj', 'Target'),
-               #mdb = basin,
-               target_5_year_2024 = c('Target', 'target_5_year_2024'))
-
-
-funseq_2 <- list('ArithmeticMean', 
-               'CompensatingFactor',
-               #'ArithmeticMean',
-               'ArithmeticMean',
-               #'SpatialWeightedMean',
-               #'ArithmeticMean',
-               'ArithmeticMean',
-               #'SpatialWeightedMean',
                'ArithmeticMean')
 
 
 ```
 
-# Run the toolkit
+## Run EWR
 
-Typically automatically
+*Using `rparallel = TRUE` here would run in parallel over all scenarios.* 6201.61 seconds locally if not parallel
 
--   Run hydrographs through modules
-
--   Aggregate and save responses
-
--   Comparisons/analyses
-
-## Run modules
-
--   Currently just EWR
-
--   Where are hydrographs
-
--   Where to save output
-
-*Using `rparallel = TRUE` here would run in parallel over all scenarios.*
 ```{r}
 #| message: false
-# ewr_out <- prep_run_save_ewrs(hydro_dir = hydro_dir, 
-#                               output_parent_dir = project_dir, 
-#                               output_subdir = agg_results,
-#                               outputType = outputType,
-#                               returnType = returnType)
+if (params$RERUN_EWR) {
+  system.time(ewr_out <- prep_run_save_ewrs(hydro_dir = hydro_dir,
+                              output_parent_dir = project_dir,
+                              outputType = outputType,
+                              returnType = returnType, 
+                              rparallel = TRUE))
+}
+
 
 ```
 
 ## Aggregate
 
-Here, unlike the EWR tool, we will just return these to the active R session instead of saving.
 
 -   Sequence (levels of each theme, space, time axis)
 
 -   Aggregation functions at each step
 
--   Produces a list, with each sheet a step in the aggregation
 
 ```{r}
-agged_data_1 <- read_and_agg(datpath = ewr_results, 
+if (params$RERUN_AGG) {
+  # This is the main data
+  agged_data_1 <- read_and_agg(datpath = ewr_results, 
            type = 'achievement',
            geopath = bom_basin_gauges,
            causalpath = causal_ewr,
@@ -202,8 +161,10 @@ agged_data_1 <- read_and_agg(datpath = ewr_results,
            namehistory = FALSE,
            keepAllPolys = FALSE,
            returnList = TRUE,
-           savepath = agg_results_1)
+           savepath = agg_results_sdl,
+           rparallel = TRUE)
 
+  # This stays at the gauge level- didn't end up being used.
 agged_data_2 <- read_and_agg(datpath = ewr_results, 
            type = 'achievement',
            geopath = bom_basin_gauges,
@@ -219,15 +180,10 @@ agged_data_2 <- read_and_agg(datpath = ewr_results,
            namehistory = FALSE,
            keepAllPolys = FALSE,
            returnList = TRUE,
-           savepath = agg_results_2)
+           savepath = agg_results_gauge,
+           rparallel = TRUE)
+}
+
 ```
 
-The new scenario names ensure uniqueness, but can be ugly. This could be avoided with a named list to the `scenarios` argument in `prep_run_save_ewrs`, but a robust, general approach is a work in progress.
-
-```{r}
-# The new scenario names ensure uniqueness, but can be ugly
-agged_data <- purrr::map(agged_data, 
-                         \(x) x |> 
-                           mutate(scenario = stringr::str_remove_all(scenario, "_[A-z]*[0-9]*")))
-```
 

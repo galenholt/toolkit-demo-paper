@@ -229,22 +229,22 @@ agged_data <- readRDS(file.path(agg_results, 'achievement_aggregated.rds')) |>
                          scenario = stringr::str_remove_all(scenario, '.*0_'))) |> 
   purrr::map(\(x) left_join(x, scenarios, by = 'scenario'))
 
-# because we use '_' for the 1.0 etc, it messes up some of the directories. Clean that up
-agged_data <- purrr::map(agged_data,
-                         \(x) dplyr::mutate(x, 
-                                            scenario = stringr::str_remove_all(scenario, '_clim.*')))
+# # because we use '_' for the 1.0 etc, it messes up some of the directories. Clean that up
+# agged_data <- purrr::map(agged_data,
+#                          \(x) dplyr::mutate(x, 
+#                                             scenario = stringr::str_remove_all(scenario, '_clim.*')))
 
-
-#Agg data (1.2 GB)
-agged_data_gauge <- readRDS(file.path(agg_results_gauge, 'achievement_aggregated.rds')) |>
-  purrr::map(\(x) mutate(x, 
-                         scenario = stringr::str_remove_all(scenario, '.*0_'))) |>
-  purrr::map(\(x) left_join(x, scenarios, by = 'scenario'))
-
-# because we use '_' for the 1.0 etc, it messes up some of the directories. Clean that up
-agged_data_gauge <- purrr::map(agged_data_gauge,
-                         \(x) dplyr::mutate(x, 
-                                            scenario = stringr::str_remove_all(scenario, '_clim.*')))
+# 
+# #Agg data (1.2 GB)
+# agged_data_gauge <- readRDS(file.path(agg_results_gauge, 'achievement_aggregated.rds')) |>
+#   purrr::map(\(x) mutate(x, 
+#                          scenario = stringr::str_remove_all(scenario, '.*0_'))) |>
+#   purrr::map(\(x) left_join(x, scenarios, by = 'scenario'))
+# 
+# # because we use '_' for the 1.0 etc, it messes up some of the directories. Clean that up
+# agged_data_gauge <- purrr::map(agged_data_gauge,
+#                          \(x) dplyr::mutate(x, 
+#                                             scenario = stringr::str_remove_all(scenario, '_clim.*')))
 
 ```
 
@@ -418,7 +418,7 @@ To demonstrate HydroBOT, we develop a set of example scenarios capturing some qu
 
 # HydroBOT description
 
-HydroBOT provides a flexible architecture with distinct components that can be run separately (in a modular fashion) or together to assess how various scenarios, such as climate change or management options, affect multiple sets of values spanning many scales and disciplines. This modularity enhances the iterative nature of decision making for water planning and policy and allows tuning for a particular set of management questions @fig-tktomgmt). Scenarios are typically represented by their effect on the hydrograph, though other inputs could be included if relevant (e.g. time series of variables such as temperature). HydroBOT then synthesizes a wide range of outputs from individual response models into results that directly compare scenarios and are digestible and useful for management decision making (@fig-tktomgmt). A co-design process including scientists, software developers, and managers was developed to ensure HydroBOT achieved its goal of producing scientifically robust results that are also management-relevant. *GALEN Lara really wants the quad bottom line out of this figure. I changed the caption a bit to try to address it, but I think we want to make the point that the response models can range across types of values. Should we tweak that box somehow to make that point and be less quad-bottom-line, or leave it?*
+HydroBOT provides a flexible architecture with distinct components that can be run separately (in a modular fashion) or together to assess how various scenarios, such as climate change or management options, affect multiple sets of values spanning many scales and disciplines. This modularity enhances the iterative nature of decision making for water planning and policy and allows tuning for a particular set of management questions @fig-tktomgmt). Scenarios are typically represented by their effect on the hydrograph, though other inputs could be included if relevant (e.g. time series of variables such as temperature). HydroBOT then synthesizes a wide range of outputs from individual response models into results that directly compare scenarios and are digestible and useful for management decision making (@fig-tktomgmt). A co-design process including scientists, software developers, and managers was developed to ensure HydroBOT achieved its goal of producing scientifically robust results that are also management-relevant.
 
 ![Conceptualisation of HydroBOT architecture (blue arrows) and links to management decision making (yellow arrows). Scenarios, represented by hydrographs, reflect observed flows or modeled scenarios (produced via hydrological modelling outside HydroBOT). These hydrographs are fed in a consistent way to various response models via the HydroBOT Controller. These response models could assess response of any values of interest, here illustrated as a range of value types across environmental and human dimensions. Additional inputs of spatial data and causal networks provide grouping information for scaling via the HydroBOT Aggregator. The HydroBOT Comparer synthesizes the results into management-relevant outputs that aid decision making. This decision making process is also supported by feedback from stakeholders, other expert advice and the social and political landscape. Water planning and policy decisions can then guide the development of scenarios to assess potential management options, which in turn can be assessed with HydroBOT.](../images/conceptual.png){#fig-tktomgmt}
 
@@ -728,15 +728,15 @@ We use the causal networks to link these response model outputs to ecological ou
 agged_data$Target <- agged_data$Target |> 
   mutate(Target = ifelse(Target == 'Waterbird', 'Waterbirds', Target))
 
-# Pretty should work better to just feed it the data, but it's not, so do a workaround
-yMax = max(filter(agged_data$Target, 
+# Pretty should work better to just feed it the data, but it's not, so do a workaround to round up to the nearest 0.1
+ymax = ceiling(filter(agged_data$Target, 
                   scenario %in% radar_scenarios & 
                     !is.na(Target) & 
-                    SWSDLName == "Macquarie–Castlereagh")$ewr_achieved) |> 
-  pretty() |> max()
+                    SWSDLName == "Macquarie–Castlereagh")$ewr_achieved * 10) |> 
+  max()/10
 ymin = 0 #RELATIVE VERSIONS OF THIS PLOT WILL HAVE VALUES LESS THAN ONE
 
-line_df <- tibble(y = c(ymin, yMax/2, yMax))
+line_df <- tibble(y = c(ymin, ymax/2, ymax))
 
 # Make background
 background_df <- data.frame(Order = as.factor(seq(1, length(unique(agged_data$Target$Target)))),
@@ -750,7 +750,8 @@ background_df <- data.frame(Order = as.factor(seq(1, length(unique(agged_data$Ta
 
 plt_2 <- agged_data$Target |>
   filter(SWSDLName == "Macquarie–Castlereagh")|> #
-  mutate(Order = as.numeric(Target))|>
+  mutate(Target = factor(Target),
+         Order = as.numeric(Target))|>
   filter(scenario %in% radar_scenarios & !is.na(Target))|>
   ggplot(
       aes(
@@ -760,7 +761,7 @@ plt_2 <- agged_data$Target |>
   #Make background colours:
     geom_col(data = background_df,
            aes(x = reorder(stringr::str_wrap(Target, 6), Order), 
-               y = yMax, fill = Target), colour = NA, width = 1, alpha = 0.4)+
+               y = ymax, fill = Target), colour = NA, width = 1, alpha = 0.4)+
     geom_col(data = background_df,
            aes(x = reorder(stringr::str_wrap(Target, 6), Order), 
                y = ymin, fill = Target), colour = NA, width = 1, alpha = 0.4)+
@@ -779,9 +780,9 @@ plt_2 <- agged_data$Target |>
   geom_segment(
     aes(
       x = stringr::str_wrap(Target, 6), y = ymin, 
-      xend = stringr::str_wrap(Target, 6), yend = yMax),  
+      xend = stringr::str_wrap(Target, 6), yend = ymax),  
     linetype = "solid", color = "gray20",arrow = arrow(length = unit(0.25, "cm"), type = "closed"), linewidth = 0.2) + 
-  coord_cartesian(ylim = c(ymin, yMax))+
+  coord_cartesian(ylim = c(ymin, ymax))+
   # Make it circular:
   coord_polar()+
   theme_werp_toolkit(axis.ticks = element_blank(),
@@ -835,24 +836,23 @@ obj_in_groups <- obj_sdl_to_plot |>
                 sceneorder = rename_sceneorder
                 )
 
-# ADD IN MAX: new way?
+# Just get max possible
 maxdata <- obj_sdl_to_plot |> 
   st_drop_geometry() |> 
   filter(env_group != 'EB') |> # There's only one, this is just distracting.
-  filter(scenario %in% "MAX") |> 
+  filter(scenario  %in% scenarios_to_plot[1]) |> 
+  summarise(ewr_achieved = n(), .by = c(SWSDLName, Target)) |> # Get how many
   # clean the names
   mutate(SWSDLName = stringr::str_replace(SWSDLName, '–', '-\n'),
          Target = stringr::str_replace(Target, 'Priority e', 'E'),
-         Target = stringr::str_wrap(Target, width = 12)) |> 
-  summarise(ewr_achieved = sum(ewr_achieved), 
-            .by = c(SWSDLName, Target))
+         Target = stringr::str_wrap(Target, width = 12))
 
 obj_in_groups <- obj_in_groups +
   geom_hline(data = maxdata, 
              mapping = aes(yintercept = ewr_achieved),
              linetype = 'dashed', color = 'grey30')
 
-obj_in_groups
+obj_in_groups + theme(legend.key.size = unit(0.5, 'cm'))
 
 ```
 
@@ -900,15 +900,14 @@ gl_difference <- gl_difference +
 header_difference <-  scenarios |> 
   filter(scenario  %in% scenarios_to_plot) |> 
   mutate(scenario = ifelse(scenario == 'MAX', 'MAX', 
-                           paste0(climate_code, adapt_code))) |> 
+                           paste0(climate_code, adapt_code)),
+         scenario_difference = case_when(
+           grepl('1', scenario) ~ scenario_difference -0.02,
+           grepl('2', scenario) ~ scenario_difference + 0.02,
+           .default = scenario_difference
+           )) |> 
   ggplot(aes(x = scenario_difference,
              y = 1)) +
-  # geom_vline(mapping = aes(xintercept = scenario_difference)) +
-  # ggrepel::geom_text_repel(mapping = aes(label = scenario),
-  #                          # size = 3,
-  #                          angle = 90,
-  #                          direction='x') +
-  # This kind of works better if we get rid of vline. The repel just isnt' working very well
   geom_text(mapping = aes(label = scenario), size = 3) +
   theme_werp_toolkit(legend.position = "none", axis.title=element_blank(),
                      axis.text=element_blank(), axis.ticks=element_blank())
