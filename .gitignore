@@ -31,3 +31,5 @@ renv/
 *.aux
 
 presentation_paper/demo_paper.docx
+
+*.docx

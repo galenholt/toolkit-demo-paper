@@ -90,24 +90,7 @@ options(knitr.kable.NA = '')
 #| eval: false
 
 # This should not be run, except to make a simple quarto
-make_simpleyml <- function(renderfile = 'auto') {
-  
-  if (renderfile == 'auto') {
-    projpath <- rstudioapi::getActiveProject()
-    docpath <- rstudioapi::documentPath()
-    projdir <- sub(".*/([^/]+)$", "\\1", projpath)
-    reldocpath <- sub(paste0(".*", projdir, "/"), "", docpath)
-    renderfile <- reldocpath
-  }
-    
-  
-  simple_yaml <- list()
-  simple_yaml$project <- list()
-  simple_yaml$project$render <- list(renderfile)
-  yaml::write_yaml(simple_yaml, '_quarto-singlefile.yml')
-}
-
-make_simpleyml(rstudioapi::documentPath())
+galenR::make_simpleyml(rstudioapi::documentPath())
 ```
 
 ```{r}
@@ -462,13 +445,9 @@ file.copy(file.path(demo_webdir, 'images', 'network_structure_illus.pdf'),
 
 ![](images/graphical_abstract.png){#graphab width="16cm"}
 
-# Shorter Abstract {.unnumbered}
+# Abstract (150 words) {.unnumbered}
 
 Water management rarely focuses only on water; instead, management targets values across many water-dependent responses. To assess past performance and plan future actions, water managers need to understand how changes to hydrology (over which they typically have most control) affect water-dependent values. Models relating values to hydrology can be difficult to integrate into management processes; they are often developed for other uses and target subsets of values. We describe and demonstrate HydroBOT (Hydrology-dependent Basin Outcomes Toolkit), a modelling toolkit co-designed with the primary federal water management agency in the Murray-Darling Basin, Australia. HydroBOT can integrate disparate response models and scale and synthesize those results across space, time, and groups of values. Outputs target water management needs and can be tailored to a range of questions, from local, short-term evaluation to basin-scale climate assessment. HydroBOT provides new capacity to move beyond hydrology to assess outcomes across diverse target values.
-
-# Abstract {.unnumbered}
-
-Water management rarely focuses only on water itself; instead, management targets myriad values held by multiple stakeholders across many water-dependent responses. To assess past performance and plan future actions, water managers need tools to understand how changes to hydrology (over which they typically have most control) affect water-dependent values. Climate change accentuates the need to understand how values might shift and assess options for addressing those impacts. However, models relating values to hydrology and management levers can be difficult to integrate into management processes. These models are often developed for other uses and are not easily integrated across many disparate values. Economic and ecological models, for example, might differ in language, approach, goals, scale, *et cetera*. Here, we describe and demonstrate HydroBOT (Hydrology-dependent Basin Outcomes Toolkit), a holistic modelling toolkit co-designed with the primary federal water management agency in the Murray-Darling Basin, Australia, although application elsewhere is possible. HydroBOT uses a modular, open-source architecture to integrate disparate models of response to hydrology into a consistent, repeatable framework. It scales and synthesizes those results across space, time, and groups of values, targeting outputs relevant to water managers. Analyses and syntheses can be tailored to a range of questions, from local, short-term evaluation to longer-term basin-scale assessments of climate response across thousands of values. HydroBOT provides new capacity to move beyond hydrology to assess outcomes across a range of target values, and its modularity and flexibility allow continual upgrades and improvements as new models are developed and new needs are identified.
 
 # Key words {.unnumbered}
 
@@ -596,7 +575,7 @@ Ideally, using new response models requires modification of HydroBOT to integrat
 
 HydroBOT is not the answer for all projects and there are certainly tradeoffs. Our belief and experience is that the marginal cost of its implementation *vs* manual analyses, combined with the advantages it brings in terms of safety, reproducibility, and speed, make those tradeoffs fall in favor of HydroBOT quite quickly. This investment is particularly worthwhile for informative response models with clear management importance such as the EWR tool demonstrated here. Once HydroBOT is set up, using it for new scenarios and new questions is straightforward and robust, enabling new avenues of analysis not otherwise possible.
 
-# HydroBOT demonstration {@sec-demo}
+# HydroBOT demonstration {#sec-demo}
 
 Here, we present example results produced using HydroBOT, a set of demonstration scenarios, and the EWR tool for the response model (see @sec-ewr for a description of the EWR module and its associated causal network). These results demonstrate the flexibility and robustness of HydroBOT, which give it the capability to produce rigorous but interpretable and management-relevant results in a reproducible way. The scenarios here are developed to illustrate HydroBOT functionality with different types of change to the hydrograph, and do not represent real flow scenarios. The plots shown here demonstrate several of the potential plot types designed to illustrate some potential visualisations relevant to these scenarios. Many more visualisations are possible due to the flexibility of the plotting functions, giving users the ability to generate plots relevant to different projects and questions.
 
@@ -610,6 +589,7 @@ To scale flow, we apply nine flow multipliers, ranging from 0.5 to 2.0, to the h
 
 ```{r}
 #| label: tbl-scenarios
+#| width: 4
 #| tbl-cap: Demonstration scenarios are a factorial combination of 'climate' (scaled flow) and 'adaptation' (pulsed additions). 'Climate' scenarios included in this demonstration were produced by applying a flow multiplier to historical flows. 'Adaptation options' were applied to each climate scenario with additional flows added throughout the period of September to December. For ease of display in some figures, we provide alpha codes for the 'climate' changes and numeric codes for the 'adaptations'. Mostly frequently, we present the ‘A’ (0.5 x historical flow), ‘E’ (1.0 x historical flow and ‘I’ (2.0 x historical flow) scenarios, with adaptions 1 (no flow addition), 2 (addition of 250 ML/d) and 3 (addition of 6500 ML/d) in most plots, with scenario 4 only appearing in heatmaps and smoothed fits.
 #| 
 adapt_scenes <- scenarios |> 
@@ -1603,12 +1583,13 @@ galenR::ggsave_multi(file.path('images', 'Figure_9'),
 
 ### Outcomes on the causal network
 
-Causal networks define the causal relationship between values at different scales. Plotting the condition of each value directly on the network shows not only the relationships among values, but how condition changes across values at different scales (illustrated here for the baseline scenario, @fig-causal-results). Perhaps most usefully, tracing through the causal network shows how higher-level outcomes result from the complex sets of dependencies on lower levels. For example, the EWRs themselves (leftmost nodes) either nearly always fail (LF1 and above), or nearly always pass (SF2 and below). Many detailed ecological values (middle column) depend only on those EWRs that frequently fail, and so have very low condition (EF4 and above). In contrast, ecological values that depend on a range of EWRs (EF5 and below) show variable condition, depending not only on the values of those EWRs, but the mix of EWRs contributing to each. For example, EF5 has low condition because only 2 of its 6 dependencies had high condition, while EF1 has high condition because only one of its 6 depenencies had low condition. These outcomes then combine to yield larger-scale ecological value groups (rightmost column). Here, we can see that no detailed values contributing to Waterbirds has good condition, and so neither does the Waterbird group. In contrast, the other groups show a range of conditions reflective of the number and condition of their constituent lower-level values. 
+Causal networks define the causal relationship between values at different scales. Plotting the condition of each value directly on the network shows not only the relationships among values, but how condition changes across values at different scales (illustrated here for the baseline scenario, @fig-causal-results). Perhaps most usefully, tracing through the causal network shows how higher-level outcomes result from the complex sets of dependencies on lower levels. For example, the EWRs themselves (leftmost nodes) either nearly always fail (LF1 and above), or nearly always pass (SF2 and below). Many detailed ecological values (middle column) depend only on those EWRs that frequently fail, and so have very low condition (EF4 and above). In contrast, ecological values that depend on a range of EWRs (EF5 and below) show variable condition, depending not only on the values of those EWRs, but the mix of EWRs contributing to each. For example, EF5 has low condition because only 2 of its 6 dependencies had high condition, while EF1 has high condition because only one of its 6 depenencies had low condition. These outcomes then combine to yield larger-scale ecological value groups (rightmost column). Here, we can see that no detailed values contributing to Waterbirds has good condition, and so neither does the Waterbird group. In contrast, the other groups show a range of conditions reflective of the number and condition of their constituent lower-level values.
 
 This network view provides a clear visualisation of the importance of the aggregation functions. By calculating the 'condition' at each step as the mean of the constituent values at earlier steps, the network connections act to smooth out impacts. While the EWRs themselves tend to have extreme values (leftmost nodes), they combine to yield more-similar values in the ecological groupings as they incorporate multiple contributing lower-scale values (@fig-causal-results). This smoothing is a feature of averaging, and occurs with spatial and temporal aggregation as well; it is simply more evident here because the networks shows the steps in the process (see SI @sec-map-versions for a spatial example). Whether the mean is appropriate is an empirical question relevant for each particular use. Using a mean implies that adding more constituent nodes would increase resilience, as good condition for some would make up for poor condition of others. Using minima or maxima would have different biological meaning and management interpretation and would yield more persistent differences through the network, for example. These decisions are critical for extracting meaning and interpretation, and should be interrogated thoroughly to ensure they are appropriate for the particular analysis, possibly including comparison of different aggregation choices to assess their impact, as we illustrate above in @fig-radar.
 
 ```{r}
 #| label: network-setup
+#| message: false
 #| 
 # NETWORK 1) demonstrates steps in aggregation, some relative results, for one gauge. This does not include spatial aggregation so we aren't mixing scales and bringing in data from other locations.
 
@@ -1619,7 +1600,8 @@ netgauge <- gauges_to_plot[1]
 # # First we need the sequence lists
 # 
 aggparams <- yaml::read_yaml(file.path(agg_results_gauge,
-                                      'agg_metadata.yml'))
+                                      'agg_metadata.yml'),
+                             eval.expr = TRUE) # not needed, but if the aggregations are sent as functions, this prevents a warning.
 
 themeseq <- aggparams$aggregation$aggsequence[
   !names(aggparams$aggregation$aggsequence) %in%
@@ -1659,15 +1641,6 @@ nodes_with_vals <- nodes |>
                            paste0(climate_code, adapt_code)),
          adapt_code = as.character(adapt_code))
 
-# a subset of nodes so plots are readable
-# OTOH, it makes the results confusing because values 
-# set.seed(17)
-# sampleenvobj <- nodes_with_vals |>
-#   filter(NodeType == 'env_obj') |>
-#   reframe(names = unique(Name)) |>
-#   pull() |>
-#   sample(10)
-
 # pre-filter to make plotting simpler
 basenodes <- nodes_with_vals |>
   dplyr::filter(flow_multiplier %in% c(0.5, 1, 2) & 
@@ -1684,6 +1657,7 @@ basenodes <- nodes_with_vals |>
 #| label: make-networks
 #| include: false
 #| warning: false
+#| message: false
 
 # use a subset again
 aggNetworkdown_rel <- basenodes |>
@@ -1749,6 +1723,7 @@ galenR::ggsave_multi(plot = net_legend,
 #| label: make-raw-networks
 #| include: false
 #| warning: false
+#| message: false
 aggNetworkbase <- basenodes |>
   dplyr::filter(flow_multiplier == 1 & flow_addition == 0) |>
   make_causal_plot(edges = ewr_edges,
@@ -1809,7 +1784,7 @@ galenR::ggsave_multi(plot = net_legend_achieve,
                      width = 4, height = 2, units = 'cm')
 ```
 
-![a) HydroBOT incorporates causal networks that describe the ecological connections between ecological values in a system. In the current example, these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), ecological objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate ecological values such as NF5 - Improve population structure for moderate to long-lived riverine specialist native fish species, and the larger ecological value groupings. The network shown here is for a single gauge (`r gauges_to_plot[1]`), which is the scale at which EWR codes and the small-scale values (middle column) are defined. The ecological theme value definitions (Native fish, etc) are not tied to gauges, but only those that apply to the EWRs present at this gauge are shown here. Colours condition of each value in the baseline (unchanged) scenario (A), with each node's condition being the mean of contributing nodes at lower (more leftward) levels. The minimum possible value is 0, and largest is 1](images/causal_base.png){#fig-causal-results}
+![a) HydroBOT incorporates causal networks that describe the ecological connections between ecological values in a system. In the current example, these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), ecological objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate ecological values such as NF5 - Improve population structure for moderate to long-lived riverine specialist native fish species, and the larger ecological value groupings. The network shown here is for a single gauge (`r gauges_to_plot[1]`), which is the scale at which EWR codes and the small-scale values (middle column) are defined. The ecological theme value definitions (Native fish, etc) are not tied to gauges, but only those that apply to the EWRs present at this gauge are shown here. Colors show condition of each value in the baseline (unchanged) scenario (A), with each node's condition being the mean of contributing nodes at lower (more leftward) levels. The minimum possible value is 0, and largest is 1.](images/causal_base.png){#fig-causal-results}
 
 This sort of visualisation can also show the holistic consequences of the different scenarios across the complex and interrelated sets of values, as well as identify nodes that are unusually resilient or sensitive to change (@suppfig-causal-all, @suppfig-causal-relative). For example, we see that the small fresh EWR indicators SF1 and SF2 are much more sensitive to reductions in flow than the other EWRs (darker pink), while OB4, OB5, and LF2 are sensitive to increases in flow (darker green, @suppfig-causal-relative). Looking at the raw condition scores (@suppfig-causal-all), we can understand where these changes arise, with SF1 and SF2 having condition near 1 in the baseline, and so while they can have lower condition with lower flow, they cannot improve as conditions increase. The opposite happens with OB4, OB5, and LF2, which have poor condition in the baseline, and so are little changed with reductions in flow, while increases in flow allow their requirements to be met. Similar outcomes occur for lower-scale ecological values in the middle column, with those near the top tending to be poor in the baseline condition, and so have little room to decline as flows halve, but improve with doubling and those in the bottom tending to have better baseline condition, and so more room to decline with reductions in water than to improve with increases. Finally, we see that Waterbirds tend to be relatively unchanged as flows decline because they start out poor, but are the group with the largest increases as flows increase, while Native Fish show nearly the opposite pattern. Note that while the relative changes are a useful way of understanding change in condition for each node, they should not themselves be propagated through the network because they are nonlinear transformations and do not capture the meaning of the causal relationships. Instead, the raw condition scores (@suppfig-causal-all) capture the causal relationships between conditions at nodes as a consequence of conditions at constituent nodes within a scenario. Then, these condition scores are compared across scenarios to visualise differences (@suppfig-causal-relative).
 
@@ -2447,7 +2422,9 @@ In the text we show an overview giving a sense of the contribution of proximate 
 
 ::: {#suppfig-obj-detail}
 ```{r}
-
+#| label: complex-obj-detail
+#| warning: false
+#| message: false
 env_pals_complex <- list(EB = 'grDevices::Grays',
   EF = 'ggsci::default_uchicago',
                 NF = 'ggthemes::Nuriel_Stone',
@@ -2492,7 +2469,9 @@ In practice, that is quite complex and hard to interpret. A better solution is p
 
 ::: {#suppfig-obj-waterbirds}
 ```{r}
-
+#| label: waterbirds-obj-detail
+#| warning: false
+#| message: false
 obj_detail_wb <- obj_sdl_to_plot |>
   filter(env_group == 'WB') |> # There's only one, this is just distracting.
   # filter(env_group == 'WB') |> 
@@ -2531,4 +2510,5 @@ The Waterbirds-related values from @fig-obj-in-groups and @suppfig-obj-detail. E
 ### Causal networks and scenarios
 
 ![Causal networks with condition values for the halving (left) baseline (middle) and doubling (right) 'climate' scenarios. Colors in each node are the mean of the conditions in each constituent node. The baseline network here is the same as @fig-causal-results in the text. @suppfig-causal-relative shows the relative change from the baseline condition for each node in the halving and doubling scenarios.](images/causal_combined.png){#suppfig-causal-all}
+
 ![Causal networks with relative condition values (compared to the baseline scenario) for the halving (left) and doubling (right) scenarios. These are calculated from the values in @suppfig-causal-all for each node, with colors showing the relative change in condition. Note in particular that a lack of change can occur for any value of the node in the baseline scenario, but often occurs when there is little scope for conditions to improve or decline, i.e we tend to see improvements in nodes with low condition in the baseline scenario, and declines in nodes with high condition in the baseline scenario.](images/causal_rel_combined.png){#suppfig-causal-relative}
