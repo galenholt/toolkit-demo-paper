@@ -1270,7 +1270,7 @@ sdl_smooth_groups <- obj_sdl_to_plot |>
                 outcome_lab = 'Condition',
                 x_lab = 'Flow relative to baseline',
                 transx = 'log10',
-                transy = 'log10',
+                transoutcome = 'log10',
                 scales = 'free_y',
                 
                 color_lab = 'Adaptation',
@@ -1302,7 +1302,7 @@ sdl_smooth_groups_flipped <- obj_sdl_to_plot |>
                 outcome_lab = 'Ecological objectives\nrelative to baseline',
                 x_lab = 'Flow relative to baseline',
                 transx = 'log10',
-                transy = 'log10',
+                transoutcome = 'log10',
                 scales = 'free_y',
                 
                 color_lab = 'Ecological values',
@@ -1336,7 +1336,7 @@ sdl_smooth_groups_NFNamoi <- obj_sdl_to_plot |>
                 outcome_lab = 'Condition',
                 x_lab = 'Flow relative to baseline',
                 transx = 'log10',
-                transy = 'log10',
+                transoutcome = 'log10',
                 # scales = 'free_y',
                 
                 color_lab = 'Adaptation',
@@ -1374,7 +1374,7 @@ sdl_smooth_clim <- obj_sdl_to_plot |>
                 x_col = 'flow_multiplier',
                 outcome_lab = 'Condition',
                 x_lab = 'Flow relative to baseline',
-                transy = 'log10',
+                transoutcome = 'log10',
                 transx = 'log10',
                 # scales = 'free_y',
                 color_lab = 'Ecological values',
@@ -1408,7 +1408,7 @@ sdl_smooth_adapt <- obj_sdl_to_plot |>
                 outcome_lab = 'Condition',
                 x_lab = 'Flow addition (ML/d)',
                 transx = 'log10',
-                transy = 'log10',
+                transoutcome = 'log10',
                 scales = 'free_y',
                 color_lab = 'Ecological values',
                 colorgroups = NULL,
@@ -1456,15 +1456,12 @@ target_legend <- target_legend |>
   ggpubr::as_ggplot()
 
 sdl_smooth_clim +
-  scale_y_continuous(trans = 'log10') +
- # coord_cartesian(ylim = c(0.25, 4), xlim = c(0.25, 4)) +
   coord_fixed(ylim = c(0.25, 4), xlim = c(0.25, 4)) +
   labs(y = 'Condition relative\nto baseline') +
   geom_hline(aes(yintercept = 0.5), linetype = 'dashed', color = 'grey30') +
   geom_hline(aes(yintercept = 2), linetype = 'dashed', color = 'grey30') +
   theme(legend.position = 'none') +
 sdl_smooth_groups_NFNamoi +
-  scale_y_continuous(trans = 'log10') +
   coord_fixed(ylim = c(0.25, 4), xlim = c(0.25, 4)) +
   labs(y = 'Condition relative\nto baseline') +
   geom_hline(aes(yintercept = 0.5), linetype = 'dashed', color = 'grey30') +
