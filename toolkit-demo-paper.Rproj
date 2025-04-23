@@ -20,4 +20,4 @@ PythonType: virtualenv
 PythonVersion: 3.11.0
 PythonPath: .venv/Scripts/python.exe
 
-SpellingDictionary: en_AU
+SpellingDictionary: en_US

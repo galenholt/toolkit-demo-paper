@@ -99,13 +99,13 @@ funseq_main <- list('ArithmeticMean',
                'CompensatingFactor',
                'ArithmeticMean',
                'ArithmeticMean',
-               'SpatialWeightedMean',
+               'ArithmeticMean',
                'ArithmeticMean',
                'SpatialWeightedMean',
                'ArithmeticMean')
 
 
-medna <- function(x) {
+Median <- function(x) {
   y <- median(x, na.rm = TRUE)
   return(y)
 }
@@ -114,19 +114,19 @@ funseq_min_timing <- list('ArithmeticMean',
                'LimitingFactor',
                'ArithmeticMean',
                'ArithmeticMean',
-               'SpatialWeightedMean',
+               'ArithmeticMean',
                'ArithmeticMean',
                'SpatialWeightedMean',
                'ArithmeticMean')
 
 funseq_median <- list('ArithmeticMean', 
-               'medna',
-               'medna',
-               'medna',
-               'medna',
-               'medna',
-               'medna',
-               'medna')
+               'Median',
+               'Median',
+               'Median',
+               'Median',
+               'Median',
+               'Median',
+               'Median')
 
 
 aggseq_2 <- list(all_time = 'all_time',
@@ -170,82 +170,91 @@ if (params$RERUN_EWR) {
 ```{r}
 if (params$RERUN_AGG) {
   # This is the main data
-  agged_data_main <- read_and_agg(datpath = ewr_results, 
-           type = 'achievement',
-           geopath = bom_basin_gauges,
-           causalpath = causal_ewr,
-           groupers = 'scenario',
-           aggCols = 'ewr_achieved',
-                      group_until = list(SWSDLName = is_notpoint,
-             planning_unit_name = is_notpoint, 
-                                gauge = is_notpoint),
-            pseudo_spatial = c('planning_unit'),
-           aggsequence = aggseq_main,
-           funsequence = funseq_main,
-           saveintermediate = TRUE,
-           namehistory = FALSE,
-           keepAllPolys = FALSE,
-           returnList = TRUE,
-           savepath = agg_results_sdl,
-           rparallel = TRUE)
+  agged_data_main <- read_and_agg(
+    datpath = ewr_results, 
+    type = 'achievement',
+    geopath = bom_basin_gauges,
+    causalpath = causal_ewr,
+    groupers = 'scenario',
+    aggCols = 'ewr_achieved',
+    group_until = list(SWSDLName = 'sdl_units',
+                       planning_unit_name = 'sdl_units', 
+                       gauge = is_notpoint),
+    pseudo_spatial = c('planning_units', 'sdl_units'),
+    aggsequence = aggseq_main,
+    funsequence = funseq_main,
+    saveintermediate = TRUE,
+    namehistory = FALSE,
+    keepAllPolys = FALSE,
+    returnList = TRUE,
+    savepath = agg_results_sdl,
+    rparallel = TRUE
+  )
   
-    agged_data_min_timing <- read_and_agg(datpath = ewr_results, 
-           type = 'achievement',
-           geopath = bom_basin_gauges,
-           causalpath = causal_ewr,
-           groupers = 'scenario',
-           aggCols = 'ewr_achieved',
-           group_until = list(SWSDLName = is_notpoint,
-             planning_unit_name = is_notpoint, 
-                                gauge = is_notpoint),
-            pseudo_spatial = c('planning_unit'),
-           aggsequence = aggseq_main,
-           funsequence = funseq_min_timing,
-           saveintermediate = TRUE,
-           namehistory = FALSE,
-           keepAllPolys = FALSE,
-           returnList = TRUE,
-           savepath = agg_results_min_timing,
-           rparallel = FALSE)
-    
-        agged_data_median <- read_and_agg(datpath = ewr_results, 
-           type = 'achievement',
-           geopath = bom_basin_gauges,
-           causalpath = causal_ewr,
-           groupers = 'scenario',
-           aggCols = 'ewr_achieved',
-           group_until = list(SWSDLName = is_notpoint,
-             planning_unit_name = is_notpoint, 
-                                gauge = is_notpoint),
-            pseudo_spatial = c('planning_unit'),
-           aggsequence = aggseq_main,
-           funsequence = funseq_median,
-           saveintermediate = TRUE,
-           namehistory = FALSE,
-           keepAllPolys = FALSE,
-           returnList = TRUE,
-           savepath = agg_results_median,
-           rparallel = FALSE)
-
+  agged_data_min_timing <- read_and_agg(
+    datpath = ewr_results, 
+    type = 'achievement',
+    geopath = bom_basin_gauges,
+    causalpath = causal_ewr,
+    groupers = 'scenario',
+    aggCols = 'ewr_achieved',
+    group_until = list(SWSDLName = 'sdl_units',
+                       planning_unit_name = 'sdl_units', 
+                       gauge = is_notpoint),
+    pseudo_spatial = c('planning_units', 'sdl_units'),
+    aggsequence = aggseq_main,
+    funsequence = funseq_min_timing,
+    saveintermediate = TRUE,
+    namehistory = FALSE,
+    keepAllPolys = FALSE,
+    returnList = TRUE,
+    savepath = agg_results_min_timing,
+    rparallel = TRUE
+  )
+  
+  agged_data_median <- read_and_agg(
+    datpath = ewr_results, 
+    type = 'achievement',
+    geopath = bom_basin_gauges,
+    causalpath = causal_ewr,
+    groupers = 'scenario',
+    aggCols = 'ewr_achieved',
+    group_until = list(SWSDLName = 'sdl_units',
+                       planning_unit_name = 'sdl_units', 
+                       gauge = is_notpoint),
+    pseudo_spatial = c('planning_units', 'sdl_units'),
+    aggsequence = aggseq_main,
+    funsequence = funseq_median,
+    saveintermediate = TRUE,
+    namehistory = FALSE,
+    keepAllPolys = FALSE,
+    returnList = TRUE,
+    savepath = agg_results_median,
+    rparallel = TRUE
+  )
+  
   # This stays at the gauge level- used for causal network plot to avoid space getting mixed up.
-agged_data_2 <- read_and_agg(datpath = ewr_results, 
-           type = 'achievement',
-           geopath = bom_basin_gauges,
-           causalpath = causal_ewr,
-           groupers = 'scenario',
-           aggCols = 'ewr_achieved',
-           group_until = list(SWSDLName = is_notpoint,
-             planning_unit_name = is_notpoint, 
-                                gauge = is_notpoint),
-            pseudo_spatial = c('planning_unit'),
-           aggsequence = aggseq_2,
-           funsequence = funseq_2,
-           saveintermediate = TRUE,
-           namehistory = FALSE,
-           keepAllPolys = FALSE,
-           returnList = TRUE,
-           savepath = agg_results_gauge,
-           rparallel = TRUE)
+  agged_data_2 <- read_and_agg(
+    datpath = ewr_results, 
+    type = 'achievement',
+    geopath = bom_basin_gauges,
+    causalpath = causal_ewr,
+    groupers = 'scenario',
+    aggCols = 'ewr_achieved',
+    group_until = list(SWSDLName = 'sdl_units',
+                       planning_unit_name = 'sdl_units', 
+                       gauge = is_notpoint),
+    pseudo_spatial = c('planning_units', 'sdl_units'),
+    aggsequence = aggseq_2,
+    funsequence = funseq_2,
+    saveintermediate = TRUE,
+    namehistory = FALSE,
+    keepAllPolys = FALSE,
+    returnList = TRUE,
+    savepath = agg_results_gauge,
+    rparallel = TRUE
+  )
+  
 }
 
 ```

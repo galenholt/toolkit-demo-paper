@@ -180,7 +180,7 @@
     },
     "HydroBOT": {
       "Package": "HydroBOT",
-      "Version": "0.2.2.9041",
+      "Version": "0.2.2.9043",
       "Source": "GitHub",
       "Title": "Toolkit For Flow-Dependent outcomes in the Murray-Darling Basin",
       "Authors@R": "c(person(\"Galen\", \"Holt\", , \"g.holt@deakin.edu.au\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-7455-9275\")), person(\"Georgia\", \"Dwyer\", , \"g.dwyer@deakin.edu.au\", role = c(\"aut\"), comment = c(ORCID = \"\")))",
@@ -204,7 +204,6 @@
         "readr",
         "reticulate",
         "rlang",
-        "scales",
         "stringi",
         "stringr",
         "tibble",
@@ -248,7 +247,7 @@
       "RemoteUsername": "galenholt",
       "RemoteRepo": "HydroBOT",
       "RemoteRef": "master",
-      "RemoteSha": "59bdbb1a00e36ceb4593829a4c2d76d174ad11e6"
+      "RemoteSha": "acb4310e27f412451b40f76ee9c9ce80b9efc407"
     },
     "KernSmooth": {
       "Package": "KernSmooth",
