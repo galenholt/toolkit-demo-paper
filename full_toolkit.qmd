@@ -33,7 +33,6 @@ As a user, we need to set
 
 -   Aggregation sequence and functions
 
-
 ## Paths
 
 ```{r}
@@ -79,11 +78,11 @@ returnType <- list('none') # list('summary', 'yearly')
 There are *many* ways to specify, these are simple.
 
 The planning units sometimes overlap into the Lower Darling, which we don't want, so don't give them the option.
+
 ```{r}
 sdl_clip <- sdl_units |> 
   filter(SWSDLName %in% c("Lachlan", "Namoi", "Macquarie-Castlereagh"))
 ```
-
 
 ```{r}
 aggseq_main <- list(all_time = 'all_time',
@@ -164,11 +163,9 @@ if (params$RERUN_EWR) {
 
 ## Aggregate
 
-
 -   Sequence (levels of each theme, space, time axis)
 
 -   Aggregation functions at each step
-
 
 ```{r}
 if (params$RERUN_AGG) {
@@ -252,5 +249,3 @@ agged_data_2 <- read_and_agg(datpath = ewr_results,
 }
 
 ```
-
-

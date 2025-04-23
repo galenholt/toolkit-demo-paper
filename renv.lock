@@ -180,8 +180,8 @@
     },
     "HydroBOT": {
       "Package": "HydroBOT",
-      "Version": "0.2.2.9009",
-      "Source": "Local",
+      "Version": "0.2.2.9041",
+      "Source": "GitHub",
       "Title": "Toolkit For Flow-Dependent outcomes in the Murray-Darling Basin",
       "Authors@R": "c(person(\"Galen\", \"Holt\", , \"g.holt@deakin.edu.au\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0002-7455-9275\")), person(\"Georgia\", \"Dwyer\", , \"g.dwyer@deakin.edu.au\", role = c(\"aut\"), comment = c(ORCID = \"\")))",
       "Description": "Provides tools to assess responses to flows in the MDB. Wraps the EWR tool and provides ongoing modeling of ecological responses with causal networks, as well as analysis, synthesis and visualisation functionality targetted at scenario comparisons.",
@@ -235,17 +235,20 @@
       ],
       "Config/testthat/edition": "3",
       "Depends": [
-        "R (>= 2.10)",
+        "R (>= 3.5)",
         "sf"
       ],
       "LazyData": "true",
       "Config/reticulate": "list( packages = list( list(package = \"py-ewr\") ) )",
-      "URL": "https://laughing-adventure-8jypg4z.pages.github.io/",
-      "RemoteType": "local",
-      "RemoteUrl": "C:\\Users\\galen\\Documents\\code\\WERP\\HydroBOT",
-      "NeedsCompilation": "no",
+      "URL": "https://galenholt.github.io/HydroBOT/",
       "Author": "Galen Holt [aut, cre] (<https://orcid.org/0000-0002-7455-9275>), Georgia Dwyer [aut]",
-      "Maintainer": "Galen Holt <g.holt@deakin.edu.au>"
+      "Maintainer": "Galen Holt <g.holt@deakin.edu.au>",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "galenholt",
+      "RemoteRepo": "HydroBOT",
+      "RemoteRef": "master",
+      "RemoteSha": "59bdbb1a00e36ceb4593829a4c2d76d174ad11e6"
     },
     "KernSmooth": {
       "Package": "KernSmooth",
