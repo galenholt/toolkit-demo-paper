@@ -6,35 +6,56 @@ author:
    corresponding: true
    email: galen@deakin.edu.au
    affiliation:
-    - ref: du
+    - ref: 1
  - name: Georgia Dwyer
    orcid: 0000-0002-3579-3819
    corresponding: false
    affiliations:
-     - ref: du
+     - ref: 1
  - name: David Robertson
    orcid: 0000-0003-4230-8006
    corresponding: false
    affiliations:
-     - CSIRO
+     - ref: 2
  - name: Martin Job
    orcid: 
    corresponding: false
    affiliations:
-     - MDBA
+     - ref: 3
  - name: Rebecca E Lester
    orcid: 0000-0003-2682-6495
    corresponding: false
    affiliations:
-     - ref: du
+     - ref: 1
 
 affiliations:
-  - id: du
+  - id: 1
     name: Deakin University
+    department: Centre for Regional and Rural Futures
+    address: Locked Bag 20000
     city: Waurn Ponds
     state: Victoria
+    country: Australia
+    postal-code: 3220
+    
+  - id: 2
+    name: CSIRO
+    address: Research Way
+    city: Clayton
+    state: Victoria
+    country: Australia
+    postal-code: 3168
         
-keywords: 
+  - id: 3
+    name: Murray-Darling Basin Authority
+    address: Allara Street
+    city: Canberra
+    state: ACT
+    country: Australia
+    postal-code: 2601
+
+categories:
+# keywords: 
  - Murray-Darling Basin
  - Holistic modeling
  - Management modeling
@@ -43,9 +64,15 @@ keywords:
  
 date: last-modified
 
-bibliography: references.bib
+filters:
+  - multibib
+  
+# see https://github.com/Mellich/pandoc-multibib#readme and https://www.andrewheiss.com/blog/2023/12/11/separate-bibliographies-quarto/index.html
+  
+bibliography_main: references.bib
+bibliography_supp: references.bib
 # csl: apa.csl # alphabetical by author in the cites??
-csl: freshwater-biology.csl # good, but includes 3 authors
+csl: freshwater-biology.csl # basically good, but includes 3 authors
 
 number-sections: true
 
@@ -66,11 +93,6 @@ crossref:
       caption-location: top
 
 format:
-  # html:
-  #   embed-resources: true
-  #   toc: true
-  #   comments:
-  #     hypothesis: true
   docx:
     toc: false
     prefer-html: true
@@ -81,6 +103,24 @@ format:
     fig-height: 5.4 # 5
     fig-dpi: 300
     reference-doc: default_word_template.docx
+  html:
+    embed-resources: true
+    toc: true
+    comments:
+      hypothesis: true
+  preprint-typst:
+    # bibliographystyle: apa
+    suppress-bibliography: false # true is default, but then no bib
+    fig-width: 7.5 # 7
+    fig-height: 5.4 # 5
+  preprint-docx:
+    # bibliographystyle: apa
+    suppress-bibliography: false
+    toc: false
+    prefer-html: true
+    fig-width: 7.5 # 7
+    fig-height: 5.4 # 5
+    fig-dpi: 300
 ---
 
 ```{r}
@@ -477,7 +517,7 @@ file.copy(file.path(demo_webdir, 'images', 'network_structure_illus.pdf'),
 
 ![](images/graphical_abstract.png){#graphab width="16cm"}
 
-# Abstract (150 words) {.unnumbered}
+# Abstract {.unnumbered}
 
 Water management rarely focuses only on water; instead, management targets values across many water-dependent responses. To assess past performance and plan future actions, water managers need to understand how changes to hydrology (over which they typically have most control) affect water-dependent values. Models relating values to hydrology can be difficult to integrate into management processes; they are often developed for other uses and target subsets of values. We describe and demonstrate HydroBOT (Hydrology-dependent Basin Outcomes Toolkit), a modeling toolkit co-designed with the primary federal water management agency in the Murray-Darling Basin, Australia. HydroBOT can integrate disparate response models and scale and synthesize those results across space, time, and groups of values. Outputs target water management needs and can be tailored to a range of questions, from local, short-term evaluation to basin-scale climate assessment. HydroBOT provides new capacity to move beyond hydrology to assess outcomes across diverse target values.
 
@@ -1883,8 +1923,10 @@ All data and their sources have been explained in the manuscript. HydroBOT code 
 
 # References
 
-::: {#refs}
+::: {#refs-main}
 :::
+
+{{< pagebreak >}}
 
 # Supplementary material {#sec-appendix1}
 
@@ -2253,6 +2295,7 @@ ef_EWR_gauges <- ef_EWR_gauges +
 ::: {#suppfig-gauge-to-sdl-map-all-0}
 ```{r}
 #| message: false
+#| warning: false
 # suppressMessages(print(ef_EWR_gauges))
 ef_EWR_gauges
 ```
@@ -2263,7 +2306,7 @@ Outcomes for gauges for a subset of EWRs that contribute to priority ecosystem f
 ::: {#suppfig-gauge-to-sdl-map-all-1}
 ```{r}
 #| message: false
-
+#| warning: false
 agged_gauges <- agged_data$ewr_code |> 
   theme_aggregate(from_theme = 'ewr_code', to_theme = 'env_obj',
                   groupers = c('scenario', 'gauge', 'climate_code', 'adapt_code'),
@@ -2614,3 +2657,8 @@ For example, the small fresh EWR indicators SF1 and SF2 are much more sensitive 
 ![Causal networks with condition values for the halving (left, A1), historical flows (middle, E1) and doubling (right, I1) 'climate' scenarios. colors in each node are the mean of the conditions in each constituent node. The network here for the historical flows (E1, middle) is the same as @fig-causal-results in the text. @suppfig-causal-relative shows the relative change between these scenarios, using the historical flows (E1) as the baseline.](images/causal_combined.png){#suppfig-causal-all}
 
 ![Causal networks with relative condition values (compared to the the historical flows with no additional 'adaptation' water \[E1 scenario\] as the baseline) for the halving (left, A1) and doubling (right, I1) scenarios. These are calculated from the values in @suppfig-causal-all for each node, with colors showing the relative change in condition. Note in particular that a lack of change can occur for any value of the node in the baseline E1 scenario, but often occurs when there is little scope for conditions to improve or decline, i.e we tend to see improvements in nodes with low condition in the E1 scenario, and declines in nodes with high condition in the E1 scenario.](images/causal_rel_combined.png){#suppfig-causal-relative}
+
+# References
+
+::: {#refs-supp}
+:::

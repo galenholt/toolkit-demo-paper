@@ -1,0 +1,25 @@
+---
+title: Your title
+running-head: Running head
+author:
+  - name: My Name
+    email: myemail@example.com
+    orcid: 0000-0000-0000-0000
+    url: https://
+    corresponding: true
+    affiliation:
+      - ref: 1
+affiliations:
+  - id: 1
+    name: Example University
+    department: Example Department
+abstract: |
+  Abstract.
+categories: [list, keywords, here]
+authornote: This is an example author note.
+bibliography: bibliography.bib
+format:
+  preprint-typst:
+    bibliographystyle: apa
+    suppress-bibliography: true
+---
