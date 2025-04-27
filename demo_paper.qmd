@@ -64,13 +64,16 @@ categories:
  
 date: last-modified
 
-filters:
-  - multibib
-  
-# see https://github.com/Mellich/pandoc-multibib#readme and https://www.andrewheiss.com/blog/2023/12/11/separate-bibliographies-quarto/index.html
-  
-bibliography_main: references.bib
-bibliography_supp: references.bib
+# This isn't working quite right yet.
+# filters:
+#   - multibib
+#   
+# # see https://github.com/Mellich/pandoc-multibib#readme and https://www.andrewheiss.com/blog/2023/12/11/separate-bibliographies-quarto/index.html
+#   
+# bibliography_main: references.bib
+# bibliography_supp: references.bib
+
+bibliography: references.bib
 # csl: apa.csl # alphabetical by author in the cites??
 csl: freshwater-biology.csl # basically good, but includes 3 authors
 
@@ -490,13 +493,13 @@ file.copy(file.path(demo_webdir, 'images', 'aggNetworkRelativeCombined.pdf'),
           file.path('images', 'causal_rel_combined.pdf'),
           overwrite = TRUE)
 
-file.copy(file.path(demo_webdir, 'images', 'network_structure_illus.png'), 
+file.copy(file.path(demo_webdir, 'images', 'network_example_illus.png'), 
           file.path('images', 'all_causal.png'),
           overwrite = TRUE)
 
 
 
-file.copy(file.path(demo_webdir, 'images', 'network_structure_illus.pdf'), 
+file.copy(file.path(demo_webdir, 'images', 'network_example_illus.pdf'), 
           file.path('images', 'all_causal.pdf'),
           overwrite = TRUE)
 # This is a placeholder to move conceptual figs, since it HATES spaces in names of the raw {fig} divs
@@ -1935,12 +1938,12 @@ All data and their sources have been explained in the manuscript. HydroBOT code 
 
 # References
 
-::: {#refs-main}
+::: {#refs}
 :::
 
 {{< pagebreak >}}
 
-# Supplementary material {#sec-appendix1}
+# Supplementary material {#sec-appendix1} {.unnumbered}
 
 ## Glossary {#sec-glossary}
 
@@ -2032,44 +2035,29 @@ Environmental water requirements (EWR) for one example gauge (`r gauges_to_plot[
 
 Causal networks are available linking the EWRs to other values. Here, we show a limited set for a single gauge, illustrating only some of the value levels that can be linked (@suppfig-causal-example). This network is derived from the New South Wales Long Term Watering plans [@nswdpiemacq2020].
 
-![HydroBOT incorporates causal networks that describe the environmental objectives for a system. In the current example, these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate environmental Objectives typically capturing portions of the life cycle or changes in abundance, species goals (which also include ecosystem components such as 'Refugia'), target ecological groupings, and 5-year management targets. The network shown here is for a single gauge (`r gauges_to_plot[1]`) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.](images/all_causal.png){#suppfig-causal-example}
+![HydroBOT incorporates causal networks that describe the environmental objectives for a system. In the current example, these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes (yellow), proximate environmental objectives (orange) typically capturing portions of the life cycle or changes in abundance, species goals (blue; which also include ecosystem components such as 'Refugia'), and target ecological groupings (green). Long term managment targets are not shown here for space. The network shown here is for a single gauge (`r gauges_to_plot[2]`) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.](images/all_causal.png){#suppfig-causal-example}
 
 ```{r}
 #| eval: false
 #| label: suppfig-causal-example-old
 #| fig-cap: !expr glue::glue("HydroBOT incorporates causal networks that describe the environmental objectives for a system. In the current example these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes, proximate environmental Objectives typically capturing portions of the life cycle or changes in abundance, species goals (which also include ecosystem components such as 'Refugia'), target ecological groupings, and 5-year management targets. The network shown here is for a single gauge ({gauges_to_plot[1]}) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.")   
 
-# edges <- make_edges(dflist = causal_ewr, 
-#                fromtos = list(c('ewr_code', 'env_obj'), 
-#                               c('env_obj', 'Specific_goal'), 
-#                               c('Specific_goal', 'Target'), 
-#                               c('env_obj', 'target_5_year_2024')),
-#                gaugefilter = gauges_to_plot[1]) 
-# 
-# nodes <- make_nodes(edges)
-# 
-# 
-# # To work with both html and word, save out and read back in.
-# causal_example <- make_causal_plot(nodes,
-#                  edges,
-#                  focalnodes = filter(nodes, NodeType == "ewr_code")$Name,
-#                  edge_pal = 'black',
-#                  node_pal = net_pal,
-#                  render = FALSE,
-#                  save = TRUE,
-#                  savedir = 'images',
-#                  savename = 'causal_structure') 
-# 
-# # if (knitr::is_html_output()) {
-#   # causal_example |> 
-#   # DiagrammeR::render_graph()
-# # } else {
-# #   knitr::include_graphics("images/causal_structure.png")
-# # }
-# 
-# causal_structure <- png::readPNG('images/causal_structure.png')
-# causal_structure_grob <- grid::rasterGrob(causal_structure, interpolate = TRUE)
-# patchwork::wrap_plots(causal_structure_grob)
+edges <- make_edges(
+  dflist = causal_ewr,
+  fromtos = list(
+    c("ewr_code", "env_obj"),
+    c("env_obj", "Specific_goal"),
+    c("Specific_goal", "Target")
+  ),
+  gaugefilter = gauges_to_plot[2]
+)
+nodes <- make_nodes(edges)
+default_network <- make_causal_plot(nodes, edges, render = FALSE,
+                 save = TRUE,
+                 edge_pal = 'grey',
+                 savedir = file.path(demo_webdir,'images'),
+                 savename = 'network_example')
+DiagrammeR::render_graph(default_network)
 
 ```
 

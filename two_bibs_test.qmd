@@ -1,0 +1,87 @@
+---
+title: "Two Bibs"
+author: 
+ - name: Galen Holt
+   orcid: 0000-0002-7455-9275
+   corresponding: true
+   email: galen@deakin.edu.au
+   affiliation:
+    - ref: 1
+
+affiliations:
+  - id: 1
+    name: Deakin University
+    department: Centre for Regional and Rural Futures
+    address: Locked Bag 20000
+    city: Waurn Ponds
+    state: Victoria
+    country: Australia
+    postal-code: 3220
+    
+date: last-modified
+
+filters:
+  - multibib
+# see https://github.com/Mellich/pandoc-multibib#readme and https://www.andrewheiss.com/blog/2023/12/11/separate-bibliographies-quarto/index.html
+  
+# bibliography: 
+#   main: references.bib
+#   supp: references.bib
+bibliography_main: references.bib
+bibliography_supp: references.bib
+# csl: apa.csl # alphabetical by author in the cites??
+csl: freshwater-biology.csl # basically good, but includes 3 authors
+
+number-sections: true
+
+echo: false
+
+format:
+  docx:
+    toc: false
+    prefer-html: true
+    fig-width: 7.5 # 7
+    fig-height: 5.4 # 5
+    fig-dpi: 300
+    reference-doc: default_word_template.docx
+  html:
+    embed-resources: true
+    toc: true
+    comments:
+      hypothesis: true
+  preprint-typst:
+    # bibliographystyle: apa
+    suppress-bibliography: true # true is default, but then no bib
+    fig-width: 7.5 # 7
+    fig-height: 5.4 # 5
+    font: Arial
+  preprint-docx:
+    # bibliographystyle: apa
+    suppress-bibliography: false
+    toc: false
+    prefer-html: true
+    fig-width: 7.5 # 7
+    fig-height: 5.4 # 5
+    fig-dpi: 300
+    reference-doc: preprintsans.docx
+---
+
+# Main
+
+I want a couple cites here [@holt2024; @ziolkowska2016].
+
+## References
+
+::: {#refs_main}
+:::
+
+{{< pagebreak >}}
+
+# Supp
+
+And one the same and one different here [@holt2024; @brown2009].
+
+## References
+
+::: {#refs_supp}
+:::
