@@ -64,15 +64,6 @@ categories:
  
 date: last-modified
 
-# This isn't working quite right yet.
-# filters:
-#   - multibib
-#   
-# # see https://github.com/Mellich/pandoc-multibib#readme and https://www.andrewheiss.com/blog/2023/12/11/separate-bibliographies-quarto/index.html
-#   
-# bibliography_main: references.bib
-# bibliography_supp: references.bib
-
 bibliography: references.bib
 # csl: apa.csl # alphabetical by author in the cites??
 csl: freshwater-biology.csl # basically good, but includes 3 authors
@@ -99,9 +90,8 @@ format:
   docx:
     toc: false
     prefer-html: true
-    # 7 and 5 are html defaults and look better, but 6.3 is 16cm and so full-page width in word and usually submissions
+    # 7 and 5 are html defaults and look better
     # Though 19 is Elsevier full page. And the pdfs will be what matters anyway.
-    # Setting these still ends up with figs scaled 64% for some reason
     fig-width: 7.5 # 7
     fig-height: 5.4 # 5
     fig-dpi: 300
@@ -390,28 +380,41 @@ sceneTarget2_pal
 ```{r}
 #| label: move figs
 #| include: false
+
 file.copy(file.path(demo_webdir, 'images', 'GraphicalAbstract_small.png'), 
           file.path('images', 'graphical_abstract.png'),
           overwrite = TRUE)
 
-file.copy(file.path(demo_webdir, 'images', 'GraphicalAbstract_small.eps'), 
-          file.path('images', 'graphical_abstract.eps'),
+file.copy(file.path(demo_webdir, 'images', 'GraphicalAbstract_small.pdf'), 
+          file.path('images', 'graphical_abstract.pdf'),
+          overwrite = TRUE)
+
+file.copy(file.path(demo_webdir, 'images', 'GraphicalAbstract_small.svg'), 
+          file.path('images', 'graphical_abstract.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'Conceptual_fig_demopaper.png'), 
           file.path('images', 'Figure_1.png'),
           overwrite = TRUE)
 
-file.copy(file.path(demo_webdir, 'images', 'Conceptual_fig_demopaper.eps'), 
-          file.path('images', 'Figure_1.eps'),
+file.copy(file.path(demo_webdir, 'images', 'Conceptual_fig_demopaper.pdf'), 
+          file.path('images', 'Figure_1.pdf'),
+          overwrite = TRUE)
+
+file.copy(file.path(demo_webdir, 'images', 'Conceptual_fig_demopaper.svg'), 
+          file.path('images', 'Figure_1.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'Aggregations_General.png'), 
           file.path('images', 'Figure_2.png'),
           overwrite = TRUE)
 
-file.copy(file.path(demo_webdir, 'images', 'Aggregations_General.eps'), 
-          file.path('images', 'Figure_2.eps'),
+file.copy(file.path(demo_webdir, 'images', 'Aggregations_General.pdf'), 
+          file.path('images', 'Figure_2.pdf'),
+          overwrite = TRUE)
+
+file.copy(file.path(demo_webdir, 'images', 'Aggregations_General.svg'), 
+          file.path('images', 'Figure_2.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'aggregation_choices.png'), 
@@ -422,6 +425,10 @@ file.copy(file.path(demo_webdir, 'images', 'aggregation_choices.pdf'),
           file.path('images', 'aggregation_choices.pdf'),
           overwrite = TRUE)
 
+file.copy(file.path(demo_webdir, 'images', 'aggregation_choices.svg'), 
+          file.path('images', 'aggregation_choices.svg'),
+          overwrite = TRUE)
+
 file.copy(file.path(demo_webdir, 'images', 'aggregation_examples.png'), 
           file.path('images', 'aggregation_examples.png'),
           overwrite = TRUE)
@@ -430,77 +437,99 @@ file.copy(file.path(demo_webdir, 'images', 'aggregation_examples.pdf'),
           file.path('images', 'aggregation_examples.pdf'),
           overwrite = TRUE)
 
+file.copy(file.path(demo_webdir, 'images', 'aggregation_examples.svg'), 
+          file.path('images', 'aggregation_examples.svg'),
+          overwrite = TRUE)
+
+
 file.copy(file.path(demo_webdir, 'images', 'architecture.png'), 
           file.path('images', 'architecture.png'),
           overwrite = TRUE)
-file.copy(file.path(demo_webdir, 'images', 'architecture.eps'), 
-          file.path('images', 'architecture.eps'),
+file.copy(file.path(demo_webdir, 'images', 'architecture.pdf'), 
+          file.path('images', 'architecture.pdf'),
+          overwrite = TRUE)
+file.copy(file.path(demo_webdir, 'images', 'architecture.svg'), 
+          file.path('images', 'architecture.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkdown_rel_illus.png'), 
           file.path('images', 'causal_rel_down.png'),
           overwrite = TRUE)
-
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkdown_rel_illus.pdf'), 
           file.path('images', 'causal_rel_down.pdf'),
+          overwrite = TRUE)
+file.copy(file.path(demo_webdir, 'images', 'aggNetworkdown_rel_illus.svg'), 
+          file.path('images', 'causal_rel_down.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkup_rel_illus.png'), 
           file.path('images', 'causal_rel_up.png'),
           overwrite = TRUE)
-
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkup_rel_illus.pdf'), 
           file.path('images', 'causal_rel_up.pdf'),
+          overwrite = TRUE)
+file.copy(file.path(demo_webdir, 'images', 'aggNetworkup_rel_illus.svg'), 
+          file.path('images', 'causal_rel_up.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkdown_illus.png'), 
           file.path('images', 'causal_down.png'),
           overwrite = TRUE)
-
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkdown_illus.pdf'), 
           file.path('images', 'causal_down.pdf'),
+          overwrite = TRUE)
+file.copy(file.path(demo_webdir, 'images', 'aggNetworkdown_illus.svg'), 
+          file.path('images', 'causal_down.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkbase_illus.png'), 
           file.path('images', 'causal_base.png'),
           overwrite = TRUE)
-
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkbase_illus.pdf'), 
           file.path('images', 'causal_base.pdf'),
+          overwrite = TRUE)
+file.copy(file.path(demo_webdir, 'images', 'aggNetworkbase_illus.svg'), 
+          file.path('images', 'causal_base.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkup_illus.png'), 
           file.path('images', 'causal_up.png'),
           overwrite = TRUE)
-
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkup_illus.pdf'), 
           file.path('images', 'causal_up.pdf'),
+          overwrite = TRUE)
+file.copy(file.path(demo_webdir, 'images', 'aggNetworkup_illus.svg'), 
+          file.path('images', 'causal_up.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkCombined.png'), 
           file.path('images', 'causal_combined.png'),
           overwrite = TRUE)
-
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkCombined.pdf'), 
           file.path('images', 'causal_combined.pdf'),
+          overwrite = TRUE)
+file.copy(file.path(demo_webdir, 'images', 'aggNetworkCombined.svg'), 
+          file.path('images', 'causal_combined.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkRelativeCombined.png'), 
           file.path('images', 'causal_rel_combined.png'),
           overwrite = TRUE)
-
 file.copy(file.path(demo_webdir, 'images', 'aggNetworkRelativeCombined.pdf'), 
           file.path('images', 'causal_rel_combined.pdf'),
+          overwrite = TRUE)
+file.copy(file.path(demo_webdir, 'images', 'aggNetworkRelativeCombined.svg'), 
+          file.path('images', 'causal_rel_combined.svg'),
           overwrite = TRUE)
 
 file.copy(file.path(demo_webdir, 'images', 'network_example_illus.png'), 
           file.path('images', 'all_causal.png'),
           overwrite = TRUE)
-
-
-
 file.copy(file.path(demo_webdir, 'images', 'network_example_illus.pdf'), 
           file.path('images', 'all_causal.pdf'),
+          overwrite = TRUE)
+file.copy(file.path(demo_webdir, 'images', 'network_example_illus.svg'), 
+          file.path('images', 'all_causal.svg'),
           overwrite = TRUE)
 # This is a placeholder to move conceptual figs, since it HATES spaces in names of the raw {fig} divs
 
@@ -520,7 +549,7 @@ file.copy(file.path(demo_webdir, 'images', 'network_example_illus.pdf'),
 
 # Graphical abstract {.unnumbered}
 
-![](images/graphical_abstract.png){#graphab width="16cm"}
+![](images/graphical_abstract){#graphab width="16cm"}
 
 # Abstract {.unnumbered}
 
@@ -562,7 +591,7 @@ HydroBOT provides a flexible architecture with distinct components that can be r
 
 One common issue with modeling in general, and particularly integrated models spanning several tools, is that such tools can become a black box where the relationships modeled are opaque. This can yield mistrust by the public and other stakeholders influenced by the model, but also mistrust and misunderstanding by users and developers of the model [@ascough2008]. To avoid these issues, HydroBOT has been continuously co-designed with the relevant management agency, the MDBA, with emphasis on public code, reproducibility, self-documentation and production of outputs that describe the model itself in addition to its results (e.g. causal relationships).
 
-![Conceptualisation of HydroBOT architecture (blue arrows) and links to management decision making (yellow arrows). Scenarios, represented by hydrographs, reflect observed flows or modeled scenarios (produced via hydrological modeling outside HydroBOT). These hydrographs are fed in a consistent way to various response models via the HydroBOT Controller. These response models could assess response of any values of interest, here illustrated as a range of value types across environmental and human dimensions. Additional inputs of spatial data and causal networks provide grouping information for scaling via the HydroBOT Aggregator. The HydroBOT Comparer synthesizes the results into management-relevant outputs that aid decision making. This decision making process is also supported by feedback from stakeholders, other expert advice and the social and political landscape. Water planning and policy decisions can then guide the development of scenarios to assess potential management options which, in turn, can be assessed with HydroBOT.](images/Figure_1.png){#fig-tktomgmt}
+![Conceptualization of HydroBOT architecture (blue arrows) and links to management decision making (yellow arrows). Scenarios, represented by hydrographs, reflect observed flows or modeled scenarios (produced via hydrological modeling outside HydroBOT). These hydrographs are fed in a consistent way to various response models via the HydroBOT Controller. These response models could assess response of any values of interest, here illustrated as a range of value types across environmental and human dimensions. Additional inputs of spatial data and causal networks provide grouping information for scaling via the HydroBOT Aggregator. The HydroBOT Comparer synthesizes the results into management-relevant outputs that aid decision making. This decision making process is also supported by feedback from stakeholders, other expert advice and the social and political landscape. Water planning and policy decisions can then guide the development of scenarios to assess potential management options which, in turn, can be assessed with HydroBOT.](images/Figure_1){#fig-tktomgmt}
 
 In practice, modeling is almost never a one-off analysis of a single scenario. Instead, a wide range of scenarios are typically analyzed and compared, and those scenarios may be updated even within a single project [@harrison2023]. Across multiple projects, the same modeling tools might be used to address vastly different questions, e.g. assessing response to potential future climate at continental scale *vs.* historical conditions at a small set of locations [@holt2024]. The onward analysis of those scenarios is also rarely static, needing to be updated as new questions are asked or preliminary results are tailored more closely to the questions. As is common with large data analysis workflows or software, repeated small changes often introduce errors especially in complex scripts [@wilson2014]. It is not unusual for a single project to include hundreds or thousands of repeated analyses over scenarios or sets of analysis options. HydroBOT provides facilities for automating these processes and documenting the code, critical for efficiency and reproducibility. Most importantly, HydroBOT shifts much of the complex data manipulation to tested software, while limiting user input to a small number of arguments related only to scenario configuration and analysis choices. This approach not only improves the ability to understand specific runs and reproducibility, but also dramatically reduces the incidence of inadvertent errors that arise from making small adjustments to large, complex scripts [@marwick2018].
 
@@ -574,7 +603,7 @@ HydroBOT provides coordination of analyses through this workflow, as well as the
 
 The HydroBOT architecture emphasizes modularity. Outputs can be saved at each step in the processing flow, allowing users to run HydroBOT as a whole or re-run only needed components to update analysis. For example, if a user wished to change how they aggregate the results of the modules, they could re-run the aggregation step and the subsequent comparison step to match without re-running earlier steps. This ability to adjust intermediate steps allows rapid iteration of results to address a given management question, or adaptation of pre-existing results to new questions. Modularity also allows rapid, iterative development of HydroBOT itself. Any HydroBOT component can be updated, e.g. new aggregation functionality added, without affecting others. Obtaining new results utilising new capacity simply requires parameterising that capacity for a given analysis and re-running HydroBOT from that point forward.
 
-Here we describe the specific implementation of each component of HydroBOT (@fig-tktomgmt), with additional detail in Supplement.
+Here, we describe the specific implementation of each component of HydroBOT (@fig-tktomgmt), with additional detail in Supplement.
 
 ### HydroBOT Controller {#sec-controller}
 
@@ -596,7 +625,7 @@ At present, HydroBOT expects the user to provide input data in a format readable
 
 Causal networks describe the topology of dependence among many drivers and outcomes [@peeters2022; @martínez2019]. These networks provide useful graphical representation of the relationships between nodes (state variables) and links between them (dependencies) (see @suppfig-causal-example). Beyond graphical representation, they can also extend the ability to assess a range of values beyond the response models themselves. Each link represents the existence of a relationship, and so defining those relationships mathematically allows causal networks to translate from initial inputs (e.g. rainfall, flows, or management actions) through to all values of interest (nodes). Thus, such networks are ideal for systems with multiple interacting relationships [@peeters2022; @martínez2019].
 
-HydroBOT provides a causal network for included response models, where available, to describe how their outputs arise from hydrology and how they relate to various levels of management-relevant outcomes. Like their associated response models, these networks are typically sourced externally to the workflow, and so depicted outside the data flow in @fig-tktomgmt. The causal networks enable: 1) visual representation of the complex inter-relationships between scenario inputs and outcomes across a range of objectives and 2) assessment of outcomes scaled along the value dimension (see @sec-aggregator). The former aids transparency, elucidating the intentions and causal relationships behind the response models and is a useful device for communication alongside other final outputs. The latter allows outcomes to be quantified for individual (or sets of) values at different levels of complexity or groupings (e.g. fish breeding, individual fish species, native fish overall, or target fish condition), or at overarching sets of values such as environmental or economic groupings. This quantification provides a powerful assessment tool and the ability to identify synergies and trade-offs across interrelated values.
+HydroBOT provides a causal network for included response models to describe how their outputs arise from hydrology and how they relate to various levels of management-relevant outcomes. Like their associated response models, these networks are typically sourced externally to the workflow, and so depicted outside the data flow in @fig-tktomgmt. The causal networks enable: 1) visual representation of the complex inter-relationships between scenario inputs and outcomes across a range of objectives and 2) assessment of outcomes scaled along the value dimension (see @sec-aggregator). The former aids transparency, elucidating the intentions and causal relationships behind the response models and is a useful device for communication alongside other final outputs. The latter allows outcomes to be quantified for individual (or sets of) values at different levels of complexity or groupings (e.g. fish breeding, individual fish species, native fish overall, or target fish condition), or at overarching sets of values such as environmental or economic groupings. This quantification provides a powerful assessment tool and the ability to identify synergies and trade-offs across interrelated values.
 
 The structure of the causal networks define the (sometimes) complex inter-relationships defined in the response models and subsequent impacts on larger-scale values. Many response models capture only proximate responses, e.g. whether flow requirements were met. In these cases, causal networks describing the hypothesized links to target management values allows HydroBOT to model those management values. The network allows moving from those proximate outcomes to other relevant values by specifying the mathematical form of the links from the response model outputs to other nodes. This is not specific to HydroBOT; any quantitative assessment of those relevant values needs specified relationships from the outcomes of detailed response models to dependent target outcomes.
 
@@ -620,7 +649,7 @@ The choice of aggregation steps and aggregation functions at each step are highl
 
 The primary arguments to the aggregation functions are lists of the sequence of aggregation steps and the function(s) to apply at each step. The choice of aggregation sequence and scaling functions will change depending on the question being asked and the nature of the processes being modeled. For example, a project focused on expected conditions might use means at most steps, while one focused on risk might use minima to capture the worst outcomes or essential species requirements. To give the user the ability to tailor these steps to different questions, each step can be along any dimension and multiple functions can be assigned at each step. The sequence of aggregation steps can interleave the dimensions, e.g. aggregate first through time to cover the period of the hydrograph, then along the value dimension to an intermediate level, then aggregate in space, then value again. For example, following @fig-aggregation-dims, the user might want to aggregate from hydrologic indicator to life-cycle values, such as fish breeding, to species at each gauge, then aggregate those species outcomes up to catchment to assess performance of each species over a larger area, followed by aggregating to values comprising ecological groups, e.g. native fish, waterbirds, native vegetation, or ecosystem function.
 
-HydroBOT provides a standard set of MDB-relevant spatial units for aggregation but can also accept any user-supplied polygons (@fig-aggregation-dims). Aggregation along the value dimension follows the causal network, which is supplied by HydroBOT for included response models, though the user can specify other causal relationships if required. Supplied spatial units and causal networks are discussed in SI @sec-component-details with additional information about providing custom versions in the HydroBOT documentation. Whatever the spatial and causal relationships, HydroBOT provides the capacity to scale along them; it is the responsibility of the user to ensure those links and scaling functions are scientifically sound for the question at hand.
+HydroBOT provides a standard set of MDB-relevant spatial units for aggregation but can also accept any user-supplied polygons (@fig-aggregation-dims). Aggregation along the value dimension follows the causal network. HydroBOT provides networks for included response models, though the user can specify other causal relationships if required. Supplied spatial units and causal networks are discussed in SI @sec-component-details with additional information about providing custom versions in the HydroBOT documentation. Whatever the spatial and causal relationships, HydroBOT provides the capacity to scale along them; it is the responsibility of the user to ensure those links and scaling functions are scientifically sound for the question at hand.
 
 The Aggregator allows the user to choose any aggregation function at each step. These aggregation functions should be considered carefully, as they should be appropriate to the processes being scaled and the outputs needed for management decision making. HydroBOT provides a standard set of functions (e.g. mean, max, min, median, geometric mean, harmonic mean, and spatially-weighted mean), but the user can also specify any other aggregation function, including custom-written functions tailored to particular analyses. For example, in some situations the user might want to know the proportion of indicators that pass across some area, or perhaps the average value of an abundance measure. In this case, a mean would be appropriate. In other situations, however, a single failure may be disproportionately important (e.g. 'no loss' requirements), or perhaps a single passing value is sufficient for an ecological process to occur (e.g. bird breeding can occur anywhere in a catchment). These might be captured with a minimum and maximum, respectively. Additional discussion of aggregation function choice is provided in the Supplement (@sec-supp-aggregation).
 
@@ -638,7 +667,7 @@ The comparison functions provide the ability to choose a baseline level for comp
 
 The plotting functions in the Comparer provide a wide range of possible plots, with standardization providing consistency across plot types and through the project, ensuring values plotted are robust and interpretable. Different purposes require different sets of outputs; for instance, maps are particularly useful for visualizing geographic patterns, tables and graphs typically provide more precise ability to assess impacts on values, and timeseries plots are useful for visualizing climate trajectories.
 
-While potential visualizations and comparisons vary widely depending on the intended use, the Comparer standardizes data cleaning and processing for each plot, as well as aesthetics and plotting approaches. Like the Aggregator, a key advantage of the Comparer is the standardisation and dimensional safety over repeated data manipulations and processing. By standardizing data cleaning within the Comparer, we avoid losing information or performing unsupported data manipulations and so ensure the quality and meaning of the outputs. For example, because the plotting function was designed to incorporate temporal, spatial, and value dimensions, it identifies and prevents accidental overplotting or misleading lumping of data across dimensions.
+While potential visualizations and comparisons vary widely depending on the intended use, the Comparer standardizes data cleaning and processing for each plot, as well as aesthetics and plotting approaches. Like the Aggregator, a key advantage of the Comparer is the standardization and dimensional safety over repeated data manipulations and processing. By standardizing data cleaning within the Comparer, we avoid losing information or performing unsupported data manipulations and so ensure the quality and meaning of the outputs. For example, because the plotting function was designed to incorporate temporal, spatial, and value dimensions, it identifies and prevents accidental overplotting or misleading lumping of data across dimensions.
 
 ## Implementation
 
@@ -781,7 +810,7 @@ hydro_plot_EWRs
 
 galenR::ggsave_multi(file.path('images', 'Figure_3'), 
                      plot = hydro_plot_EWRs, 
-                     device = c('png', 'pdf'), 
+                     device = c('png', 'pdf', 'svg'), 
                      width = 19, units = 'cm')
 ```
 
@@ -981,7 +1010,7 @@ wrap_elements(full = sdl_achieve_bars) + wrap_elements(full = sdl_achieve_map) +
 
 
 galenR::ggsave_multi(file.path('images', 'Figure_4'),
-                     device = c('png', 'pdf'), 
+                     device = c('png', 'pdf', 'svg'), 
                      width = 19, units = 'cm')
 ```
 
@@ -1206,7 +1235,7 @@ triple_radar
 
 galenR::ggsave_multi(file.path('images', 'Figure_5'), 
                      plot = triple_radar, 
-                     device = c('png', 'pdf', 'pdf'), 
+                     device = c('png', 'pdf', 'svg', 'pdf', 'svg'), 
                      width = 16, height = 18, units = 'cm')
 ```
 
@@ -1267,7 +1296,7 @@ obj_in_groups + theme(legend.key.size = unit(0.5, 'cm'))
 
 
 galenR::ggsave_multi(file.path('images', 'Figure_6'),
-                     device = c('png', 'pdf'), 
+                     device = c('png', 'pdf', 'svg'), 
                      width = 19, units = 'cm')
 ```
 
@@ -1336,7 +1365,7 @@ header_difference + gl_difference +
   plot_layout(ncol = 1, heights = c(1,15)) + theme(legend.position = "right")
 
 galenR::ggsave_multi(file.path('images', 'Figure_7'), 
-                     device = c('png', 'pdf'), 
+                     device = c('png', 'pdf', 'svg'), 
                      width = 19, units = 'cm')
 ```
 
@@ -1563,7 +1592,7 @@ sdl_smooth_groups_NFNamoi +
   plot_annotation( tag_levels = 'a')
 
 galenR::ggsave_multi(file.path('images', 'Figure_8'), 
-                     device = c('png', 'pdf'), 
+                     device = c('png', 'pdf', 'svg'), 
                      width = 19, height = 18, units = 'cm')
 ```
 
@@ -1695,7 +1724,7 @@ contour_heatmap
 
 galenR::ggsave_multi(file.path('images', 'Figure_9'), 
                      plot = contour_heatmap, 
-                     device = c('png', 'pdf'), 
+                     device = c('png', 'pdf', 'svg'), 
                      width = 19, units = 'cm')
 ```
 
@@ -1831,7 +1860,7 @@ net_legend <- ggpubr::get_legend(pal_ggc) |>
 galenR::ggsave_multi(plot = net_legend, 
                      filename = file.path(demo_webdir,'images',
                                           'aggNetwork_relative_legend'),
-                     device = c('png', 'pdf'),
+                     device = c('png', 'pdf', 'svg'),
                      width = 4, height = 2, units = 'cm')
 
 
@@ -1898,11 +1927,11 @@ net_legend_achieve <- ggpubr::get_legend(pal_gg_a) |>
 galenR::ggsave_multi(plot = net_legend_achieve, 
                      filename = file.path(demo_webdir,'images',
                                           'aggNetwork_achieve_legend'),
-                     device = c('png', 'pdf'),
+                     device = c('png', 'pdf', 'svg'),
                      width = 4, height = 2, units = 'cm')
 ```
 
-![a) Condition outcomes for nodes at several levels along the value dimension described by the causal network. From left to right, the columns here represent EWR codes, proximate ecological values such as NF5 - Improve population structure for moderate to long-lived riverine specialist native fish species, and the larger ecological value groupings. The network shown here is for a single gauge (`r gauges_to_plot[1]`), which is the scale at which EWR codes and the small-scale values (middle column) are defined. The ecological theme value definitions (Native fish, etc) are not tied to gauges, but only those that apply to the EWRs present at this gauge are shown here. Colors show condition of each value for the historical hydrograph (scenario E1; no multiplicative or additive changes), with each node's condition being the mean of contributing nodes at lower (more leftward) levels. The minimum possible value is 0, and largest is 1.](images/causal_base.png){#fig-causal-results}
+![a) Condition outcomes for nodes at several levels along the value dimension described by the causal network. From left to right, the columns here represent EWR codes, proximate ecological values such as NF5 - Improve population structure for moderate to long-lived riverine specialist native fish species, and the larger ecological value groupings. The network shown here is for a single gauge (`r gauges_to_plot[1]`), which is the scale at which EWR codes and the small-scale values (middle column) are defined. The ecological theme value definitions (Native fish, etc) are not tied to gauges, but only those that apply to the EWRs present at this gauge are shown here. Colors show condition of each value for the historical hydrograph (scenario E1; no multiplicative or additive changes), with each node's condition being the mean of contributing nodes at lower (more leftward) levels. The minimum possible value is 0, and largest is 1.](images/causal_base){#fig-causal-results}
 
 Visualizing the causal network can also show the holistic consequences of the different scenarios across the complex and interrelated sets of values, as well as identify nodes that are unusually resilient or sensitive to change using comparisons with a baseline scenario (SI @sec-causal-scenarios). While the relative changes are a useful way of understanding change in condition for each node, they should not themselves be propagated through the network because they are nonlinear transformations and do not capture the meaning of the causal relationships. Instead, the condition scores (@suppfig-causal-all) capture the causal relationships between conditions at nodes as a consequence of conditions at constituent nodes within a scenario. Then, these condition scores for each node can be compared across scenarios to visualize differences (@suppfig-causal-relative).
 
@@ -1934,7 +1963,7 @@ We thank Murray-Darling Basin Authority collaborators including Lara Palmer, Eli
 
 # Data availability
 
-All data and their sources have been explained in the manuscript. HydroBOT code is available at github.com/galenholt/HydroBOT, and code to create this manuscript is available at github.com/galenholt/toolkit-demo-paper. Documentation with examples is available at github.com/MDBAuth/HydroBOT_website and an installation template at github.com/MDBAuth/HydroBOT_template. All are archived at 10.6084/m9.figshare.27605157. *Links are public. HydroBOT and paper code at submission are archived at https://figshare.com/s/699c18f781df7ed2f39d.*
+All data and their sources have been explained in the manuscript. HydroBOT code is available at github.com/galenholt/HydroBOT, and code to create this manuscript is available at github.com/galenholt/toolkit-demo-paper. Documentation with examples is available at github.com/MDBAuth/HydroBOT_website. All are archived at 10.6084/m9.figshare.27605157. *Links are public. HydroBOT and paper code at submission are archived at https://figshare.com/s/699c18f781df7ed2f39d.*
 
 # References
 
@@ -1943,7 +1972,7 @@ All data and their sources have been explained in the manuscript. HydroBOT code 
 
 {{< pagebreak >}}
 
-# Supplementary material {#sec-appendix1} {.unnumbered}
+# Supplementary material {#sec-appendix1}
 
 ## Glossary {#sec-glossary}
 
@@ -1968,7 +1997,7 @@ Glossary adapted from the Murray-Darling Basin Long Term Watering Plans (LTWPs) 
 
 The HydroBOT architecture comprises three major processing components, the Controller, Aggregator and Comparer, that receive data and information from several input sources, including input scenarios, hydrological modeling, spatial data, causal networks and response models (@suppfig-architecture, @supptbl-components). Here we detail some specific details about each of these components and other input sources.
 
-![Architecture of HydroBOT. Hydrographs are inputs, typically reflecting modeled scenarios or historic flows. The flow of data during a modeling run follows the bold arrows, with the additional components of the Causal network and Spatial units providing necessary grouping information for the Aggregator. Dashed lines indicate that hydrographs and direct Response model output can utilize the Comparer functionality directly. Causal networks are linked closely to each Response model and, while both are defined externally to HydroBOT, they may require significant work to integrate into a compatible, modular HydroBOT component, as was the case for the EWR tool example here, or may be quite simple, depending on the detail available in the response model and their format. Spatial units are typically more general, often polygons of management interest, and require only light changes to make compatible. Each set of boxes represents a distinct component of HydroBOT, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](images/architecture.png){#suppfig-architecture}
+![Architecture of HydroBOT. Hydrographs are inputs, typically reflecting modeled scenarios or historic flows. The flow of data during a modeling run follows the bold arrows, with the additional components of the Causal network and Spatial units providing necessary grouping information for the Aggregator. Dashed lines indicate that hydrographs and direct Response model output can utilize the Comparer functionality directly. Causal networks are linked closely to each Response model and, while both are defined externally to HydroBOT, they may require significant work to integrate into a compatible, modular HydroBOT component, as was the case for the EWR tool example here, or may be quite simple, depending on the detail available in the response model and their format. Spatial units are typically more general, often polygons of management interest, and require only light changes to make compatible. Each set of boxes represents a distinct component of HydroBOT, allowing changes to be made at any step in a modular way without impacting the functioning of other stages.](images/architecture){#suppfig-architecture}
 
 ::: {#supptbl-components}
 ```{r}
@@ -2035,7 +2064,7 @@ Environmental water requirements (EWR) for one example gauge (`r gauges_to_plot[
 
 Causal networks are available linking the EWRs to other values. Here, we show a limited set for a single gauge, illustrating only some of the value levels that can be linked (@suppfig-causal-example). This network is derived from the New South Wales Long Term Watering plans [@nswdpiemacq2020].
 
-![HydroBOT incorporates causal networks that describe the environmental objectives for a system. In the current example, these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes (yellow), proximate environmental objectives (orange) typically capturing portions of the life cycle or changes in abundance, species goals (blue; which also include ecosystem components such as 'Refugia'), and target ecological groupings (green). Long term managment targets are not shown here for space. The network shown here is for a single gauge (`r gauges_to_plot[2]`) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.](images/all_causal.png){#suppfig-causal-example}
+![HydroBOT incorporates causal networks that describe the environmental objectives for a system. In the current example, these causal networks are extracted from the Murray-Darling Basin Long Term Watering Plans (LTWPs), which sets environmental watering requirements (EWRs), objectives, and long-term targets for key water-dependent plants, waterbirds, fish and ecosystem functions. From left to right, the columns here represent EWR codes (yellow), proximate environmental objectives (orange) typically capturing portions of the life cycle or changes in abundance, species goals (blue; which also include ecosystem components such as 'Refugia'), and target ecological groupings (green). Long term managment targets are not shown here for space. The network shown here is for a single gauge (`r gauges_to_plot[2]`) and Planning Unit, which is the scale at which EWR codes and proximate Environmental Objectives are defined. The other levels are defined at larger spatial scales, but only those that apply to the EWRs present at this gauge are shown here.](images/all_causal){#suppfig-causal-example}
 
 ```{r}
 #| eval: false
@@ -2073,7 +2102,7 @@ As with the ‘no species loss’ objective, successful breeding in one species 
 
 Unlike aggregation functions describing full or no compensation, in many cases all constituent values should contribute to the outcome. For example, simple arithmetic averages (provided in HydroBOT with `ArithmeticMean`) might be used to summarise population sizes or condition across time or space. The built-in `GeometricMean` and `HarmonicMean` functions similarly capture the central tendency (unlike `LimingFactor` or `CompensatingFactor`), but weight low values more than high (unlike the equal weighting of `ArithmeticMean`) due to their multiplicative nature. The geometric mean is particularly appropriate as a summary of multiplicative processes such as population growth rates through time. The harmonic mean is most appropriate if the output data represent ratios. Care should be taken with geometric and harmonic means, as their multiplicative nature means a single zero in the set of values will result in an overall zero value.
 
-To ensure robust aggregation and reduce bias, HydroBOT begins aggregation sequences with the direct outputs of the response models, which are typically local, short-time, and small-value-scale objectives. By scaling the responses, we avoid the large potential biases created by nonlinear relationships between drivers and responses [Jensen’s inequality; @ruel1999]. Nonlinearities in later steps are also subject to Jensen's inequality, which is another reason for careful consideration. For example, using arithmetic temporal means of multiplicative population dynamics will incorrect long-run growth rates, while use of LimitingFactor aggregations can introduce inappropriate nonlinearities if used for outcomes that are compensate for each other. The impact of Jensen's inequality is particularly important when using pass/fail outcomes because this is an extreme sort of nonlinearity and so is particularly susceptible to large errors.
+To ensure robust aggregation and reduce bias, HydroBOT begins aggregation sequences with the direct outputs of the response models, which are typically local, short-time, and small-value-scale objectives. By scaling the responses, we avoid the large potential biases created by nonlinear relationships between drivers and responses [Jensen’s inequality; @ruel1999]. Nonlinearities in later steps are also subject to Jensen's inequality, which is another reason for careful consideration. For example, using arithmetic temporal means of multiplicative population dynamics will give incorrect long-run growth rates, while use of LimitingFactor aggregations can introduce inappropriate nonlinearities if used for outcomes that compensate for each other. The impact of Jensen's inequality is particularly important when using pass/fail outcomes because this is an extreme sort of nonlinearity and so is particularly susceptible to large errors.
 
 ### Choosing an aggregation function
 
@@ -2088,13 +2117,13 @@ Two related considerations are often considered when summarizing data
 1.  the need to adjust the distribution of the data for good visualization (e.g. taking logs to better see data spanning a range over several orders of magnitude)
 2.  the need for the summary function to respect the properties of the processes or data being summarized (e.g. taking logs because the values represent a multiplicative process)
 
-The second should generally take precedence, though often the final choice will be the same. Note also that some functions are nonlinear such as the geometric mean and the data itself might be as well, as is the case with the pass/fail outputs of the EWR tool or presence/absence data.
+The second should generally take precedence, though often the final choice will be the same. Note also that some functions are nonlinear such as the geometric mean and the data themselves might be as well, as is the case with the pass/fail outputs of the EWR tool or presence/absence data.
 
 In context-specific instances, aggregation may require custom mathematical functions, but in most cases we expect that one of the default aggregation methods provided by HydroBOT (or similar base functions) will be most appropriate. We provide a decision tree to aid decision making for some of the most common choices, while noting that much has been written about appropriate ways to summarize data, and the usual considerations apply. Other functions are provided as well, including the `Sum`, `NumberOfValues`, and `Variance`. Weighted versions of these functions are possible, with `SpatialWeightedMean` provided for the common situation of weighting by area.
 
-![There are infinite possibilities for each aggregation step, but the reasons for choosing some common options are shown here. The primary splits are in whether a user is interested in extreme values (full or no compensation) or whether all values should contribute to the final outcome. If the latter, how those values combine should then take into account desired data transformations or the underlying processes in choosing the summary. Blue boxes are decision points, purple are the functions included with HydroBOT that could be used. Other functions are included and not shown here, which generally address different sorts of questions, e.g. sums, variance, or the number of values. Examples of the outcome of these different functions are shown in @suppfig-aggregation-examples.](images/aggregation_choices.png){#suppfig-aggregation-choices}
+![There are infinite possibilities for each aggregation step, but the reasons for choosing some common options are shown here. The primary splits are in whether a user is interested in extreme values (full or no compensation) or whether all values should contribute to the final outcome. If the latter, how those values combine should then take into account desired data transformations or the underlying processes in choosing the summary. Blue boxes are decision points, purple are the functions included with HydroBOT that could be used. Other functions are included and not shown here, which generally address different sorts of questions, e.g. sums, variance, or the number of values. Examples of the outcome of these different functions are shown in @suppfig-aggregation-examples.](images/aggregation_choices){#suppfig-aggregation-choices}
 
-![To illustrate the influence of the choice of aggregation function, we illustrate the outcome of those in @suppfig-aggregation-choices for aggregating a small set of four values (top boxes). Each of the bottom boxes is the single aggregated value according to the function labeled below. We do no include zero in the set of top values, as a single zero forces the Geometric and Harmonic means to equal zero due to their multiplicative nature.](images/aggregation_examples.png){#suppfig-aggregation-examples}
+![To illustrate the influence of the choice of aggregation function, we illustrate the outcome of those in @suppfig-aggregation-choices for aggregating a small set of four values (top boxes). Each of the bottom boxes is the single aggregated value according to the function labeled below. We do not include zero in the set of top values, as a single zero forces the Geometric and Harmonic means to equal zero due to their multiplicative nature.](images/aggregation_examples){#suppfig-aggregation-examples}
 
 ## Scenarios {#sec-scenarios}
 
@@ -2132,7 +2161,7 @@ Hydrographs for two example gauges (represented by color) with 'climate' scenari
 
 ::: {#suppfig-baseline-hydro-clim}
 ```{r}
-
+#| message: false
 # Relative is how we should look at this for climate scenarios, but when the addition in the adaptation options happens when the baseline is at 0 or close to it, it goes to inf. So make two plots, I think.
 
 # The relative one is supremely uninteresting, but maybe we need it to make a point?
@@ -2168,7 +2197,7 @@ Flow relative to the E1 scenario as the baseline. These are flat lines because t
 
 ::: {#suppfig-baseline-hydro-adapt}
 ```{r}
-
+#| message: false
 # Look at difference just at the the base multiplier
 base_hydro_adapt <- scenehydros |>
     dplyr::filter(scenario %in% scenarios_to_plot & 
@@ -2550,7 +2579,7 @@ There are a number of ways surfaces can be visualized with HydroBOT, with Figure
 
 ::: {#suppfig-heatmap}
 ```{r}
-
+#| message: false
 qual_heatmap
 ```
 
@@ -2654,9 +2683,9 @@ In the text, we show the causal network for a single scenario for clarity and sp
 
 For example, the small fresh EWR indicators SF1 and SF2 are much more sensitive to reductions in flow than the other EWRs (darker pink), while OB4, OB5, and LF2 are sensitive to increases in flow (darker green, @suppfig-causal-relative). The raw condition scores (@suppfig-causal-all) show where these changes arise, with SF1 and SF2 having condition near 1 in scenario E1 (the unchanged historical hydrograph) and so, while they can have lower condition with lower flow, they cannot improve as conditions increase. The opposite happens with OB4, OB5, and LF2, which have poor condition in scenario E1. These EWRs are thus little changed with reductions in flow, while increases in flow allow their requirements to be met. Similar outcomes occur for lower-scale ecological values in the middle column, with those near the top tending to be poor in scenario E1, and so have little room to decline as flows halve, but improve with doubling. Those in the bottom tend to have better condition in the baseline E1 scenario, and so more room to decline with reductions in water than to improve with increases. Finally, we see that Waterbirds tend to be relatively unchanged as flows decline because they start out poor in the E1 scenario but are the group with the largest increases as flows increase, while Native Fish show nearly the opposite pattern.
 
-![Causal networks with condition values for the halving (left, A1), historical flows (middle, E1) and doubling (right, I1) 'climate' scenarios. colors in each node are the mean of the conditions in each constituent node. The network here for the historical flows (E1, middle) is the same as @fig-causal-results in the text. @suppfig-causal-relative shows the relative change between these scenarios, using the historical flows (E1) as the baseline.](images/causal_combined.png){#suppfig-causal-all}
+![Causal networks with condition values for the halving (left, A1), historical flows (middle, E1) and doubling (right, I1) 'climate' scenarios. colors in each node are the mean of the conditions in each constituent node. The network here for the historical flows (E1, middle) is the same as @fig-causal-results in the text. @suppfig-causal-relative shows the relative change between these scenarios, using the historical flows (E1) as the baseline.](images/causal_combined){#suppfig-causal-all}
 
-![Causal networks with relative condition values (compared to the the historical flows with no additional 'adaptation' water \[E1 scenario\] as the baseline) for the halving (left, A1) and doubling (right, I1) scenarios. These are calculated from the values in @suppfig-causal-all for each node, with colors showing the relative change in condition. Note in particular that a lack of change can occur for any value of the node in the baseline E1 scenario, but often occurs when there is little scope for conditions to improve or decline, i.e we tend to see improvements in nodes with low condition in the E1 scenario, and declines in nodes with high condition in the E1 scenario.](images/causal_rel_combined.png){#suppfig-causal-relative}
+![Causal networks with relative condition values (compared to the the historical flows with no additional 'adaptation' water \[E1 scenario\] as the baseline) for the halving (left, A1) and doubling (right, I1) scenarios. These are calculated from the values in @suppfig-causal-all for each node, with colors showing the relative change in condition. Note in particular that a lack of change can occur for any value of the node in the baseline E1 scenario, but often occurs when there is little scope for conditions to improve or decline, i.e we tend to see improvements in nodes with low condition in the E1 scenario, and declines in nodes with high condition in the E1 scenario.](images/causal_rel_combined){#suppfig-causal-relative}
 
 # References
 

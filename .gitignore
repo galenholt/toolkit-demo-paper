@@ -33,3 +33,7 @@ renv/
 presentation_paper/demo_paper.docx
 
 *.docx
+
+*.rdata
+
+demo_paper.R
